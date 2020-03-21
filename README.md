@@ -6,15 +6,15 @@
 
 [![Gem Version](https://badge.fury.io/rb/tty-option.svg)][gem]
 [![Build Status](https://secure.travis-ci.org/piotrmurach/tty-option.svg?branch=master)][travis]
-[![Build status](https://ci.appveyor.com/api/projects/status/rtm3po27ouarfrhf?svg=true)][appveyor]
-[![Code Climate](https://codeclimate.com/github/piotrmurach/tty-option/badges/gpa.svg)][codeclimate]
+[![Build status](https://ci.appveyor.com/api/projects/status/gxml9ttyvgpeasy5?svg=true)][appveyor]
+[![Maintainability](https://api.codeclimate.com/v1/badges/1083a2fd114d6faf5d65/maintainability)][codeclimate]
 [![Coverage Status](https://coveralls.io/repos/github/piotrmurach/tty-option/badge.svg)][coverage]
 [![Inline docs](http://inch-ci.org/github/piotrmurach/tty-option.svg?branch=master)][inchpages]
 
 [gem]: http://badge.fury.io/rb/tty-option
 [travis]: http://travis-ci.org/piotrmurach/tty-option
 [appveyor]: https://ci.appveyor.com/project/piotrmurach/tty-option
-[codeclimate]: https://codeclimate.com/github/piotrmurach/tty-option
+[codeclimate]: https://codeclimate.com/github/piotrmurach/tty-option/maintainability
 [coverage]: https://coveralls.io/github/piotrmurach/tty-option
 [inchpages]: http://inch-ci.org/github/piotrmurach/tty-option
 
