@@ -1,0 +1,199 @@
+# frozen_string_literal: true
+
+module TTY
+  module Option
+    class Parser
+      class Arguments
+        def initialize(arguments, **config)
+          @arguments = arguments
+          @raise_if_missing = config.fetch(:raise_if_missing) { true }
+          @errors = {}
+          @parsed = {}
+          @remaining = []
+
+          @defaults = {}
+          @arguments.each do |arg|
+            if arg.default?
+              case arg.default
+              when Proc
+                @defaults[arg.name] = arg.default.()
+              else
+                @defaults[arg.name] = arg.default
+              end
+            end
+          end
+        end
+
+        # Read positional arguments from the command line
+        #
+        # @param [Array<String>] argv
+        #
+        # @return [Array<Hash, Array, Hash>]
+        #   a list of parsed and unparsed arguments and errors
+        #
+        # @api private
+        def parse(argv)
+          @argv = argv.dup
+
+          @arguments.each do |arg|
+            values = next_argument(arg)
+
+            assign_argument(arg, values)
+          end
+
+          while (val = @argv.shift)
+            @remaining << val
+          end
+
+          [@parsed, @remaining, @errors]
+        end
+
+        private
+
+        # @api private
+        def next_argument(arg)
+          if arg.arity >= 0
+            process_exact_arity(arg)
+          else
+            process_infinite_arity(arg)
+          end
+        end
+
+        def process_exact_arity(arg)
+          values = []
+          arity = arg.arity
+
+          while arity > 0
+            break if @argv.empty?
+            value = @argv.shift
+            if argument?(value)
+              values << value
+              arity -= 1
+            else
+              @remaining << value
+            end
+          end
+
+          if values.size < arg.arity &&
+              Array(@defaults[arg.name]).size < arg.arity
+            record_error(InvalidArity, format(
+              "expected argument %s to appear %d times but appeared %d times",
+              arg.name.inspect, arg.arity, values.size), arg)
+          end
+
+          values
+        end
+
+        def process_infinite_arity(arg)
+          values = []
+          arity = arg.arity.abs - 1
+
+          arity.times do |i|
+            break if @argv.empty?
+            value = @argv.shift
+            if argument?(value)
+              values << value
+            else
+              @remaining << value
+            end
+          end
+
+          # consume remaining
+          while (value = @argv.shift)
+            if argument?(value)
+              values << value
+            else
+              @remaining << value
+            end
+          end
+
+          if values.size < arity && Array(@defaults[arg.name]).size < arity
+            record_error(InvalidArity, format(
+              "expected argument %s to appear at least %d times but appeared %d times", arg.name.inspect, arity, values.size, arg))
+          end
+
+          values
+        end
+
+        # Check if value is an argument
+        #
+        # @return [Boolean]
+        #
+        # @api private
+        def argument?(value)
+          !option?(value) && !keyword?(value) && !env_var?(value)
+        end
+
+        # Check if value is an environment variable
+        #
+        # @return [Boolean]
+        #
+        # @api private
+        def env_var?(value)
+          !value.match(/^[\p{Lu}_\-\d]+=/).nil?
+        end
+
+        # Check if value is an option
+        #
+        # @return [Boolean]
+        #
+        # @api private
+        def option?(value)
+          !value.match(/^-./).nil?
+        end
+
+        # Check if value is a keyword
+        #
+        # @return [Boolean]
+        #
+        # @api private
+        def keyword?(value)
+          !value.match(/^(.+)=(.+)/).nil?
+        end
+
+        # Record or raise an error
+        #
+        # @api private
+        def record_error(type, message, arg = nil)
+          if @raise_if_missing
+            raise type, message
+          end
+
+          type_key = type.to_s.split("::").last
+                         .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
+                         .downcase.to_sym
+
+          if arg
+            (@errors[arg.name] ||= {}).merge!(type_key => message)
+          else
+            @errors[:invalid] = message
+          end
+        end
+
+        # Assign argument to the parsed
+        #
+        # @param [Argument] arg
+        # @param [Array] values
+        #
+        # @api private
+        def assign_argument(arg, values)
+          case values.size
+          when 0
+            if arg.default?
+              case arg.default
+              when Proc
+                @parsed[arg.name] = @defaults[arg.name]
+              else
+                @parsed[arg.name] = @defaults[arg.name]
+              end
+            end
+          when 1
+            @parsed[arg.name] = values.first
+          else
+            @parsed[arg.name] = values
+          end
+        end
+      end # Arguments
+    end # Parser
+  end # Option
+end # TTY
