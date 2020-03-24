@@ -6,6 +6,9 @@ module TTY
   module Option
     class Parameter
       class Keyword < Parameter
+        def required?
+          @settings.fetch(:required) { false }
+        end
       end
     end # Parameter
   end # Option
