@@ -32,6 +32,15 @@ module TTY
         end
       end
 
+      # Check if multiple occurrences are allowed
+      #
+      # @return [Boolean]
+      #
+      # @api public
+      def multiple?
+        arity < 0 || arity.abs > 1
+      end
+
       def default(value = (not_set = true))
         if not_set
           @settings[:default]
