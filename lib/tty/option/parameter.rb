@@ -54,6 +54,22 @@ module TTY
         @settings.key?(:default) && !@settings[:default].nil?
       end
 
+      def optional
+        @settings[:required] = false
+      end
+
+      def optional?
+        !required?
+      end
+
+      def required
+        @settings[:required] = true
+      end
+
+      def required?
+        @settings.fetch(:required) { true }
+      end
+
       def to_h
         @settings.dup
       end
