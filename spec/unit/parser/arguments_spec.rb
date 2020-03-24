@@ -11,16 +11,16 @@ RSpec.describe TTY::Option::Parser::Arguments do
   end
 
   it "parses one argument by default" do
-    opts,rest = parse(%w[a], arg(:foo))
+    params, rest = parse(%w[a], arg(:foo))
 
-    expect(opts[:foo]).to eq("a")
+    expect(params[:foo]).to eq("a")
     expect(rest).to eq([])
   end
 
   it "parses exactly 2 arguments and leaves the rest" do
-    opts,rest = parse(%w[a b c], arg(:foo, arity: 2))
+    params, rest = parse(%w[a b c], arg(:foo, arity: 2))
 
-    expect(opts[:foo]).to eq(%w[a b])
+    expect(params[:foo]).to eq(%w[a b])
     expect(rest).to eq(%w[c])
   end
 
@@ -45,9 +45,9 @@ RSpec.describe TTY::Option::Parser::Arguments do
   end
 
   it "parses zero or more arguments" do
-    opts,rest = parse(%w[a b c], arg(:foo, arity: "*"))
+    params, rest = parse(%w[a b c], arg(:foo, arity: "*"))
 
-    expect(opts[:foo]).to eq(%w[a b c])
+    expect(params[:foo]).to eq(%w[a b c])
     expect(rest).to eq([])
   end
 
@@ -81,16 +81,16 @@ RSpec.describe TTY::Option::Parser::Arguments do
 
   context "when :default" do
     it "parses no arguments and has default value" do
-      opts,rest = parse([], arg(:foo, arity: 2, default: %w[a b]))
+      params, rest = parse([], arg(:foo, arity: 2, default: %w[a b]))
 
-      expect(opts[:foo]).to eq(%w[a b])
+      expect(params[:foo]).to eq(%w[a b])
       expect(rest).to eq([])
     end
 
     it "parses no arguments and has proc default" do
-      opts,rest = parse([], arg(:foo, arity: 2, default: -> { %w[a b] }))
+      params, rest = parse([], arg(:foo, arity: 2, default: -> { %w[a b] }))
 
-      expect(opts[:foo]).to eq(%w[a b])
+      expect(params[:foo]).to eq(%w[a b])
       expect(rest).to eq([])
     end
   end
