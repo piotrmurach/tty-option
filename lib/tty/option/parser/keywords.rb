@@ -4,7 +4,7 @@ module TTY
   module Option
     class Parser
       class Keywords
-        def initialize(keywords)
+        def initialize(keywords, **config)
           @keywords = keywords
           @errors = {}
           @parsed = {}
