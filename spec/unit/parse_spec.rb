@@ -2,7 +2,7 @@
 
 def command(&block)
   stub_const("Command", Class.new)
-  Command.include(TTY::Option)
+  Command.send :include, TTY::Option
   Command.class_eval(&block)
   Command
 end
