@@ -18,6 +18,8 @@ module TTY
         if @settings.key?(:arity)
           arity(@settings[:arity])
         end
+
+        instance_eval(&block) if block_given?
       end
 
       def default_arity
