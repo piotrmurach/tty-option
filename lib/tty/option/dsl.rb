@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "parameter/argument"
+require_relative "parameter/environment"
 require_relative "parameter/keyword"
 
 module TTY
