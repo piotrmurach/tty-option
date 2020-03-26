@@ -92,4 +92,41 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:bar]).to eq("12")
     end
   end
+
+  context "env" do
+    it "reads an env variable from command line" do
+      cmd = new_command do
+        env :foo
+
+        env :bar
+
+        env(:baz) { var "FOOBAR" }
+
+        env(:qux) { default "x" }
+      end
+
+      cmd.parse(%w[FOOBAR=foobar BAR=true FOO=12])
+
+      expect(cmd.params[:foo]).to eq("12")
+      expect(cmd.params[:bar]).to eq("true")
+      expect(cmd.params[:baz]).to eq("foobar")
+      expect(cmd.params[:qux]).to eq("x")
+    end
+
+    it "reads an env variable from ENV hash" do
+      cmd = new_command do
+        env :foo
+
+        env :bar
+
+        env :baz, variable: "FOOBAR"
+      end
+
+      cmd.parse([], {"FOO" => "12", "BAR" => "true", "FOOBAR" => "foobar"})
+
+      expect(cmd.params[:foo]).to eq("12")
+      expect(cmd.params[:bar]).to eq("true")
+      expect(cmd.params[:baz]).to eq("foobar")
+    end
+  end
 end

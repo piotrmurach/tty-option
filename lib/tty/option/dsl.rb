@@ -14,6 +14,17 @@ module TTY
         arguments << Parameter::Argument.create(name.to_sym, **settings, &block)
       end
 
+      # Specify environment variable
+      #
+      # @example
+      #   EDITOR=vim
+      #
+      # @api public
+      def environment(name, **settings, &block)
+        environments << Parameter::Environment.create(name, **settings, &block)
+      end
+      alias env environment
+
       # Specify a keyword
       #
       # @example
@@ -26,6 +37,10 @@ module TTY
 
       def arguments
         @arguments ||= []
+      end
+
+      def environments
+        @environments ||= []
       end
 
       def keywords

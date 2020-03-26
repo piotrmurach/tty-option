@@ -10,11 +10,14 @@ module TTY
 
       attr_reader :arguments
 
+      attr_reader :environments
+
       attr_reader :keywords
 
-      def initialize(arguments, keywords)
+      def initialize(arguments, keywords, environments)
         @arguments = arguments
         @keywords = keywords
+        @environments = environments
       end
 
       def parse(argv, env)
@@ -28,6 +31,11 @@ module TTY
 
         arg_parser = TTY::Option::Parser::Arguments.new(arguments)
         parsed, unparsed_argv = arg_parser.parse(unparsed_argv)
+
+        params.merge!(parsed)
+
+        env_parser = TTY::Option::Parser::Environments.new(environments)
+        parsed, unparsed_argv = env_parser.parse(unparsed_argv, env)
 
         params.merge!(parsed)
 

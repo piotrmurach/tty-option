@@ -27,7 +27,8 @@ module TTY
       end
 
       def parse(argv = ARGV, env = ENV)
-        parser = Parser.new(self.class.arguments, self.class.keywords)
+        parser = Parser.new(self.class.arguments, self.class.keywords,
+                            self.class.environments)
         @params = parser.parse(argv, env)
       end
     end
