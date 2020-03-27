@@ -4,6 +4,14 @@ module TTY
   module Option
     class Parser
       class Keywords
+        # Create a command line keywords parser
+        #
+        # @param [Array<Keyword>] keywords
+        #   the list of keywords
+        # @param [Hash] config
+        #   the configuration settings
+        #
+        # @api public
         def initialize(keywords, **config)
           @keywords = keywords
           @errors = {}

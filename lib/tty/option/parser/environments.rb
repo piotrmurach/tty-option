@@ -4,6 +4,14 @@ module TTY
   module Option
     class Parser
       class Environments
+        # Create a command line env variables parser
+        #
+        # @param [Array<Environment>] environments
+        #   the list of environment variables
+        # @param [Hash] config
+        #   the configuration settings
+        #
+        # @api public
         def initialize(environments, **config)
           @environments = environments
           @parsed = {}

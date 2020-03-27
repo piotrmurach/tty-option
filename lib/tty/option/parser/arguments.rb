@@ -4,6 +4,14 @@ module TTY
   module Option
     class Parser
       class Arguments
+        # Create a command line arguments parser
+        #
+        # @param [Array<Argument>] arguments
+        #   the list of arguments
+        # @param [Hash] config
+        #   the configuration settings
+        #
+        # @api public
         def initialize(arguments, **config)
           @arguments = arguments
           @raise_if_missing = config.fetch(:raise_if_missing) { true }
