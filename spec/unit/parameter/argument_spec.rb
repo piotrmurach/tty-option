@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 RSpec.describe TTY::Option::Parameter::Argument do
+  it "converts class to symbol name" do
+    arg = described_class.new(:foo)
+
+    expect(arg.to_sym).to eq(:argument)
+  end
+
+  it "has no settings by default" do
+    arg = described_class.new(:foo)
+
+    expect(arg.to_h).to eq({})
+  end
+
   context "arity setting" do
     it "defaults to 1" do
       arg = described_class.new(:foo)

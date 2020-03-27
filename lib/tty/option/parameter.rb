@@ -72,6 +72,10 @@ module TTY
         @settings.fetch(:required) { true }
       end
 
+      def to_sym
+        self.class.name.to_s.split(/::/).last.downcase.to_sym
+      end
+
       def to_h
         @settings.dup
       end
