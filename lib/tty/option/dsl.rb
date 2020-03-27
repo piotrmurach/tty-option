@@ -3,6 +3,7 @@
 require_relative "parameter/argument"
 require_relative "parameter/environment"
 require_relative "parameter/keyword"
+require_relative "parameters"
 
 module TTY
   module Option
@@ -11,7 +12,7 @@ module TTY
       #
       # @api public
       def argument(name, **settings, &block)
-        arguments << Parameter::Argument.create(name.to_sym, **settings, &block)
+        parameters << Parameter::Argument.create(name.to_sym, **settings, &block)
       end
 
       # Specify environment variable
@@ -21,7 +22,7 @@ module TTY
       #
       # @api public
       def environment(name, **settings, &block)
-        environments << Parameter::Environment.create(name, **settings, &block)
+        parameters << Parameter::Environment.create(name.to_sym, **settings, &block)
       end
       alias env environment
 
@@ -32,19 +33,14 @@ module TTY
       #
       # @api public
       def keyword(name, **settings, &block)
-        keywords << Parameter::Keyword.create(name.to_sym, **settings, &block)
+        parameters << Parameter::Keyword.create(name.to_sym, **settings, &block)
       end
 
-      def arguments
-        @arguments ||= []
-      end
-
-      def environments
-        @environments ||= []
-      end
-
-      def keywords
-        @keywords ||= []
+      # Holds all parameters
+      #
+      # @api public
+      def parameters
+        @parameters ||= Parameters.new
       end
     end # DSL
   end # Option

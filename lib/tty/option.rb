@@ -11,6 +11,9 @@ module TTY
     # Raised when number of arguments doesn't match
     InvalidArity = Class.new(Error)
 
+    # Raised when attempting to register already registered parameter
+    ParameterConflict = Class.new(Error)
+
     # Enhance object with command line option parsing
     #
     # @api public
@@ -27,8 +30,7 @@ module TTY
       end
 
       def parse(argv = ARGV, env = ENV)
-        parser = Parser.new(self.class.arguments, self.class.keywords,
-                            self.class.environments)
+        parser = Parser.new(self.class.parameters)
         @params = parser.parse(argv, env)
       end
     end

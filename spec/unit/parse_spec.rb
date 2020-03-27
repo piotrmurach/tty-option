@@ -12,6 +12,17 @@ def new_command(&block)
 end
 
 RSpec.describe TTY::Option do
+  it "doesn't allow to register same name parameter" do
+    expect {
+      command do
+        argument :foo
+
+        keyword :foo
+      end
+    }.to raise_error(TTY::Option::ParameterConflict,
+                    "already registered parameter :foo")
+  end
+
   context "argument" do
     it "reads a single argument" do
       cmd = new_command do

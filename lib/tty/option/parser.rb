@@ -7,17 +7,20 @@ require_relative "parser/keywords"
 module TTY
   module Option
     class Parser
+      %w[
+        arguments
+        environments
+        keywords
+      ].each do |name|
+        define_method(name) do
+          parameters.send(name)
+        end
+      end
 
-      attr_reader :arguments
+      attr_reader :parameters
 
-      attr_reader :environments
-
-      attr_reader :keywords
-
-      def initialize(arguments, keywords, environments)
-        @arguments = arguments
-        @keywords = keywords
-        @environments = environments
+      def initialize(parameters)
+        @parameters = parameters
       end
 
       def parse(argv, env)
