@@ -34,6 +34,17 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq("bar")
     end
 
+    it "defaults argument to be required" do
+      cmd = new_command do
+        argument :foo
+      end
+      expect {
+        cmd.parse([])
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "expected argument :foo to appear 1 times " \
+                       "but appeared 0 times")
+    end
+
     it "defauls argument to a value" do
       cmd = new_command do
         argument(:foo) { default "bar" }
@@ -73,6 +84,58 @@ RSpec.describe TTY::Option do
           argument :foo, arity: 0
         end
       }.to raise_error(TTY::Option::InvalidArity, "cannot be zero")
+    end
+
+    it "reads zero or more values with zero_or_more arity" do
+      cmd = new_command do
+        argument :foo, arity: zero_or_more
+      end
+
+      cmd.parse(%w[x y z w])
+
+      expect(cmd.params[:foo]).to eq(%w[x y z w])
+    end
+
+    it "reads no values with zero_or_more arity" do
+      cmd = new_command do
+        argument(:foo) { arity zero_or_more }
+      end
+
+      cmd.parse([])
+
+      expect(cmd.params[:foo]).to eq(nil)
+    end
+
+    it "reads one or more values one_or_more arity" do
+      cmd = new_command do
+        argument(:foo) { arity one_or_more }
+      end
+
+      cmd.parse(%w[x y z w])
+
+      expect(cmd.params[:foo]).to eq(%w[x y z w])
+    end
+
+    it "reads at least 3 or more values with at_least arity" do
+      cmd = new_command do
+        argument(:foo) { arity at_least(3) }
+      end
+
+      cmd.parse(%w[x y z w])
+
+      expect(cmd.params[:foo]).to eq(%w[x y z w])
+    end
+
+    it "fails to read the minimum number of values with arity" do
+      cmd = new_command do
+        argument(:foo) { arity at_least(3) }
+      end
+
+      expect {
+        cmd.parse(%w[x y])
+      }.to raise_error(TTY::Option::InvalidArity,
+                      "expected argument :foo to appear at least 3 times but " \
+                      "appeared 2 times")
     end
   end
 

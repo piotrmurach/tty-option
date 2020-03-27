@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require_relative "arity_dsl"
+
 module TTY
   module Option
     class Parameter
+      include ArityDSL
+
       def self.create(name, **settings, &block)
         new(name, **settings, &block)
       end
