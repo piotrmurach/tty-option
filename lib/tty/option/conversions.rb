@@ -101,6 +101,18 @@ module TTY
           pairs
         end
       end
+
+      conversions.keys.each do |type|
+        next if type =~ /list|array/
+
+        [:"#{type}_list", :"#{type}_array", :"#{type}s"].each do |new_type|
+          convert new_type do |val|
+            conversions[:list].(val).map do |obj|
+              conversions[type].(obj)
+            end
+          end
+        end
+      end
     end # Conversions
   end # Option
 end # TTY

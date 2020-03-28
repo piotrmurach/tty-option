@@ -158,6 +158,21 @@ RSpec.describe TTY::Option::Conversions do
         expect(described_class[:list].(input)).to eq(obj)
       end
     end
+
+    {
+      [:int_list, "1,2,3"] => [1, 2, 3],
+      [:ints, "1,2,3"] => [1, 2, 3],
+      [:float_list, "1,2,3"] => [1.0, 2.0, 3.0],
+      [:floats, "1,2,3"] => [1.0, 2.0, 3.0],
+      [:bool_list, "t,t,f"] => [true, true, false],
+      [:bools, "t,t,f"] => [true, true, false],
+      [:symbols, "a,b,c"] => [:a, :b, :c],
+      [:regexps, "a,b,c"] => [/a/, /b/, /c/]
+    }.each do |(type, input), obj|
+      it "converts #{input.inspect} to #{obj.inspect}" do
+        expect(described_class[type].(input)).to eq(obj)
+      end
+    end
   end
 
   context ":map" do
