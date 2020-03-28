@@ -103,12 +103,20 @@ module TTY
       end
 
       conversions.keys.each do |type|
-        next if type =~ /list|array/
+        next if type =~ /list|array|map|hash/
 
         [:"#{type}_list", :"#{type}_array", :"#{type}s"].each do |new_type|
           convert new_type do |val|
             conversions[:list].(val).map do |obj|
               conversions[type].(obj)
+            end
+          end
+        end
+
+        [:"#{type}_map", :"#{type}_hash"].each do |new_type|
+          convert new_type do |val|
+            conversions[:map].(val).each_with_object({}) do |(k, v), h|
+              h[k] = conversions[type].(v)
             end
           end
         end
