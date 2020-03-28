@@ -29,22 +29,28 @@ module TTY
       end
 
       convert :date do |val|
-        require "date" unless defined?(::Date)
-        ::Date.parse(val)
-      rescue ArgumentError
-        raise_invalid_argument(:date, val)
+        begin
+          require "date" unless defined?(::Date)
+          ::Date.parse(val)
+        rescue ArgumentError
+          raise_invalid_argument(:date, val)
+        end
       end
 
       convert :float do |val|
-        Float(val)
-      rescue ArgumentError
-        raise_invalid_argument(:float, val)
+        begin
+          Float(val)
+        rescue ArgumentError
+          raise_invalid_argument(:float, val)
+        end
       end
 
       convert :int, :integer do |val|
-        Float(val).to_i
-      rescue ArgumentError
-        raise_invalid_argument(:int, val)
+        begin
+          Float(val).to_i
+        rescue ArgumentError
+          raise_invalid_argument(:int, val)
+        end
       end
 
       convert :pathname, :path do |val|
@@ -53,22 +59,28 @@ module TTY
       end
 
       convert :regexp do |val|
-        Regexp.new(val.to_s)
-      rescue TypeError, RegexpError
-        raise_invalid_argument(:regexp, val)
+        begin
+          Regexp.new(val.to_s)
+        rescue TypeError, RegexpError
+          raise_invalid_argument(:regexp, val)
+        end
       end
 
       convert :sym, :symbol do |val|
-        String(val).to_sym
-      rescue ArgumentError
-        raise_invalid_argument(:symbol, val)
+        begin
+          String(val).to_sym
+        rescue ArgumentError
+          raise_invalid_argument(:symbol, val)
+        end
       end
 
       convert :uri do |val|
-        require "uri"
-        ::URI.parse(val)
-      rescue ::URI::InvalidURIError
-        raise_invalid_argument(:uri, val)
+        begin
+          require "uri"
+          ::URI.parse(val)
+        rescue ::URI::InvalidURIError
+          raise_invalid_argument(:uri, val)
+        end
       end
 
       convert :list, :array do |val|
