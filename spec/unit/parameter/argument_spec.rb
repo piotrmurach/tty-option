@@ -61,6 +61,22 @@ RSpec.describe TTY::Option::Parameter::Argument do
     end
   end
 
+  context "convert setting" do
+    it "returns nil" do
+      arg = described_class.new(:foo)
+
+      expect(arg.convert).to eq(nil)
+      expect(arg.convert?).to eq(false)
+    end
+
+    it "returns conversion value" do
+      arg = described_class.new(:foo, convert: :int)
+
+      expect(arg.convert).to eq(:int)
+      expect(arg.convert?).to eq(true)
+    end
+  end
+
   context "required/optional setting" do
     it "requires argument presence by default" do
       arg = described_class.new(:foo)

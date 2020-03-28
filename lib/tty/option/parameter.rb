@@ -47,6 +47,18 @@ module TTY
         arity < 0 || arity.abs > 1
       end
 
+      def convert(value = (not_set = true))
+        if not_set
+          @settings[:convert]
+        else
+          @settings[:convert] = value
+        end
+      end
+
+      def convert?
+        @settings.key?(:convert) && !@settings[:convert].nil?
+      end
+
       def default(value = (not_set = true))
         if not_set
           @settings[:default]
