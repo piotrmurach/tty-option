@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-def command(&block)
-  stub_const("Command", Class.new)
-  Command.send :include, TTY::Option
-  Command.class_eval(&block)
-  Command
-end
-
-def new_command(&block)
-  command(&block).new
-end
-
 RSpec.describe TTY::Option do
+  def command(&block)
+    stub_const("Command", Class.new)
+    Command.send :include, TTY::Option
+    Command.class_eval(&block)
+    Command
+  end
+
+  def new_command(&block)
+    command(&block).new
+  end
+
   it "doesn't allow to register same name parameter" do
     expect {
       command do
