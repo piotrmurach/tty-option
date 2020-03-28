@@ -98,4 +98,13 @@ RSpec.describe TTY::Option::Parser::Arguments do
       expect(rest).to eq([])
     end
   end
+
+  context "when :convert" do
+    it "converts an argument to a list" do
+      params, rest = parse(%w[a,b,c], arg(:foo, convert: :list))
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(rest).to eq([])
+    end
+  end
 end

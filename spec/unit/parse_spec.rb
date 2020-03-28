@@ -137,6 +137,19 @@ RSpec.describe TTY::Option do
                       "expected argument :foo to appear at least 3 times but " \
                       "appeared 2 times")
     end
+
+    it "reads one or more value and converts to map" do
+      cmd = new_command do
+        argument :foo do
+          arity one_or_more
+          convert :int_map
+        end
+      end
+
+      cmd.parse(%w[a:1 b:2 c:3])
+
+      expect(cmd.params[:foo]).to eq({a: 1, b: 2, c: 3})
+    end
   end
 
   context "keyword" do
@@ -163,44 +176,68 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[foo=x bar=12 foo=y])
 
       expect(cmd.params[:foo]).to eq(%w[x y])
-      expect(cmd.params[:bar]).to eq("12")
+      expect(cmd.params[:bar]).to eq(12)
+    end
+
+    it "collects multiple keyword occurences and converts" do
+      cmd = new_command do
+        keyword(:foo) do
+          arity 2
+          convert :int
+        end
+
+        keyword(:bar) do
+          convert :int
+        end
+      end
+
+      cmd.parse(%w[foo=11 bar=12 foo=13])
+
+      expect(cmd.params[:foo]).to eq([11, 13])
+      expect(cmd.params[:bar]).to eq(12)
     end
   end
 
   context "env" do
     it "reads an env variable from command line" do
       cmd = new_command do
-        env :foo
+        env(:foo) { convert :int }
 
-        env :bar
+        env(:bar) { convert :bools }
 
-        env(:baz) { var "FOOBAR" }
+        env(:baz) do
+          var "FOOBAR"
+          convert :sym
+        end
 
-        env(:qux) { default "x" }
+        env(:qux) do
+          default "x"
+          convert ->(val) { val.upcase }
+        end
       end
 
-      cmd.parse(%w[FOOBAR=foobar BAR=true FOO=12])
+      cmd.parse(%w[FOOBAR=foobar BAR=t,f,t FOO=12])
 
-      expect(cmd.params[:foo]).to eq("12")
-      expect(cmd.params[:bar]).to eq("true")
-      expect(cmd.params[:baz]).to eq("foobar")
-      expect(cmd.params[:qux]).to eq("x")
+      expect(cmd.params[:foo]).to eq(12)
+      expect(cmd.params[:bar]).to eq([true, false, true])
+      expect(cmd.params[:baz]).to eq(:foobar)
+      expect(cmd.params[:qux]).to eq("X")
     end
 
     it "reads an env variable from ENV hash" do
       cmd = new_command do
-        env :foo
+        env :foo, convert: :int
 
-        env :bar
+        env :bar, convert: :bools
 
-        env :baz, variable: "FOOBAR"
+        env :baz, variable: "FOOBAR", convert: :sym
       end
 
-      cmd.parse([], {"FOO" => "12", "BAR" => "true", "FOOBAR" => "foobar"})
+      cmd.parse([], {"FOO" => "12", "BAR" => "t,f,t", "FOOBAR" => "foobar"})
 
-      expect(cmd.params[:foo]).to eq("12")
-      expect(cmd.params[:bar]).to eq("true")
-      expect(cmd.params[:baz]).to eq("foobar")
+      expect(cmd.params[:foo]).to eq(12)
+      expect(cmd.params[:bar]).to eq([true, false, true])
+      expect(cmd.params[:baz]).to eq(:foobar)
     end
   end
 end

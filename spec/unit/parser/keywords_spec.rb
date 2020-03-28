@@ -70,4 +70,13 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect(rest).to eq([])
     end
   end
+
+  context "when :convert" do
+    it "converts an argument to a list" do
+      params, rest = parse(%w[foo=a,b,c], keyword(:foo, convert: :list))
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(rest).to eq([])
+    end
+  end
 end

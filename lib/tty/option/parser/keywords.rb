@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../param_conversion"
+
 module TTY
   module Option
     class Parser
@@ -95,12 +97,12 @@ module TTY
         def assign_keyword(kwarg, value)
           if kwarg.multiple?
             if kwarg.arity < 0 || (@parsed[kwarg.name] || []).size < kwarg.arity
-              (@parsed[kwarg.name] ||=  []) << value
+              (@parsed[kwarg.name] ||=  []) << ParamConversion[kwarg, value]
             else
               @remaining << "#{kwarg.name}=#{value}"
             end
           else
-            @parsed[kwarg.name] = value
+            @parsed[kwarg.name] = ParamConversion[kwarg, value]
           end
         end
       end # Keywords

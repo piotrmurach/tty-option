@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../param_conversion"
+
 module TTY
   module Option
     class Parser
@@ -185,21 +187,23 @@ module TTY
         #
         # @api private
         def assign_argument(arg, values)
-          case values.size
-          when 0
-            if arg.default?
-              case arg.default
-              when Proc
-                @parsed[arg.name] = @defaults[arg.name]
-              else
-                @parsed[arg.name] = @defaults[arg.name]
-              end
-            end
-          when 1
-            @parsed[arg.name] = values.first
-          else
-            @parsed[arg.name] = values
-          end
+          val = case values.size
+                when 0
+                  if arg.default?
+                    case arg.default
+                    when Proc
+                      @defaults[arg.name]
+                    else
+                      @defaults[arg.name]
+                    end
+                  end
+                when 1
+                  values.first
+                else
+                  values
+                end
+
+          @parsed[arg.name] = ParamConversion[arg, val]
         end
       end # Arguments
     end # Parser
