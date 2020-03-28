@@ -2,6 +2,7 @@
 
 require_relative "option/arity_dsl"
 require_relative "option/converter"
+require_relative "option/conversions"
 require_relative "option/dsl"
 require_relative "option/parser"
 require_relative "option/version"
