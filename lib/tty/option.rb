@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "option/arity_dsl"
+require_relative "option/converter"
 require_relative "option/dsl"
 require_relative "option/parser"
 require_relative "option/version"
@@ -14,6 +15,15 @@ module TTY
 
     # Raised when attempting to register already registered parameter
     ParameterConflict = Class.new(Error)
+
+    # Raised when conversion type isn't registered
+    UnsupportedConversion = Class.new(Error)
+
+    # Raised when conversion provided with unexpected argument
+    InvalidConversionArgument = Class.new(Error)
+
+    # Raised when overriding already defined conversion
+    ConversionAlreadyDefined = Class.new(Error)
 
     # Enhance object with command line option parsing
     #
