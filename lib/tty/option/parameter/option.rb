@@ -4,6 +4,18 @@ module TTY
   module Option
     class Parameter
       class Option < Parameter
+        # Matches "-f string"
+        SHORT_ARGUMENT_REQUIRED_RE = /^-.(\s*?|\=)[^\[]+$/.freeze
+
+        # Matches "--foo string"
+        LONG_ARGUMENT_REQUIRED_RE = /^--\S+(\s+|\=)([^\[])+?$/.freeze
+
+        # Matches "-f [string]"
+        SHORT_ARGUMENT_OPTIONAL_RE = /^-.\s*\[\S+\]\s*$/.freeze
+
+        # Matches "--foo [string]"
+        LONG_ARGUMENT_OPTIONAL_RE = /^--\S+\s*\[\S+\]\s*$/.freeze
+
         def short(value = (not_set = true))
           if not_set
             @settings[:short]
@@ -46,8 +58,38 @@ module TTY
           long.to_s.sub(/^(--.+?)(\s+|\=|\[).*$/, "\\1")
         end
 
+        # Check if argument is required
+        #
+        # @return [Boolean]
+        #
+        # @api public
+        def argument_required?
+          !short.to_s.match(SHORT_ARGUMENT_REQUIRED_RE).nil? ||
+            !long.to_s.match(LONG_ARGUMENT_REQUIRED_RE).nil?
+        end
+
+        # Check if argument is optional
+        #
+        # @return [Boolean]
+        #
+        # @api public
+        def argument_optional?
+          !short.to_s.match(SHORT_ARGUMENT_OPTIONAL_RE).nil? ||
+            !long.to_s.match(LONG_ARGUMENT_OPTIONAL_RE).nil?
+        end
+
+        # Check if this option is required
+        #
+        # @api public
         def required?
-          @settings.fetch(:required) { false }
+          @settings.fetch(:required) { argument_required? }
+        end
+
+        # Check if this option is optional?
+        #
+        # @api public
+        def optional?
+          !@settings.fetch(:required) { argument_required? }
         end
       end # Option
     end # Parameter
