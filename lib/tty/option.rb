@@ -10,6 +10,9 @@ module TTY
   module Option
     Error = Class.new(StandardError)
 
+    # Raised when an option matches more than one parameter option
+    AmbiguousOption = Class.new(Error)
+
     # Raised when overriding already defined conversion
     ConversionAlreadyDefined = Class.new(Error)
 

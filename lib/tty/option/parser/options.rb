@@ -6,6 +6,10 @@ module TTY
   module Option
     class Parser
       class Options
+        LONG_OPTION_RE = /^(--[^=]+)(\s+|=)?(.*)?$/.freeze
+
+        SHORT_OPTION_RE = /^(-.)(.*)$/.freeze
+
         # Create a command line env variables parser
         #
         # @param [Array<Option>] options
@@ -21,6 +25,7 @@ module TTY
           @errors = {}
           @remaining = []
           @shorts = {}
+          @longs = {}
 
           setup_opts
         end
@@ -31,6 +36,7 @@ module TTY
         def setup_opts
           @options.each do |opt|
             @shorts[opt.short_name] = opt
+            @longs[opt.long_name] = opt
 
             if opt.default?
               case opt.default
@@ -81,7 +87,49 @@ module TTY
 
           argument = @argv.shift
 
-          if (matched = argument.match(/^(-.)(.*)$/))
+          if (matched = argument.match(LONG_OPTION_RE))
+            long, _sep, rest = matched[1..-1]
+
+            if (opt = @longs[long])
+              if opt.argument_required?
+                if !rest.empty?
+                  value = rest
+                elsif !@argv.empty?
+                  value = @argv.shift
+                else
+                  record_error(MissingArgument,
+                               "option #{long} requires an argument",
+                               opt)
+                end
+              elsif opt.argument_optional?
+                if !rest.empty?
+                  value = rest
+                elsif !@argv.empty?
+                  value = @argv.shift
+                end
+              else # boolean flag
+                value = true
+              end
+            else
+              # option stuck together with an argument or abbreviated
+              matching_options = 0
+              @longs.each_key do |key|
+                if key.to_s.start_with?(long) ||
+                    long.to_s.start_with?(key)
+                  opt = @longs[key]
+                  matching_options += 1
+                end
+              end
+
+              if matching_options.zero?
+                record_error(InvalidOption, "invalid option #{long}")
+              elsif matching_options == 1
+                value = long[opt.long_name.size..-1]
+              else
+                record_error(AmbiguousOption, "option #{long} is ambiguous")
+              end
+            end
+          elsif (matched = argument.match(SHORT_OPTION_RE))
             short, other_singles = *matched[1..-1]
 
             if (opt = @shorts[short])

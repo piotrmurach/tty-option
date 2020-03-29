@@ -135,6 +135,111 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(rest).to eq(%w[arg1 arg2 arg3])
   end
 
+  it "parses long flag" do
+    params, = parse(%w[--foo], option(:foo, long: "--foo"))
+
+    expect(params[:foo]).to eq(true)
+  end
+
+  it "parses long option with a separate argument defined separate" do
+    params, = parse(%w[--foo bar], option(:foo, long: "--foo string"))
+
+    expect(params[:foo]).to eq("bar")
+  end
+
+  it "parses long option separted with = from required argument" do
+    params, = parse(%w[--foo=bar], option(:foo, long: "--foo string"))
+
+    expect(params[:foo]).to eq("bar")
+  end
+
+  it "parses long option separted with = from argument and defined with =" do
+    params, = parse(%w[--foo=bar], option(:foo, long: "--foo=string"))
+
+    expect(params[:foo]).to eq("bar")
+  end
+
+  it "parses long option with multiple arguments as a single value" do
+    params, = parse(%w[--foo bar\ baz], option(:foo, long: "--foo string"))
+
+    expect(params[:foo]).to eq("bar baz")
+  end
+
+  it "raises if long option with no argument" do
+    expect {
+      parse(%w[--foo], option(:foo, long: "--foo string"))
+    }.to raise_error(TTY::Option::MissingArgument,
+                     "option --foo requires an argument")
+  end
+
+  it "parses long option with an optional argument defined together" do
+    params, = parse(%w[--foo], option(:foo, long: "--foo[string]"))
+
+    expect(params[:foo]).to eq(nil)
+  end
+
+  it "parses long option with an optional argument defined separate" do
+    params, = parse(%w[--foo], option(:foo, long: "--foo [string]"))
+
+    expect(params[:foo]).to eq(nil)
+  end
+
+  it "parses long option with an argument when an optional arg defined separate" do
+    params, = parse(%w[--foo bar], option(:foo, long: "--foo [string]"))
+
+    expect(params[:foo]).to eq("bar")
+  end
+
+  it "parses long option with an argument when an optional arg defined together" do
+    params, = parse(%w[--foo bar], option(:foo, long: "--foo[string]"))
+
+    expect(params[:foo]).to eq("bar")
+  end
+
+  it "parses long option with a glued argument when an optional arg defined separate" do
+    params, = parse(%w[--foobar], option(:foo, long: "--foo [string]"))
+
+    expect(params[:foo]).to eq("bar")
+  end
+
+  it "raises if long option isn't defined" do
+    expect {
+      parse(%w[--foo --bar], option(:foo, long: "--foo"))
+    }.to raise_error(TTY::Option::InvalidOption, "invalid option --bar")
+  end
+
+  it "raises if long option isn't defined" do
+    options = []
+    options << option(:foo, long: "--foobar")
+    options << option(:foo, long: "--foobaz")
+
+    expect {
+      parse(%w[--foob ], options)
+    }.to raise_error(TTY::Option::AmbiguousOption, "option --foob is ambiguous")
+  end
+
+  it "consumes non-option arguments" do
+    options = []
+    options << option(:foo, long: "--foo string")
+    options << option(:bar, short: "-b")
+
+    params, rest = parse(%w[arg1 --foo baz arg2 --bar arg3 -b], options)
+
+    expect(params[:foo]).to eq("baz")
+    expect(params[:bar]).to eq(true)
+    expect(rest).to eq(%w[arg1 arg2 arg3])
+  end
+
+  it "parses option-like values and ignores arguments looking like options" do
+    options = []
+    options << option(:foo, short: "-f", long: "--foo string")
+
+    params, rest = parse(%w[some---arg --foo --some--weird---value], options)
+
+    expect(params[:foo]).to eq("--some--weird---value")
+    expect(rest).to eq(%w[some---arg])
+  end
+
   context "when no arguments" do
     it "defines no flags and returns empty hash" do
       params, rest = parse([], [])
@@ -184,9 +289,16 @@ RSpec.describe TTY::Option::Parser::Options do
     end
 
     it "parses short flag with required argument and keeps the last argument" do
-      opts, rest = parse(%w[-f 1 -f 2 -f 3], option(:foo, short: "-f int"))
+      params, rest = parse(%w[-f 1 -f 2 -f 3], option(:foo, short: "-f int"))
 
-      expect(opts[:foo]).to eq("3")
+      expect(params[:foo]).to eq("3")
+      expect(rest).to eq([])
+    end
+
+    it "parses long flag with required argument and keeps the last argument" do
+      params, rest = parse(%w[--f 1 --f 2 --f 3], option(:foo, long: "--f int"))
+
+      expect(params[:foo]).to eq("3")
       expect(rest).to eq([])
     end
   end
