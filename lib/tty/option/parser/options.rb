@@ -89,75 +89,100 @@ module TTY
 
           if (matched = argument.match(LONG_OPTION_RE))
             long, sep, rest = matched[1..-1]
-
-            if (opt = @longs[long])
-              if opt.argument_required?
-                if !rest.empty? || sep.to_s.include?("=")
-                  value = rest
-                elsif !@argv.empty?
-                  value = @argv.shift
-                else
-                  record_error(MissingArgument,
-                               "option #{long} requires an argument",
-                               opt)
-                end
-              elsif opt.argument_optional?
-                if !rest.empty?
-                  value = rest
-                elsif !@argv.empty?
-                  value = @argv.shift
-                end
-              else # boolean flag
-                value = true
-              end
-            else
-              # option stuck together with an argument or abbreviated
-              matching_options = 0
-              @longs.each_key do |key|
-                if key.to_s.start_with?(long) ||
-                    long.to_s.start_with?(key)
-                  opt = @longs[key]
-                  matching_options += 1
-                end
-              end
-
-              if matching_options.zero?
-                record_error(InvalidOption, "invalid option #{long}")
-              elsif matching_options == 1
-                value = long[opt.long_name.size..-1]
-              else
-                record_error(AmbiguousOption, "option #{long} is ambiguous")
-              end
-            end
+            opt, value = *process_double_option(long, sep, rest)
           elsif (matched = argument.match(SHORT_OPTION_RE))
             short, other_singles = *matched[1..-1]
+            opt, value = *process_single_option(short, other_singles)
+          end
 
-            if (opt = @shorts[short])
-              if opt.argument_required?
-                if !other_singles.empty?
-                  value = other_singles
-                elsif !@argv.empty?
-                  value = @argv.shift
-                else
-                  record_error(MissingArgument,
-                               "option #{short} requires an argument",
-                               opt)
-                end
-              elsif opt.argument_optional?
-                if !other_singles.empty?
-                  value = other_singles
-                elsif !@argv.empty?
-                  value = @argv.shift
-                end
-              else # boolean flag
-                if !other_singles.empty?
-                  @argv.unshift("-#{other_singles}")
-                end
-                value = true
+          [opt, value]
+        end
+
+        # Process a double option
+        #
+        # @return [Array<Option, Object>]
+        #   a list of option and its value
+        #
+        # @api private
+        def process_double_option(long, sep, rest)
+          opt, value = nil, nil
+
+          if (opt = @longs[long])
+            if opt.argument_required?
+              if !rest.empty? || sep.to_s.include?("=")
+                value = rest
+              elsif !@argv.empty?
+                value = @argv.shift
+              else
+                record_error(MissingArgument,
+                             "option #{long} requires an argument",
+                             opt)
               end
-            else
-              record_error(InvalidOption, "invalid option #{short}")
+            elsif opt.argument_optional?
+              if !rest.empty?
+                value = rest
+              elsif !@argv.empty?
+                value = @argv.shift
+              end
+            else # boolean flag
+              value = true
             end
+          else
+            # option stuck together with an argument or abbreviated
+            matching_options = 0
+            @longs.each_key do |key|
+              if key.to_s.start_with?(long) || long.to_s.start_with?(key)
+                opt = @longs[key]
+                matching_options += 1
+              end
+            end
+
+            if matching_options.zero?
+              record_error(InvalidOption, "invalid option #{long}")
+            elsif matching_options == 1
+              value = long[opt.long_name.size..-1]
+            else
+              record_error(AmbiguousOption, "option #{long} is ambiguous")
+            end
+          end
+
+          [opt, value]
+        end
+
+        # Process a single option
+        #
+        # @return [Array<Option, Object>]
+        #   a list of option and its value
+        #
+        # @api private
+        def process_single_option(short, other_singles)
+          opt, value = nil, nil
+
+          if (opt = @shorts[short])
+            if opt.argument_required?
+              if !other_singles.empty?
+                value = other_singles
+              elsif !@argv.empty?
+                value = @argv.shift
+              else
+                record_error(MissingArgument,
+                             "option #{short} requires an argument",
+                             opt)
+              end
+            elsif opt.argument_optional?
+              if !other_singles.empty?
+                value = other_singles
+              elsif !@argv.empty?
+                value = @argv.shift
+              end
+            else # boolean flag
+              if !other_singles.empty?
+                @argv.unshift("-#{other_singles}")
+              end
+              value = true
+            end
+          else
+            record_error(InvalidOption, "invalid option #{short}")
           end
 
           [opt, value]
