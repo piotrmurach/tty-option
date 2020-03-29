@@ -88,11 +88,11 @@ module TTY
           argument = @argv.shift
 
           if (matched = argument.match(LONG_OPTION_RE))
-            long, _sep, rest = matched[1..-1]
+            long, sep, rest = matched[1..-1]
 
             if (opt = @longs[long])
               if opt.argument_required?
-                if !rest.empty?
+                if !rest.empty? || sep.to_s.include?("=")
                   value = rest
                 elsif !@argv.empty?
                   value = @argv.shift

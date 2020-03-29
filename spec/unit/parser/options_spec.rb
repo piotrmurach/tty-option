@@ -159,6 +159,12 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(params[:foo]).to eq("bar")
   end
 
+  it "parses long option with empty argument and defined together with =" do
+    params,  = parse(%w[--foo=], option(:foo, long: "--foo=string"))
+
+    expect(params[:foo]).to eq("")
+  end
+
   it "parses long option with multiple arguments as a single value" do
     params, = parse(%w[--foo bar\ baz], option(:foo, long: "--foo string"))
 
