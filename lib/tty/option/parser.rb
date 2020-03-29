@@ -3,6 +3,7 @@
 require_relative "parser/arguments"
 require_relative "parser/environments"
 require_relative "parser/keywords"
+require_relative "parser/options"
 
 module TTY
   module Option

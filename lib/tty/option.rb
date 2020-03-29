@@ -10,20 +10,26 @@ module TTY
   module Option
     Error = Class.new(StandardError)
 
+    # Raised when overriding already defined conversion
+    ConversionAlreadyDefined = Class.new(Error)
+
     # Raised when number of arguments doesn't match
     InvalidArity = Class.new(Error)
+
+    # Raised when conversion provided with unexpected argument
+    InvalidConversionArgument = Class.new(Error)
+
+    # Raised when found unrecognized option
+    InvalidOption = Class.new(Error) # unrecognized option X
+
+    # Raised when option requires an argument
+    MissingArgument = Class.new(Error)
 
     # Raised when attempting to register already registered parameter
     ParameterConflict = Class.new(Error)
 
     # Raised when conversion type isn't registered
     UnsupportedConversion = Class.new(Error)
-
-    # Raised when conversion provided with unexpected argument
-    InvalidConversionArgument = Class.new(Error)
-
-    # Raised when overriding already defined conversion
-    ConversionAlreadyDefined = Class.new(Error)
 
     # Enhance object with command line option parsing
     #
