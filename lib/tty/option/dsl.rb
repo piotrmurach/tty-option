@@ -37,6 +37,30 @@ module TTY
         parameters << Parameter::Keyword.create(name.to_sym, **settings, &block)
       end
 
+      # A shortcut to specify flag option
+      #
+      # @example
+      #   --foo
+      #
+      # @api public
+      def flag(name, **settings, &block)
+        defaults = { default: false }
+        option(name, **defaults.merge(settings), &block)
+      end
+
+      # Specify an option
+      #
+      # @example
+      #   -f
+      #   --foo
+      #   --foo bar
+      #
+      # @api public
+      def option(name, **settings, &block)
+        parameters << Parameter::Option.create(name.to_sym, **settings, &block)
+      end
+      alias opt option
+
       # Holds all parameters
       #
       # @api public

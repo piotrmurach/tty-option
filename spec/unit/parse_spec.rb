@@ -240,4 +240,108 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:baz]).to eq(:foobar)
     end
   end
+
+  context "option" do
+    it "reads a switch" do
+      cmd = new_command do
+        flag :foo
+      end
+
+      cmd.parse(%w[--foo])
+
+      expect(cmd.params[:foo]).to eq(true)
+    end
+
+    it "reads an option with short, long & desc as hash options" do
+      cmd = new_command do
+        option :foo do
+          arity one_or_more
+          short "-b"
+          long "--bar string"
+        end
+      end
+
+      cmd.parse(%w[--bar baz -b qux])
+
+      expect(cmd.params[:foo]).to eq(["baz", "qux"])
+    end
+
+    it "requires an option to have an argument" do
+      cmd = new_command do
+        option :foo, long: "--foo string"
+      end
+
+      expect {
+        cmd.parse(%w[--foo])
+      }.to raise_error(TTY::Option::MissingArgument)
+    end
+
+    context "default" do
+      it "defaults to a value with settings" do
+        cmd = new_command do
+          option :foo, long: "--foo VAL", default: "bar"
+        end
+
+        cmd.parse([])
+
+        expect(cmd.params[:foo]).to eq("bar")
+      end
+
+      it "defaults to a proc value via DSL" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            default -> { "bar" }
+          end
+        end
+
+        cmd.parse([])
+
+        expect(cmd.params[:foo]).to eq("bar")
+      end
+    end
+
+    context "convert" do
+      it "converts option value to expected type" do
+        cmd = new_command do
+          option :foo, long: "--foo VAL", convert: :int
+
+          option :bar, long: "--bar VAL", convert: :bool
+
+          option :baz, long: "--baz VAL", convert: -> (val) { val.to_s.upcase }
+
+          option :qux, long: "--qux VAL", convert: :list
+
+          option :fum, long: "--fum VAL", convert: :ints
+        end
+
+        cmd.parse(%w[--foo 12 --bar yes --baz foo --qux a,b,c --fum 1,2,3])
+
+        expect(cmd.params[:foo]).to eq(12)
+        expect(cmd.params[:bar]).to eq(true)
+        expect(cmd.params[:baz]).to eq("FOO")
+        expect(cmd.params[:qux]).to eq(%w[a b c])
+        expect(cmd.params[:fum]).to eq([1,2,3])
+      end
+
+      it "handles option maps with & connector" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :map
+          end
+
+          option :bar do
+            long "--bar=VAL"
+            convert :int_map
+          end
+        end
+
+        cmd.parse(%w[--foo a=1&b=2&a=3 --bar c:1&d:2])
+
+        expect(cmd.params[:foo]).to eq({a: ["1", "3"], b: "2"})
+        expect(cmd.params[:bar]).to eq({c: 1, d: 2})
+      end
+    end
+  end
 end

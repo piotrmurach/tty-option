@@ -15,6 +15,9 @@ module TTY
       # A list of environments
       attr_reader :environments
 
+      # A list of options
+      attr_reader :options
+
       # A list of all parameters
       attr_reader :all
 
@@ -25,6 +28,7 @@ module TTY
         @arguments = []
         @environments = []
         @keywords = []
+        @options = []
         @all = []
 
         @registered_names = Set.new

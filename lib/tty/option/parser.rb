@@ -12,6 +12,7 @@ module TTY
         arguments
         environments
         keywords
+        options
       ].each do |name|
         define_method(name) do
           parameters.send(name)
@@ -28,8 +29,13 @@ module TTY
         argv = argv.dup
         params = {}
 
+        opts_parser = TTY::Option::Parser::Options.new(options)
+        parsed, unparsed_argv = opts_parser.parse(argv)
+
+        params.merge!(parsed)
+
         keyword_parser = TTY::Option::Parser::Keywords.new(keywords)
-        parsed, unparsed_argv = keyword_parser.parse(argv)
+        parsed, unparsed_argv = keyword_parser.parse(unparsed_argv)
 
         params.merge!(parsed)
 
