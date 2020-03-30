@@ -16,6 +16,12 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(params[:foo]).to eq(true)
   end
 
+  it "doesn't parse short flag" do
+    params, = parse(%w[], option(:foo, short: "-f"))
+
+    expect(params[:foo]).to eq(false)
+  end
+
   it "parses required argument for a short option" do
     params, = parse(%w[-f bar], option(:foo, short: "-f string"))
 
@@ -92,7 +98,7 @@ RSpec.describe TTY::Option::Parser::Options do
     options << option(:foo, short: "-f")
     params, rest, errors = parse(%w[-b], options, raise_if_missing: false)
 
-    expect(params[:foo]).to eq(nil)
+    expect(params[:foo]).to eq(false)
     expect(rest).to eq([])
     expect(errors).to eq({invalid: "invalid option -b"})
   end
@@ -252,6 +258,17 @@ RSpec.describe TTY::Option::Parser::Options do
 
       expect(params).to eq({})
       expect(rest).to eq([])
+    end
+
+    it "parses no short or long options" do
+      options = []
+      options << option(:foo, short: "-f", long: "--foo")
+      options << option(:bar, short: "-b", long: "--bar")
+
+      params, = parse(%w[], options)
+
+      expect(params[:foo]).to eq(false)
+      expect(params[:bar]).to eq(false)
     end
   end
 

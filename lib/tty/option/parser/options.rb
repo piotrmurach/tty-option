@@ -45,6 +45,8 @@ module TTY
               else
                 assign_option(opt, opt.default)
               end
+            elsif !(opt.argument_optional? || opt.argument_required?)
+              assign_option(opt, false)
             end
           end
         end
