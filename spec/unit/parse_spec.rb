@@ -342,6 +342,25 @@ RSpec.describe TTY::Option do
         expect(cmd.params[:foo]).to eq({a: ["1", "3"], b: "2"})
         expect(cmd.params[:bar]).to eq({c: 1, d: 2})
       end
+
+      it "handles option maps with space and :/= delimiters" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :map
+          end
+
+          option :bar do
+            long "--bar=VAL"
+            convert :int_map
+          end
+        end
+
+        cmd.parse(%w[--foo a=1 b=2 a=3 --bar c:1 d:2])
+
+        expect(cmd.params[:foo]).to eq({a: ["1", "3"], b: "2"})
+        expect(cmd.params[:bar]).to eq({c: 1, d: 2})
+      end
     end
   end
 end
