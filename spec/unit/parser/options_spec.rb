@@ -474,4 +474,107 @@ RSpec.describe TTY::Option::Parser::Options do
       expect(params[:foo]).to eq([])
     end
   end
+
+  context "when map argument" do
+    it "parses short option with a map argument" do
+      options = []
+      options << option(:foo, short: "-f map", convert: :map)
+      options << option(:bar, short: "-b")
+
+      params, = parse(%w[-f a:1 b:2 c:3 -b], options)
+
+      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:bar]).to eq(true)
+    end
+
+    it "parses compacted short options with a separate map argument" do
+      options = []
+      options << option(:foo, short: "-f")
+      options << option(:bar, short: "-b")
+      options << option(:qux, short: "-q map", convert: :map)
+
+      params, = parse(%w[-fbq a:1 b:2 c:3], options)
+
+      expect(params[:foo]).to eq(true)
+      expect(params[:bar]).to eq(true)
+      expect(params[:qux]).to eq({a:"1", b:"2", c:"3"})
+    end
+
+    it "parses compacted short options with a map argument glued together" do
+      options = []
+      options << option(:foo, short: "-f")
+      options << option(:bar, short: "-b")
+      options << option(:qux, short: "-q map", convert: :map)
+
+      params, = parse(%w[-fbqa:1 b:2 c:3], options)
+
+      expect(params[:foo]).to eq(true)
+      expect(params[:bar]).to eq(true)
+      expect(params[:qux]).to eq({a:"1", b:"2", c:"3"})
+    end
+
+    it "parses long option with a map argument delimited by space" do
+      options = []
+      options << option(:foo, long: "--foo map", convert: :map)
+      options << option(:bar, long: "--bar")
+
+      params, rest = parse(%w[--foo a:1 b:2 c:3 --bar], options)
+
+      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:bar]).to eq(true)
+      expect(rest).to eq([])
+    end
+
+    it "parses long option with a map argument delimited by ampersand" do
+      options = []
+      options << option(:foo, long: "--foo map", convert: :map)
+      options << option(:bar, long: "--bar")
+
+      params, rest = parse(%w[--foo a:1&b:2&c:3 --bar], options)
+
+      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:bar]).to eq(true)
+      expect(rest).to eq([])
+    end
+
+    it "parses long option with a map argument and assigment symbol" do
+      options = []
+      options << option(:foo, long: "--foo=map", convert: :map)
+
+      params, = parse(%w[--foo=a:1 b:2 c:3], options)
+
+      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+    end
+
+    it "doesn't mix maps from other long options" do
+      options = []
+      options << option(:foo, long: "--foo map", convert: :int_map)
+      options << option(:bar, long: "--bar map", convert: :int_map)
+
+      params, rest = parse(%w[--foo a:1 b:2 c:3 --bar x:1 y:2], options)
+
+      expect(params[:foo]).to eq({a:1, b:2, c:3})
+      expect(params[:bar]).to eq({x:1, y:2})
+      expect(rest).to eq([])
+    end
+
+    it "combines multiple options with map arguments" do
+      options = []
+      options << option(:foo, short: "-f map", convert: :int_map, arity: :any)
+
+      params, rest = parse(%w[-f a:1 b:2 -f c:3 d:4], options)
+
+      expect(params[:foo]).to eq({a:1, b:2, c:3, d: 4})
+      expect(rest).to eq([])
+    end
+
+    it "parses option with an empty map" do
+      options = []
+      options << option(:foo, long: "--foo=map", convert: :map)
+
+      params, = parse(%w[--foo=], options)
+
+      expect(params[:foo]).to eq({})
+    end
+  end
 end

@@ -214,7 +214,8 @@ module TTY
         def consume_arguments(opt, values: [])
           while (value = @argv.first) && !option?(value)
             val = @argv.shift
-            values << val
+            parts = val.include?("&") ? val.split(/&/) : [val]
+            parts.each { |part| values << part }
           end
 
           values.size == 1 ? values.first : values
@@ -247,8 +248,14 @@ module TTY
         # @api private
         def assign_option(opt, val)
           if opt.multiple?
-            Array(ParamConversion[opt, val]).each do |v|
-              (@parsed[opt.name] ||= []) << v
+            converted = ParamConversion[opt, val]
+            case converted
+            when Hash
+              (@parsed[opt.name] ||= {}).merge!(converted)
+            else
+              Array(converted).each do |v|
+                (@parsed[opt.name] ||= []) << v
+              end
             end
           else
             @parsed[opt.name] = ParamConversion[opt, val]
