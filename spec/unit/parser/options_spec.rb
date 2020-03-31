@@ -325,4 +325,153 @@ RSpec.describe TTY::Option::Parser::Options do
       expect(rest).to eq([])
     end
   end
+
+  context "when list argument" do
+    it "parses short option with a list argument" do
+      options = []
+      options << option(:foo, short: "-f list", convert: :list)
+      options << option(:bar, short: "-b")
+
+      params, = parse(%w[-f a b c -b], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+    end
+
+    it "parses compacted short options with a separate list argument" do
+      options = []
+      options << option(:foo, short: "-f")
+      options << option(:bar, short: "-b")
+      options << option(:qux, short: "-q list", convert: :list)
+
+      params, = parse(%w[-fbq a b c], options)
+
+      expect(params[:foo]).to eq(true)
+      expect(params[:bar]).to eq(true)
+      expect(params[:qux]).to eq(%w[a b c])
+    end
+
+    it "parses compacted short options with a list argument glued together" do
+      options = []
+      options << option(:foo, short: "-f")
+      options << option(:bar, short: "-b")
+      options << option(:qux, short: "-q list", convert: :list)
+
+      params, = parse(%w[-fbqa b c], options)
+
+      expect(params[:foo]).to eq(true)
+      expect(params[:bar]).to eq(true)
+      expect(params[:qux]).to eq(%w[a b c])
+    end
+
+    it "parses short option with an optional list argument" do
+      options = []
+      options << option(:foo, short: "-f [list]", convert: :list)
+      options << option(:bar, short: "-b")
+
+      params, rest = parse(%w[-f a b c -b], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(params[:bar]).to eq(true)
+      expect(rest).to eq([])
+    end
+
+    it "parses short option with a list argument provided together" do
+      options = []
+      options << option(:foo, short: "-f list", convert: :list)
+
+      params, = parse(%w[-fa b c], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+    end
+
+    it "parses short option with an optional list argument provided together" do
+      options = []
+      options << option(:foo, short: "-f [list]", convert: :list)
+
+      params, = parse(%w[-fa b c], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+    end
+
+    it "parses short option with a list comma delimited argument" do
+      options = []
+      options << option(:foo, short: "-f list", convert: :list)
+
+      params, = parse(%w[-f a,b,c], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+    end
+
+    it "parses long option with a list argument and assigment symbol" do
+      options = []
+      options << option(:foo, long: "--foo=list", convert: :list)
+
+      params, = parse(%w[--foo=a b c], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+    end
+
+    it "parses long option with an optional list argument" do
+      options = []
+      options << option(:foo, long: "--foo [list]", convert: :list)
+
+      params, = parse(%w[--foo=a b c], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+    end
+
+    it "parses long option with list argument and cast" do
+      options = []
+      options << option(:foo, long: "--foo list", convert: :list)
+      options << option(:bar, long: "--bar")
+
+      params, rest = parse(%w[--foo a b c --bar], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(params[:bar]).to eq(true)
+      expect(rest).to eq([])
+    end
+
+    it "parses long option with optional list argument and cast" do
+      options = []
+      options << option(:foo, long: "--foo [list]", convert: :list)
+      options << option(:bar, long: "--bar")
+
+      params, rest = parse(%w[--foo a b c --bar], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(rest).to eq([])
+    end
+
+    it "doesn't mix with other long options" do
+      options = []
+      options << option(:foo, long: "--foo list", convert: :list)
+      options << option(:bar, long: "--bar list", convert: :list)
+
+      params, rest = parse(%w[--foo a b c --bar x y], options)
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(params[:bar]).to eq(%w[x y])
+      expect(rest).to eq([])
+    end
+
+    it "combines multiple options with list arguments" do
+      options = []
+      options << option(:foo, short: "-f list", convert: :list, arity: :any)
+
+      params, rest = parse(%w[-f a b -f c d], options)
+
+      expect(params[:foo]).to eq(%w[a b c d])
+      expect(rest).to eq([])
+    end
+
+    it "parses option with a conversion" do
+      options = []
+      options << option(:foo, long: "--foo=list", convert: :list)
+
+      params, = parse(%w[--foo=,,], options)
+
+      expect(params[:foo]).to eq([])
+    end
+  end
 end
