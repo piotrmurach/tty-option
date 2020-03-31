@@ -315,7 +315,7 @@ RSpec.describe TTY::Option do
           option :fum, long: "--fum VAL", convert: :ints
         end
 
-        cmd.parse(%w[--foo 12 --bar yes --baz foo --qux a,b,c --fum 1,2,3])
+        cmd.parse(%w[--foo 12 --bar yes --baz foo --qux a,b,c --fum 1 2 3])
 
         expect(cmd.params[:foo]).to eq(12)
         expect(cmd.params[:bar]).to eq(true)
