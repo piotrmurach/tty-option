@@ -96,7 +96,7 @@ module TTY
         #
         # @api public
         def multi_argument?
-          !convert.to_s.match(/list|array|\w+s/).nil?
+          !convert.to_s.match(/list|array|map|hash|\w+s/).nil?
         end
       end # Option
     end # Parameter

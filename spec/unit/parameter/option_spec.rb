@@ -46,8 +46,20 @@ RSpec.describe TTY::Option::Parameter::Option do
   end
 
   context "when multi argument" do
-    it "converts to list" do
+    it "converts to a list" do
       option = described_class.new(:foo, short: "-f string", convert: :list)
+
+      expect(option.multi_argument?).to eq(true)
+    end
+
+    it "converts to a list" do
+      option = described_class.new(:foo, short: "-f string", convert: :bools)
+
+      expect(option.multi_argument?).to eq(true)
+    end
+
+    it "converts to a map" do
+      option = described_class.new(:foo, short: "-f string", convert: :map)
 
       expect(option.multi_argument?).to eq(true)
     end
