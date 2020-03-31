@@ -21,6 +21,7 @@ module TTY
         def initialize(options, **config)
           @options = options
           @raise_if_missing = config.fetch(:raise_if_missing) { true }
+          @check_invalid_options = config.fetch(:check_invalid_options) { true }
           @parsed = {}
           @errors = {}
           @remaining = []
@@ -148,7 +149,9 @@ module TTY
             end
 
             if matching_options.zero?
-              record_error(InvalidOption, "invalid option #{long}")
+              if @check_invalid_options
+                record_error(InvalidOption, "invalid option #{long}")
+              end
             elsif matching_options == 1
               value = long[opt.long_name.size..-1]
             else
@@ -199,7 +202,7 @@ module TTY
               end
               value = true
             end
-          else
+          elsif @check_invalid_options
             record_error(InvalidOption, "invalid option #{short}")
           end
 

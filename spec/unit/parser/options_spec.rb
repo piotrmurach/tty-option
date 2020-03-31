@@ -93,6 +93,15 @@ RSpec.describe TTY::Option::Parser::Options do
     }.to raise_error(TTY::Option::InvalidOption, "invalid option -b")
   end
 
+  it "raises if short option isn't defined" do
+    params, rest, errors = parse(%w[-b], option(:foo, short: "-f"),
+                                  check_invalid_options: false)
+
+    expect(params[:foo]).to eq(false)
+    expect(rest).to eq([])
+    expect(errors).to eq({})
+  end
+
   it "collects errors when :rais_if_missing is false" do
     options = []
     options << option(:foo, short: "-f")
