@@ -45,6 +45,14 @@ RSpec.describe TTY::Option::Parameter::Option do
     end
   end
 
+  context "when multi argument" do
+    it "converts to list" do
+      option = described_class.new(:foo, short: "-f string", convert: :list)
+
+      expect(option.multi_argument?).to eq(true)
+    end
+  end
+
   context "short setting" do
     it "extracts a short name without argument" do
       option = described_class.new(:foo, short: "-f")
