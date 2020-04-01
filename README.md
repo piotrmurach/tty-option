@@ -36,11 +36,189 @@ Or install it yourself as:
 
     $ gem install tty-option
 
-## Usage
+## Contents
+
+* [1. Usage](#1-usage)
+* [2. API](#2-api)
+  * [2.1 argument](#21-argument)
+  * [2.2 environment](#22-environment)
+  * [2.3 keyword](#23-keyword)
+  * [2.4 option](#24-option)
+  * [2.5 settings](#25-settings)
+    * [2.5.1 arity](#251-arity)
+    * [2.5.2 default](#252-default)
+    * [2.5.3 convert](#253-convert)
+
+## 1. Usage
 
 ```ruby
 class Command
   include TTY::Option
+end
+```
+
+## 2. API
+
+### 2.1 argument
+
+### 2.2 environment
+
+To parse environment variables use `environment` or `env` methods. By default, a parameter name will match a variable with the same name. For example, specifying a variable port:
+
+```ruby
+env :port
+```
+
+And then given a `PORT=333` on the command line, the resulting parameter would be:
+
+```
+params[:port]
+# => "333"
+````
+
+To change the variable name to something else use `var` or `variable` helper:
+
+```ruby
+env :ssl do
+  var "FORCE_SSL"
+end
+```
+
+And then given a `FORCE_SSL=true` on the command line would result in:
+
+```ruby
+params[:ssl]
+# => "true"
+```
+
+### 2.3 keyword
+
+### 2.4 option
+
+### 2.5 settings
+
+#### 2.5.1 arity
+
+To describe how many times a given parameter may appear in the command line use the `arity` method. By default every parameter is assumed to appear only once. Any other occurrence will be disregarded and included in the remaining parameters list.
+
+For example, to match argument exactly 2 times do:
+
+```ruby
+argument :foo do
+  arity 2
+end
+````
+
+Then parsing:
+
+```ruby
+cmd.parse(%w[foo=1 foo=2])
+```
+
+Will give the following:
+
+```ruby
+cmd.params[:foo]
+# => [1, 2]
+```
+
+To match any number of times use `:any`, `-1`, or `zero_or_more`:
+
+```ruby
+argument :foo do
+  arity zero_or_more
+end
+```
+
+To match at at least one time use `one_or_more`:
+
+```ruby
+option :foo do
+  arity one_or_more
+  short "-b"
+  long "--bar string"
+end
+```
+
+You can also specify upper boundary with `at_least` helper as well:
+
+```ruby
+keyword :foo do
+  arity at_least(3)
+end
+```
+
+#### 2.5.2 default
+
+#### 2.5.3 convert
+
+You can convert any parameter argument to another type using the `convert` method with a predefined symbol or class name. For example, to convert an argument to integer you can do:
+
+```ruby
+argument :foo do
+  convert :int
+end
+```
+
+The conversion types that are supported:
+
+* `:boolean`|`:bool` - e.g. 'yes/1/y/t/' becomes `true`, 'no/0/n/f' becomes `false`
+* `:date` - parses dates formats "28/03/2020", "March 28th 2020"
+* `:float` - e.g. `-1` becomes `-1.0`
+* `:int`|`:integer` - e.g. `+1` becomes `1`
+* `:path`|`:pathname` - converts to `Pathname` object
+* `:regexp` - e.g. "foo|bar" becomes `/foo|bar/`
+* `:uri` - converts to `URI` object
+* `:sym`|`:symbol` - e.g. "foo" becomes `:foo`
+* `:list`|`:array` - e.g. 'a,b,c' becomes `["a", "b", "c"]`
+* `:map`|`:hash` - e.g. 'a:1 b:2 c:3' becomes `{a: "1", b: "2", c: "3"}`
+
+In addition you can specify a plural or append `list` to any base type:
+
+* `:ints` or `:int_list` - will convert to a list of integers
+* `:floats` or `:float_list` - will convert to a list of floats
+* `:bools` or `:bool_list` - will convert to a list of booleans, e.g. 't,f,t' becomes `[true, false, true]`
+
+Similarly, you can append `map` to any base type:
+
+* `:int_map` - will convert to a map of integers, e.g 'a:1 b:2 c:3' becomes `{a: 1, b: 2, c: 3}`
+* `:bool_map` - will convert to a map of booleans, e.g 'a:t b:f c:t' becomes `{a: true, b: false, c: true}`
+
+For example, to parse options with required list and map arguments:
+
+```ruby
+option :foo do
+  long "--foo map"
+  convert :bools
+end
+
+option :bar do
+  long "--bar int map"
+  convert :int_map
+end
+````
+
+And then parsing the following:
+
+```ruby
+cmd.parse(%w[--foo t,f,t --bar a:1 b:2 c:3])
+```
+
+Will give:
+
+```ruby
+cmd.params[:foo]
+# => [true, false, true]
+cmd.params[:bar]
+# => {a:1, b:2, c:3}
+````
+
+You can also provide `proc` to define your own conversion:
+
+```ruby
+option :bar do
+  long "--bar string"
+  convert ->(val) { val.upcase }
 end
 ```
 
