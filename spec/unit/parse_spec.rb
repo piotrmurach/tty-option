@@ -276,6 +276,26 @@ RSpec.describe TTY::Option do
       }.to raise_error(TTY::Option::MissingArgument)
     end
 
+    it "doesn't accept duplicate short option" do
+      expect {
+        new_command do
+          option :foo, short: "-f"
+          option :fum, short: "-f"
+        end
+      }.to raise_error(TTY::Option::ParameterConflict,
+                      "already registered short option -f")
+    end
+
+    it "doesn't accept duplicate long option" do
+      expect {
+        new_command do
+          option :foo, long: "--foo"
+          option :fum, long: "--foo"
+        end
+      }.to raise_error(TTY::Option::ParameterConflict,
+                      "already registered long option --foo")
+    end
+
     context "default" do
       it "defaults to a value with settings" do
         cmd = new_command do
