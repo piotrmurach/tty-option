@@ -110,4 +110,21 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect(arg.optional?).to eq(true)
     end
   end
+
+  context "validate setting" do
+    it "returns nil" do
+      arg = described_class.new(:foo)
+
+      expect(arg.validate).to eq(nil)
+      expect(arg.validate?).to eq(false)
+    end
+
+    it "returns conversion value" do
+      validator = ->(val) { true }
+      arg = described_class.new(:foo, validate: validator)
+
+      expect(arg.validate).to eq(validator)
+      expect(arg.validate?).to eq(true)
+    end
+  end
 end

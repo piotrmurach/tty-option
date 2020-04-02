@@ -88,6 +88,18 @@ module TTY
         @settings.fetch(:required) { true }
       end
 
+      def validate(value = (not_set = true))
+        if not_set
+          @settings[:validate]
+        else
+          @settings[:validate] = value
+        end
+      end
+
+      def validate?
+        @settings.key?(:validate) && !@settings[:validate].nil?
+      end
+
       def to_sym
         self.class.name.to_s.split(/::/).last.downcase.to_sym
       end
