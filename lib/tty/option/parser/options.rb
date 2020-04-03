@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../param_conversion"
+require_relative "../param_validation"
 
 module TTY
   module Option
