@@ -23,7 +23,10 @@ module TTY
     InvalidConversionArgument = Class.new(Error)
 
     # Raised when found unrecognized option
-    InvalidOption = Class.new(Error) # unrecognized option X
+    InvalidOption = Class.new(Error)
+
+    # Raised when validation format is not supported
+    InvalidValidation = Class.new(Error)
 
     # Raised when option requires an argument
     MissingArgument = Class.new(Error)

@@ -16,14 +16,23 @@ module TTY
       attr_reader :settings
 
       def initialize(name, **settings, &block)
+        check_settings!(settings)
         @name = name
         @settings = settings
 
-        if @settings.key?(:arity)
-          arity(@settings[:arity])
-        end
+        arity(@settings[:arity]) if @settings.key?(:arity)
+        validate(@settings[:validate]) if @settings.key?(:validate)
 
         instance_eval(&block) if block_given?
+      end
+
+      def check_settings!(settings)
+        if settings.key?(:arity)
+          check_arity(settings[:arity])
+        end
+        if settings.key?(:validate)
+          check_validation(settings[:validate])
+        end
       end
 
       def default_arity
@@ -44,7 +53,7 @@ module TTY
       #
       # @api public
       def multiple?
-        arity < 0 || arity.abs > 1
+        arity < 0 || 1 < arity.abs
       end
 
       def convert(value = (not_set = true))
@@ -92,7 +101,7 @@ module TTY
         if not_set
           @settings[:validate]
         else
-          @settings[:validate] = value
+          @settings[:validate] = check_validation(value)
         end
       end
 
@@ -125,6 +134,22 @@ module TTY
           raise InvalidArity, "cannot be zero"
         end
         value
+      end
+
+      # @api private
+      def check_validation(value)
+        case value
+        when NilClass
+          raise TTY::Option::InvalidValidation,
+                "expects a Proc or a Regexp value"
+        when Proc
+          value
+        when Regexp, String
+          Regexp.new(value.to_s)
+        else
+          raise TTY::Option::InvalidValidation,
+                "only accepts a Proc or a Regexp type"
+        end
       end
     end # Parameter
   end # Option

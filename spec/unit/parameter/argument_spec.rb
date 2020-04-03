@@ -119,12 +119,33 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect(arg.validate?).to eq(false)
     end
 
-    it "returns conversion value" do
+    it "returns validation value as proc" do
       validator = ->(val) { true }
       arg = described_class.new(:foo, validate: validator)
 
       expect(arg.validate).to eq(validator)
       expect(arg.validate?).to eq(true)
+    end
+
+    it "returns validation value as regexp" do
+      arg = described_class.new(:foo, validate: "valid")
+
+      expect(arg.validate).to eq(/valid/)
+      expect(arg.validate?).to eq(true)
+    end
+
+    it "is invalid when nil" do
+      expect {
+        described_class.new(:foo, validate: nil)
+      }.to raise_error(TTY::Option::InvalidValidation,
+                       "expects a Proc or a Regexp value")
+    end
+
+    it "is invalid when not a proc or a regexp type" do
+      expect {
+        described_class.new(:foo, validate: Object.new)
+      }.to raise_error(TTY::Option::InvalidValidation,
+                       "only accepts a Proc or a Regexp type")
     end
   end
 end
