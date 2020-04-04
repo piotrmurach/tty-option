@@ -3,6 +3,13 @@
 module TTY
   module Option
     module ParamValidation
+      # Validate parameter value against validation rule
+      #
+      # @example
+      #   param = Parameter::Option.create(:foo, validate: '\d+')
+      #   ParamValidation[param, "12"] # => "12"
+      #
+      # @api public
       def call(param, values)
         return values unless param.validate?
 
