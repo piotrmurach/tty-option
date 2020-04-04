@@ -382,5 +382,51 @@ RSpec.describe TTY::Option do
         expect(cmd.params[:bar]).to eq({c: 1, d: 2})
       end
     end
+
+    context "validate" do
+      it "validates an option with a custom proc" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert Integer
+            validate -> (val) { val == 12 }
+          end
+        end
+
+        expect {
+          cmd.parse(%w[--foo 13])
+        }.to raise_error(TTY::Option::InvalidArgument,
+                        "value of `13` fails validation rule for :foo parameter")
+      end
+
+      it "validates an option with a string as regex" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            validate "\d+"
+          end
+        end
+
+        expect {
+          cmd.parse(%w[--foo bar])
+        }.to raise_error(TTY::Option::InvalidArgument,
+                        "value of `bar` fails validation rule for :foo parameter")
+      end
+
+      it "validates an option with a multiple argument" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :int_list
+            validate -> (val) { val < 12 }
+          end
+        end
+
+        expect {
+          cmd.parse(%w[--foo 10,11,12])
+        }.to raise_error(TTY::Option::InvalidArgument,
+                         "value of `12` fails validation rule for :foo parameter")
+      end
+    end
   end
 end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../param_conversion"
-require_relative "../param_validation"
+require_relative "../pipeline"
 
 module TTY
   module Option
@@ -251,18 +250,19 @@ module TTY
 
         # @api private
         def assign_option(opt, val)
+          value = Pipeline.process(opt, val)
+
           if opt.multiple?
-            converted = ParamConversion[opt, val]
-            case converted
+            case value
             when Hash
-              (@parsed[opt.name] ||= {}).merge!(converted)
+              (@parsed[opt.name] ||= {}).merge!(value)
             else
-              Array(converted).each do |v|
+              Array(value).each do |v|
                 (@parsed[opt.name] ||= []) << v
               end
             end
           else
-            @parsed[opt.name] = ParamConversion[opt, val]
+            @parsed[opt.name] = value
           end
         end
       end # Options
