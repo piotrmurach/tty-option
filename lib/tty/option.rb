@@ -16,6 +16,9 @@ module TTY
     # Raised when overriding already defined conversion
     ConversionAlreadyDefined = Class.new(Error)
 
+    # Raised when argument doesn't match expected value
+    InvalidArgument = Class.new(Error)
+
     # Raised when number of arguments doesn't match
     InvalidArity = Class.new(Error)
 
