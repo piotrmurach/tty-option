@@ -24,7 +24,7 @@ RSpec.describe TTY::Option::ParamValidation do
 
     expect {
       described_class[param, "bar"]
-    }.to raise_error(TTY::Option::InvalidValidation,
-                    "value of \"bar\" fails validation rule for :foo parameter")
+    }.to raise_error(TTY::Option::InvalidArgument,
+                    "value of `bar` fails validation rule for :foo parameter")
   end
 end

@@ -14,11 +14,12 @@ module TTY
                      !param.validate.match(value.to_s).nil?
                    end
 
-          result || raise(TTY::Option::InvalidValidation.new(
-            format("value of %s fails validation rule for %s parameter",
-                   value.inspect, param.name.inspect)
+          result || raise(TTY::Option::InvalidArgument.new(
+            format("value of `%s` fails validation rule for %s parameter",
+                   value, param.name.inspect)
           ))
         end
+
         values
       end
       module_function :call
