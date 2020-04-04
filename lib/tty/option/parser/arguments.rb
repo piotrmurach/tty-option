@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../param_conversion"
+require_relative "../pipeline"
 
 module TTY
   module Option
@@ -203,7 +203,7 @@ module TTY
                   values
                 end
 
-          @parsed[arg.name] = ParamConversion[arg, val]
+          @parsed[arg.name] = Pipeline.process(arg, val)
         end
       end # Arguments
     end # Parser

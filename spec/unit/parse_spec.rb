@@ -150,6 +150,21 @@ RSpec.describe TTY::Option do
 
       expect(cmd.params[:foo]).to eq({a: 1, b: 2, c: 3})
     end
+
+    it "fails to parse map due to validation rule" do
+      cmd = new_command do
+        argument :foo do
+          arity one_or_more
+          convert :int_map
+          validate ->(val) { val[1] < 3 }
+        end
+      end
+
+      expect {
+        cmd.parse(%w[a:1 b:2 c:3])
+      }.to raise_error(TTY::Option::InvalidArgument,
+                "value of `[:c, 3]` fails validation rule for :foo parameter")
+    end
   end
 
   context "keyword" do
