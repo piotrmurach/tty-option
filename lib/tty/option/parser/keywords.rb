@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../param_conversion"
+require_relative "../pipeline"
 
 module TTY
   module Option
@@ -97,12 +97,12 @@ module TTY
         def assign_keyword(kwarg, value)
           if kwarg.multiple?
             if kwarg.arity < 0 || (@parsed[kwarg.name] || []).size < kwarg.arity
-              (@parsed[kwarg.name] ||=  []) << ParamConversion[kwarg, value]
+              (@parsed[kwarg.name] ||=  []) << Pipeline.process(kwarg, value)
             else
               @remaining << "#{kwarg.name}=#{value}"
             end
           else
-            @parsed[kwarg.name] = ParamConversion[kwarg, value]
+            @parsed[kwarg.name] = Pipeline.process(kwarg, value)
           end
         end
       end # Keywords

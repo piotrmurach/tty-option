@@ -211,6 +211,21 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq([11, 13])
       expect(cmd.params[:bar]).to eq(12)
     end
+
+    it "fails to parse a keyword due to validation rule" do
+      cmd = new_command do
+        keyword :foo do
+          arity one_or_more
+          convert :int
+          validate ->(val) { val < 12 }
+        end
+      end
+
+      expect {
+        cmd.parse(%w[foo=11 foo=13])
+      }.to raise_error(TTY::Option::InvalidArgument,
+                "value of `13` fails validation rule for :foo parameter")
+    end
   end
 
   context "env" do
