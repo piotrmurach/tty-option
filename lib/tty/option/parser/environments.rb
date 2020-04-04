@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../param_conversion"
+require_relative "../pipeline"
 
 module TTY
   module Option
@@ -97,12 +97,12 @@ module TTY
         def assign_envvar(env_arg, value)
           if env_arg.multiple?
             if env_arg.arity < 0 || (@parsed[env_arg.name] || []).size < env_arg.arity
-              (@parsed[env_arg.name] ||=  []) << ParamConversion[env_arg, value]
+              (@parsed[env_arg.name] ||=  []) << Pipeline.process(env_arg, value)
             else
               @remaining << "#{env_arg.var}=#{value}"
             end
           else
-            @parsed[env_arg.name] = ParamConversion[env_arg, value]
+            @parsed[env_arg.name] = Pipeline.process(env_arg, value)
           end
         end
       end # Environments

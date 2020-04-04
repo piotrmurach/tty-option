@@ -269,6 +269,20 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:bar]).to eq([true, false, true])
       expect(cmd.params[:baz]).to eq(:foobar)
     end
+
+    it "fails to assign value due to validation" do
+      cmd = new_command do
+        env(:foo) do
+          convert :int_list
+          validate ->(val) { val < 14 }
+        end
+      end
+
+      expect {
+        cmd.parse(%w[FOO=10,12,14])
+      }.to raise_error(TTY::Option::InvalidArgument,
+                      "value of `14` fails validation rule for :foo parameter")
+    end
   end
 
   context "option" do
