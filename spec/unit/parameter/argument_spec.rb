@@ -111,6 +111,36 @@ RSpec.describe TTY::Option::Parameter::Argument do
     end
   end
 
+  context "permit setting" do
+    it "returns nil" do
+      arg = described_class.new(:foo)
+
+      expect(arg.permit).to eq(nil)
+      expect(arg.permit?).to eq(false)
+    end
+
+    it "returns permitted list" do
+      arg = described_class.new(:foo, permit: %w[a b c])
+
+      expect(arg.permit).to eq(%w[a b c])
+      expect(arg.permit?).to eq(true)
+    end
+
+    it "is invalid when nil" do
+      expect {
+        described_class.new(:foo, permit: nil)
+      }.to raise_error(TTY::Option::InvalidPermitted,
+                       "expects an Array type")
+    end
+
+    it "is invalid when not an array type" do
+      expect {
+        described_class.new(:foo, permit: Object.new)
+      }.to raise_error(TTY::Option::InvalidPermitted,
+                       "expects an Array type")
+    end
+  end
+
   context "validate setting" do
     it "returns nil" do
       arg = described_class.new(:foo)

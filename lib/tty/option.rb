@@ -28,6 +28,9 @@ module TTY
     # Raised when found unrecognized option
     InvalidOption = Class.new(Error)
 
+    # Raised when permitted type is incorrect
+    InvalidPermitted = Class.new(Error)
+
     # Raised when validation format is not supported
     InvalidValidation = Class.new(Error)
 

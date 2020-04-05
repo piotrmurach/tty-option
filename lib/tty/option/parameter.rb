@@ -21,6 +21,7 @@ module TTY
         @settings = settings
 
         arity(@settings[:arity]) if @settings.key?(:arity)
+        permit(@settings[:permit]) if @settings.key?(:permit)
         validate(@settings[:validate]) if @settings.key?(:validate)
 
         instance_eval(&block) if block_given?
@@ -29,6 +30,9 @@ module TTY
       def check_settings!(settings)
         if settings.key?(:arity)
           check_arity(settings[:arity])
+        end
+        if settings.key?(:permit)
+          check_permitted(settings[:permit])
         end
         if settings.key?(:validate)
           check_validation(settings[:validate])
@@ -97,6 +101,18 @@ module TTY
         @settings.fetch(:required) { true }
       end
 
+      def permit(value = (not_set = true))
+        if not_set
+          @settings[:permit]
+        else
+          @settings[:permit] = check_permitted(value)
+        end
+      end
+
+      def permit?
+        @settings.key?(:permit) && !@settings[:permit].nil?
+      end
+
       def validate(value = (not_set = true))
         if not_set
           @settings[:validate]
@@ -134,6 +150,16 @@ module TTY
           raise InvalidArity, "cannot be zero"
         end
         value
+      end
+
+      # @api private
+      def check_permitted(value)
+        case value
+        when Array
+          value
+        else
+          raise InvalidPermitted, "expects an Array type"
+        end
       end
 
       # @api private
