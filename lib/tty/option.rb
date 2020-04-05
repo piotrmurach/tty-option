@@ -43,6 +43,9 @@ module TTY
     # Raised when conversion type isn't registered
     UnsupportedConversion = Class.new(Error)
 
+    # Raised when argument value isn't permitted
+    UnpermittedArgument = Class.new(Error)
+
     # Enhance object with command line option parsing
     #
     # @api public
