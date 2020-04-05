@@ -166,15 +166,13 @@ module TTY
       def check_validation(value)
         case value
         when NilClass
-          raise TTY::Option::InvalidValidation,
-                "expects a Proc or a Regexp value"
+          raise InvalidValidation, "expects a Proc or a Regexp value"
         when Proc
           value
         when Regexp, String
           Regexp.new(value.to_s)
         else
-          raise TTY::Option::InvalidValidation,
-                "only accepts a Proc or a Regexp type"
+          raise InvalidValidation, "only accepts a Proc or a Regexp type"
         end
       end
     end # Parameter
