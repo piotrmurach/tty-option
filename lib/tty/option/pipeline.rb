@@ -10,6 +10,7 @@ module TTY
       def self.process(param, value)
         new(param, value)
           .next(ParamConversion)
+          .next(ParamPermitted)
           .next(ParamValidation)
           .value
       end

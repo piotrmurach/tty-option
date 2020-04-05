@@ -165,6 +165,20 @@ RSpec.describe TTY::Option do
       }.to raise_error(TTY::Option::InvalidArgument,
                 "value of `[:c, 3]` fails validation rule for :foo parameter")
     end
+
+    it "doesn't permit a value" do
+      cmd = new_command do
+        argument :foo do
+          convert :int
+          permit [11, 12, 13]
+        end
+      end
+
+      expect {
+        cmd.parse(%w[14])
+      }.to raise_error(TTY::Option::UnpermittedArgument,
+                      "unpermitted argument 14 for :foo parameter")
+    end
   end
 
   context "keyword" do
@@ -226,6 +240,20 @@ RSpec.describe TTY::Option do
       }.to raise_error(TTY::Option::InvalidArgument,
                 "value of `13` fails validation rule for :foo parameter")
     end
+
+    it "doesn't permit a value" do
+      cmd = new_command do
+        keyword :foo do
+          convert :int
+          permit [11, 12, 13]
+        end
+      end
+
+      expect {
+        cmd.parse(%w[foo=14])
+      }.to raise_error(TTY::Option::UnpermittedArgument,
+                      "unpermitted argument 14 for :foo parameter")
+    end
   end
 
   context "env" do
@@ -282,6 +310,20 @@ RSpec.describe TTY::Option do
         cmd.parse(%w[FOO=10,12,14])
       }.to raise_error(TTY::Option::InvalidArgument,
                       "value of `14` fails validation rule for :foo parameter")
+    end
+
+    it "doesn't permit a value" do
+      cmd = new_command do
+        env :foo do
+          convert :int
+          permit [11, 12, 13]
+        end
+      end
+
+      expect {
+        cmd.parse(%w[FOO=14])
+      }.to raise_error(TTY::Option::UnpermittedArgument,
+                      "unpermitted argument 14 for :foo parameter")
     end
   end
 
@@ -425,6 +467,38 @@ RSpec.describe TTY::Option do
         expect(cmd.params[:foo]).to eq({a: ["1", "3"], b: "2"})
         expect(cmd.params[:bar]).to eq({c: 1, d: 2})
       end
+    end
+
+    context "permit" do
+      it "permits an allowed value" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :sym
+            permit [:bar, :baz, :qux]
+          end
+        end
+
+        cmd.parse(%w[--foo qux])
+
+        expect(cmd.params[:foo]).to eq(:qux)
+      end
+
+      it "doesn't permit a value" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :int
+            permit [11, 12, 13]
+          end
+        end
+
+        expect {
+          cmd.parse(%w[--foo 14])
+        }.to raise_error(TTY::Option::UnpermittedArgument,
+                        "unpermitted argument 14 for :foo parameter")
+      end
+
     end
 
     context "validate" do
