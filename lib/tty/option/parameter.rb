@@ -154,8 +154,7 @@ module TTY
 
       # @api private
       def check_permitted(value)
-        case value
-        when Array
+        if value.respond_to?(:include?)
           value
         else
           raise InvalidPermitted, "expects an Array type"

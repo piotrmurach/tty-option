@@ -126,6 +126,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect(arg.permit?).to eq(true)
     end
 
+    it "returns permitted set" do
+      permitted = Set["a", "b", "c"]
+      arg = described_class.new(:foo, permit: permitted)
+
+      expect(arg.permit).to eq(permitted)
+      expect(arg.permit?).to eq(true)
+    end
+
     it "is invalid when nil" do
       expect {
         described_class.new(:foo, permit: nil)
