@@ -27,6 +27,7 @@ module TTY
           @remaining = []
           @shorts = {}
           @longs = {}
+          @arities = {}
           @required = []
 
           setup_opts
@@ -67,6 +68,7 @@ module TTY
             opt, value = next_option
             break if opt.nil?
             @required.delete(opt)
+            @arities[opt.name] = @arities[opt.name].to_i + 1
 
             if block_given?
               yield(opt, value)
@@ -278,13 +280,19 @@ module TTY
           value = Pipeline.process(opt, val)
 
           if opt.multiple?
-            case value
-            when Hash
-              (@parsed[opt.name] ||= {}).merge!(value)
-            else
-              Array(value).each do |v|
-                (@parsed[opt.name] ||= []) << v
+            allowed = opt.arity < 0 || (@arities[opt.name] || 0) <= opt.arity
+            if allowed
+              case value
+              when Hash
+                (@parsed[opt.name] ||= {}).merge!(value)
+              else
+                Array(value).each do |v|
+                  (@parsed[opt.name] ||= []) << v
+                end
               end
+            else
+              @remaining << opt.short_name
+              @remaining << value
             end
           else
             @parsed[opt.name] = value

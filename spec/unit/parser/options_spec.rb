@@ -348,10 +348,31 @@ RSpec.describe TTY::Option::Parser::Options do
       expect(rest).to eq([])
     end
 
+    it "parses short flag with required argument many times and keeps only two" do
+      params, rest = parse(%w[-f 1 -f 2 -f 3], option(:foo, short: "-f int", arity: 2))
+
+      expect(params[:foo]).to eq(%w[1 2])
+      expect(rest).to eq(%w[-f 3])
+    end
+
+    it "parses short flag with required argument many times and keeps all" do
+      params, rest = parse(%w[-f 1 -f 2 -f 3], option(:foo, short: "-f int", arity: :any))
+
+      expect(params[:foo]).to eq(%w[1 2 3])
+      expect(rest).to eq([])
+    end
+
     it "parses long flag with required argument and keeps the last argument" do
       params, rest = parse(%w[--f 1 --f 2 --f 3], option(:foo, long: "--f int"))
 
       expect(params[:foo]).to eq("3")
+      expect(rest).to eq([])
+    end
+
+    it "parses long flags with required argument and keeps all" do
+      params, rest = parse(%w[--f 1 --f 2 --f 3], option(:foo, long: "--f int", arity: -2))
+
+      expect(params[:foo]).to eq(%w[1 2 3])
       expect(rest).to eq([])
     end
   end
