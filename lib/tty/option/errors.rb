@@ -31,6 +31,9 @@ module TTY
     # Raised when option requires an argument
     MissingArgument = Class.new(Error)
 
+    # Raised when a parameter is required but not present
+    MissingParameter = Class.new(Error)
+
     # Raised when attempting to register already registered parameter
     ParameterConflict = Class.new(Error)
 
