@@ -352,6 +352,33 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq(["baz", "qux"])
     end
 
+    it "requires an option to be present" do
+      cmd = new_command do
+        option :foo do
+          required
+          long "--foo string"
+        end
+      end
+
+      expect {
+        cmd.parse([])
+      }.to raise_error(TTY::Option::MissingParameter,
+                       "need to provide --foo option")
+    end
+
+    it "marks an option as optional with required argument" do
+      cmd = new_command do
+        option :foo do
+          optional
+          long "--foo string"
+        end
+      end
+
+      cmd.parse([])
+
+      expect(cmd.params[:foo]).to eq(nil)
+    end
+
     it "requires an option to have an argument" do
       cmd = new_command do
         option :foo, long: "--foo string"
