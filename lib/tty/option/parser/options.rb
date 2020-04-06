@@ -27,6 +27,7 @@ module TTY
           @remaining = []
           @shorts = {}
           @longs = {}
+          @required = []
 
           setup_opts
         end
@@ -48,6 +49,8 @@ module TTY
               end
             elsif !(opt.argument_optional? || opt.argument_required?)
               assign_option(opt, false)
+            elsif opt.required?
+              @required << opt
             end
           end
         end
@@ -63,6 +66,7 @@ module TTY
           loop do
             opt, value = next_option
             break if opt.nil?
+            @required.delete(opt)
 
             if block_given?
               yield(opt, value)
@@ -71,7 +75,28 @@ module TTY
             end
           end
 
+          check_required
+
           [@parsed, @remaining, @errors]
+        end
+
+        # Check if required options are provided
+        #
+        # @raise [MissingParameter]
+        #
+        # @api private
+        def check_required
+          return if @required.empty?
+
+          @required.each do |opt|
+            name = if opt.respond_to?(:long_name)
+              opt.long? ? opt.long_name : opt.short_name
+            else
+              opt.name
+            end
+            record_error(MissingParameter,
+                         "need to provide #{name} #{opt.to_sym}", opt)
+          end
         end
 
         private

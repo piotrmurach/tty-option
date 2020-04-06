@@ -261,6 +261,27 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(rest).to eq(%w[some---arg])
   end
 
+  it "raises if option isn't present" do
+    expect {
+      parse(%w[], option(:foo, long: "--foo string", required: true))
+    }.to raise_error(TTY::Option::MissingParameter,
+                     "need to provide --foo option")
+  end
+
+  it "collects all options missing errors" do
+    options = []
+    options << option(:foo, long: "--foo string", required: true)
+    options << option(:bar, short: "-b string", required: true)
+
+    params, rest, errors = parse(%w[], options, raise_if_missing: false)
+
+    expect(params[:foo]).to eq(nil)
+    expect(params[:bar]).to eq(nil)
+    expect(rest).to eq([])
+    expect(errors[:foo]).to eq({missing_parameter: "need to provide --foo option"})
+    expect(errors[:bar]).to eq({missing_parameter: "need to provide -b option"})
+  end
+
   context "when no arguments" do
     it "defines no flags and returns empty hash" do
       params, rest = parse([], [])
