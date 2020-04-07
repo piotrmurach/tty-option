@@ -78,11 +78,11 @@ RSpec.describe TTY::Option::Parameter::Argument do
   end
 
   context "required/optional setting" do
-    it "requires argument presence by default" do
+    it "doesn't require argument presence by default" do
       arg = described_class.new(:foo)
 
-      expect(arg.required?).to eq(true)
-      expect(arg.optional?).to eq(false)
+      expect(arg.required?).to eq(false)
+      expect(arg.optional?).to eq(true)
     end
 
     it "returns default value" do

@@ -98,7 +98,7 @@ module TTY
       end
 
       def required?
-        @settings.fetch(:required) { true }
+        @settings.fetch(:required) { false }
       end
 
       def permit(value = (not_set = true))
