@@ -40,6 +40,31 @@ RSpec.describe TTY::Option::Parser::Arguments do
                      "appeared 1 times")
   end
 
+  it "doesn't find any arguments to match zero or more arity" do
+    params, rest = parse([], arg(:foo, arity: :any))
+
+    expect(params[:foo]).to eq(nil)
+    expect(rest).to eq([])
+  end
+
+  it "raises if required argument isn't present" do
+    expect {
+      parse(%w[], arg(:foo, required: true))
+    }.to raise_error(TTY::Option::MissingParameter,
+                     "need to provide 'foo' argument")
+  end
+
+  it "accepts optional argument" do
+    args = []
+    args << arg(:foo, optional: true)
+    args << arg(:bar)
+    params, rest = parse(%w[], args)
+
+    expect(params[:foo]).to eq(nil)
+    expect(params[:bar]).to eq(nil)
+    expect(rest).to eq([])
+  end
+
   it "collects errors when :raise_if_missing is false" do
     args, rest, errors = parse(%w[a], arg(:foo, arity: 2), raise_if_missing: false)
 

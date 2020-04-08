@@ -20,6 +20,7 @@ module TTY
           @errors = {}
           @parsed = {}
           @remaining = []
+          @required = []
 
           @defaults = {}
           @arguments.each do |arg|
@@ -30,6 +31,8 @@ module TTY
               else
                 @defaults[arg.name] = arg.default
               end
+            elsif arg.required?
+              @required << arg
             end
           end
         end
@@ -47,6 +50,7 @@ module TTY
 
           @arguments.each do |arg|
             values = next_argument(arg)
+            @required.delete(arg) unless values.empty?
 
             assign_argument(arg, values)
           end
@@ -54,6 +58,8 @@ module TTY
           while (val = @argv.shift)
             @remaining << val
           end
+
+          check_required
 
           [@parsed, @remaining, @errors]
         end
@@ -84,7 +90,7 @@ module TTY
             end
           end
 
-          if values.size < arg.arity &&
+          if 0 < values.size && values.size < arg.arity &&
               Array(@defaults[arg.name]).size < arg.arity
             record_error(InvalidArity, format(
               "expected argument %s to appear %d times but appeared %d times",
@@ -204,6 +210,25 @@ module TTY
                 end
 
           @parsed[arg.name] = Pipeline.process(arg, val)
+        end
+
+        # Check if required parameters are provided
+        #
+        # @raise [MissingParameter]
+        #
+        # @api private
+        def check_required
+          return if @required.empty?
+
+          @required.each do |param|
+            name = if param.respond_to?(:long_name)
+              param.long? ? param.long_name : param.short_name
+            else
+              param.name
+            end
+            record_error(MissingParameter,
+                         "need to provide '#{name}' #{param.to_sym}", param)
+          end
         end
       end # Arguments
     end # Parser
