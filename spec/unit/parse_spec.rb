@@ -34,15 +34,17 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq("bar")
     end
 
-    it "defaults argument to be required" do
+    it "marks argument to be required" do
       cmd = new_command do
-        argument :foo
+        argument :foo do
+          required
+        end
       end
+
       expect {
         cmd.parse([])
-      }.to raise_error(TTY::Option::InvalidArity,
-                       "expected argument :foo to appear 1 times " \
-                       "but appeared 0 times")
+      }.to raise_error(TTY::Option::MissingParameter,
+                       "need to provide 'foo' argument")
     end
 
     it "defauls argument to a value" do
