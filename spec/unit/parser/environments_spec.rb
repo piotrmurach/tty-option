@@ -53,6 +53,30 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect(rest).to eq([])
   end
 
+  it "doesn't parse required env var" do
+    expect {
+      parse([], {}, env(:foo, required: true))
+    }.to raise_error(TTY::Option::MissingParameter,
+                    "need to provide 'foo' environment")
+  end
+
+  it "accumulates errors for required env vars when missing" do
+    envs = []
+    envs << env(:foo, required: true)
+    envs << env(:bar, required: true)
+    envs << env(:baz, optional: true)
+
+    params, rest, errors = parse([], {}, envs, raise_if_missing: false)
+
+    expect(params[:foo]).to eq(nil)
+    expect(params[:bar]).to eq(nil)
+    expect(params[:baz]).to eq(nil)
+    expect(rest).to eq([])
+    expect(errors[:foo]).to eq({missing_parameter: "need to provide 'foo' environment"})
+    expect(errors[:bar]).to eq({missing_parameter: "need to provide 'bar' environment"})
+    expect(errors[:baz]).to eq(nil)
+  end
+
   context "when :arity" do
     it "parses an env var matching param name with exact arity" do
       params, rest = parse(%w[FOO=a FOO=b FOO=c], {}, env(:foo, arity: 2))

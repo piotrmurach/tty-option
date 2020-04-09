@@ -16,10 +16,12 @@ module TTY
         # @api public
         def initialize(environments, **config)
           @environments = environments
+          @raise_if_missing = config.fetch(:raise_if_missing) { true }
           @parsed = {}
           @errors = {}
           @remaining = []
           @names = {}
+          @required = []
 
           @environments.each do |env_arg|
             @names[env_arg.var.to_s] = env_arg
@@ -31,6 +33,8 @@ module TTY
               else
                 assign_envvar(env_arg, env_arg.default)
               end
+            elsif env_arg.required?
+              @required << env_arg
             end
           end
         end
@@ -48,6 +52,8 @@ module TTY
           loop do
             env_var, value = next_envvar
             break if env_var.nil?
+            @required.delete(env_var)
+
             if block_given?
               yield(env_var, value)
             end
@@ -59,6 +65,8 @@ module TTY
               assign_envvar(env_arg, value)
             end
           end
+
+          check_required
 
           [@parsed, @remaining, @errors]
         end
@@ -103,6 +111,44 @@ module TTY
             end
           else
             @parsed[env_arg.name] = Pipeline.process(env_arg, value)
+          end
+        end
+
+        # Record or raise an error
+        #
+        # @api private
+        def record_error(type, message, param = nil)
+          if @raise_if_missing
+            raise type, message
+          end
+
+          type_key = type.to_s.split("::").last
+                         .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
+                         .downcase.to_sym
+
+          if param
+            (@errors[param.name] ||= {}).merge!(type_key => message)
+          else
+            @errors[:invalid] = message
+          end
+        end
+
+        # Check if required parameters are provided
+        #
+        # @raise [MissingParameter]
+        #
+        # @api private
+        def check_required
+          return if @required.empty?
+
+          @required.each do |param|
+            name = if param.respond_to?(:long_name)
+              param.long? ? param.long_name : param.short_name
+            else
+              param.name
+            end
+            record_error(MissingParameter,
+                         "need to provide '#{name}' #{param.to_sym}", param)
           end
         end
       end # Environments
