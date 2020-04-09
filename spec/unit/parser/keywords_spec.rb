@@ -39,6 +39,27 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(rest).to eq(%w[-b b ENV_VAR=dev --bar])
   end
 
+  it "raises if required keyword isn't present" do
+    expect {
+      parse(%w[], keyword(:foo, required: true))
+    }.to raise_error(TTY::Option::MissingParameter,
+                     "need to provide 'foo' keyword")
+  end
+
+  it "collects all keywords missing errors" do
+    keywords = []
+    keywords << keyword(:foo, required: true)
+    keywords << keyword(:bar, required: true)
+
+    params, rest, errors = parse(%w[], keywords, raise_if_missing: false)
+
+    expect(params[:foo]).to eq(nil)
+    expect(params[:bar]).to eq(nil)
+    expect(rest).to eq([])
+    expect(errors[:foo]).to eq({missing_parameter: "need to provide 'foo' keyword"})
+    expect(errors[:bar]).to eq({missing_parameter: "need to provide 'bar' keyword"})
+  end
+
   context ":arity" do
     it "parses last keyword without arity" do
       params, rest = parse(%w[foo=1 foo=2], keyword(:foo))

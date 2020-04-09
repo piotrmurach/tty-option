@@ -16,10 +16,12 @@ module TTY
         # @api public
         def initialize(keywords, **config)
           @keywords = keywords
+          @raise_if_missing = config.fetch(:raise_if_missing) { true }
           @errors = {}
           @parsed = {}
           @remaining = []
           @names = {}
+          @required = []
 
           @keywords.each do |kwarg|
             @names[kwarg.name.to_s] = kwarg
@@ -31,6 +33,8 @@ module TTY
               else
                 assign_keyword(kwarg, kwarg.default)
               end
+            elsif kwarg.required?
+              @required << kwarg
             end
           end
         end
@@ -44,11 +48,15 @@ module TTY
           loop do
             kwarg, value = next_keyword
             break if kwarg.nil?
+            @required.delete(kwarg)
+
             if block_given?
               yield(kwarg, value)
             end
             assign_keyword(kwarg, value)
           end
+
+          check_required
 
           [@parsed, @remaining, @errors]
         end
@@ -103,6 +111,44 @@ module TTY
             end
           else
             @parsed[kwarg.name] = Pipeline.process(kwarg, value)
+          end
+        end
+
+        # Record or raise an error
+        #
+        # @api private
+        def record_error(type, message, arg = nil)
+          if @raise_if_missing
+            raise type, message
+          end
+
+          type_key = type.to_s.split("::").last
+                         .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
+                         .downcase.to_sym
+
+          if arg
+            (@errors[arg.name] ||= {}).merge!(type_key => message)
+          else
+            @errors[:invalid] = message
+          end
+        end
+
+        # Check if required parameters are provided
+        #
+        # @raise [MissingParameter]
+        #
+        # @api private
+        def check_required
+          return if @required.empty?
+
+          @required.each do |param|
+            name = if param.respond_to?(:long_name)
+              param.long? ? param.long_name : param.short_name
+            else
+              param.name
+            end
+            record_error(MissingParameter,
+                         "need to provide '#{name}' #{param.to_sym}", param)
           end
         end
       end # Keywords
