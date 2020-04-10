@@ -75,6 +75,28 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect(rest).to eq(["foo=3"])
     end
 
+    it "doesn't find enough keywords to match specific arity" do
+      expect {
+        parse(%w[foo=1], keyword(:foo, arity: 2))
+      }.to raise_error(TTY::Option::InvalidArity,
+                      "expected keyword :foo to appear 2 times but " \
+                      "appeared 1 time")
+    end
+
+    it "parses minimum number of keywords to satisfy at least arity" do
+      params, = parse(%w[foo=1 foo=2 foo=3], keyword(:foo, arity: -3))
+
+      expect(params[:foo]).to eq(%w[1 2 3])
+    end
+
+    it "doesn't find enough keywords to match at least arity" do
+      expect {
+        parse(%w[foo=1], keyword(:foo, arity: -3))
+      }.to raise_error(TTY::Option::InvalidArity,
+                      "expected keyword :foo to appear at least 2 times but " \
+                      "appeared 1 time")
+    end
+
     it "parses multiple keywords" do
       params, rest = parse(%w[foo=1 foo=2 foo=3], keyword(:foo, arity: :any))
 

@@ -22,9 +22,12 @@ module TTY
           @remaining = []
           @names = {}
           @required = []
+          @arities = Hash.new(0)
+          @multiplies = {}
 
           @keywords.each do |kwarg|
             @names[kwarg.name.to_s] = kwarg
+            @multiplies[kwarg.name] = kwarg if kwarg.multiple?
 
             if kwarg.default?
               case kwarg.default
@@ -49,6 +52,7 @@ module TTY
             kwarg, value = next_keyword
             break if kwarg.nil?
             @required.delete(kwarg)
+            @arities[kwarg.name] += 1
 
             if block_given?
               yield(kwarg, value)
@@ -56,6 +60,7 @@ module TTY
             assign_keyword(kwarg, value)
           end
 
+          check_arity
           check_required
 
           [@parsed, @remaining, @errors]
@@ -131,6 +136,36 @@ module TTY
           else
             @errors[:invalid] = message
           end
+        end
+
+        # Check if parameter matches arity
+        #
+        # @raise [InvalidArity]
+        #
+        # @api private
+        def check_arity
+          @multiplies.each do |name, kwarg|
+            arity = @arities[name]
+
+            if 0 < kwarg.arity.abs && arity < kwarg.arity.abs
+              prefix = kwarg.arity < 0 ? "at least " : ""
+              expected_arity = kwarg.arity < 0 ? kwarg.arity.abs - 1 : kwarg.arity
+
+              record_error(InvalidArity, format(
+                "expected keyword %s to appear %s but appeared %s",
+                name.inspect,
+                prefix + pluralize("time", expected_arity),
+                pluralize("time", arity)
+              ))
+            end
+          end
+        end
+
+        # Pluralize a noun
+        #
+        # @api private
+        def pluralize(noun, count = 1)
+          "#{count} #{noun}#{'s' unless count == 1}"
         end
 
         # Check if required parameters are provided
