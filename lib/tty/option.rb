@@ -21,13 +21,14 @@ module TTY
     end
 
     module Interface
-      def params
-        @params ||= {}
+      def parameters
+        @parameters ||= {}
       end
+      alias :params :parameters
 
       def parse(argv = ARGV, env = ENV)
         parser = Parser.new(self.class.parameters)
-        @params = parser.parse(argv, env)
+        @parameters = parser.parse(argv, env)
       end
     end
   end # Option
