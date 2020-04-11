@@ -92,9 +92,8 @@ module TTY
 
           if 0 < values.size && values.size < arg.arity &&
               Array(@defaults[arg.name]).size < arg.arity
-            record_error(InvalidArity, format(
-              "expected argument %s to appear %d times but appeared %d times",
-              arg.name.inspect, arg.arity, values.size), arg)
+            error = InvalidArity.new(arg, values.size)
+            record_error(error, error.message, arg)
           end
 
           values
@@ -124,8 +123,8 @@ module TTY
           end
 
           if values.size < arity && Array(@defaults[arg.name]).size < arity
-            record_error(InvalidArity, format(
-              "expected argument %s to appear at least %d times but appeared %d times", arg.name.inspect, arity, values.size, arg))
+            error = InvalidArity.new(arg, values.size)
+            record_error(error, error.message, arg)
           end
 
           values
@@ -170,17 +169,24 @@ module TTY
         # Record or raise an error
         #
         # @api private
-        def record_error(type, message, arg = nil)
+        def record_error(error, message, param = nil)
+          is_class = error.is_a?(Class)
+
           if @raise_if_missing
-            raise type, message
+            if is_class
+              raise error, message
+            else
+              raise error
+            end
           end
 
-          type_key = type.to_s.split("::").last
+          type_name = is_class ? error.name : error.class.name
+          type_key = type_name.to_s.split("::").last
                          .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
                          .downcase.to_sym
 
-          if arg
-            (@errors[arg.name] ||= {}).merge!(type_key => message)
+          if param
+            (@errors[param.name] ||= {}).merge!(type_key => message)
           else
             @errors[:invalid] = message
           end

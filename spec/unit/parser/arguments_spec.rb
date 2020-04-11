@@ -29,7 +29,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
       parse(%w[a], arg(:foo, arity: 2))
     }.to raise_error(TTY::Option::InvalidArity,
                      "expected argument :foo to appear 2 times but " \
-                     "appeared 1 times")
+                     "appeared 1 time")
   end
 
   it "doesn't find enough arguments to match at least arity" do
@@ -37,7 +37,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
       parse(%w[a], arg(:foo, arity: -3))
     }.to raise_error(TTY::Option::InvalidArity,
                      "expected argument :foo to appear at least 2 times but " \
-                     "appeared 1 times")
+                     "appeared 1 time")
   end
 
   it "doesn't find any arguments to match zero or more arity" do
@@ -70,7 +70,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
 
     expect(args[:foo]).to eq("a")
     expect(rest).to eq([])
-    expect(errors[:foo]).to eq({invalid_arity: "expected argument :foo to appear 2 times but appeared 1 times"})
+    expect(errors[:foo]).to eq({invalid_arity: "expected argument :foo to appear 2 times but appeared 1 time"})
   end
 
   it "parses zero or more arguments" do

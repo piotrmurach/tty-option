@@ -242,18 +242,27 @@ module TTY
           !value.match(/^-./).nil?
         end
 
+        # Record or raise an error
+        #
         # @api private
-        def record_error(type, message, opt = nil)
+        def record_error(error, message, param = nil)
+          is_class = error.is_a?(Class)
+
           if @raise_if_missing
-            raise type, message
+            if is_class
+              raise error, message
+            else
+              raise error
+            end
           end
 
-          type_key = type.to_s.split("::").last
+          type_name = is_class ? error.name : error.class.name
+          type_key = type_name.to_s.split("::").last
                          .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
                          .downcase.to_sym
 
-          if opt
-            (@errors[opt.name] ||= {}).merge!(type_key => message)
+          if param
+            (@errors[param.name] ||= {}).merge!(type_key => message)
           else
             @errors[:invalid] = message
           end
@@ -293,25 +302,10 @@ module TTY
             arity = @arities[name]
 
             if 0 < param.arity.abs && arity < param.arity.abs
-              prefix = param.arity < 0 ? "at least " : ""
-              expected_arity = param.arity < 0 ? param.arity.abs - 1 : param.arity
-
-              record_error(InvalidArity, format(
-                "expected %s %s to appear %s but appeared %s",
-                param.to_sym,
-                name.inspect,
-                prefix + pluralize("time", expected_arity),
-                pluralize("time", arity)
-              ), param)
+              error = InvalidArity.new(param, arity)
+              record_error(error, error.message, param)
             end
           end
-        end
-
-        # Pluralize a noun
-        #
-        # @api private
-        def pluralize(noun, count = 1)
-          "#{count} #{noun}#{'s' unless count == 1}"
         end
 
         # Check if required options are provided
