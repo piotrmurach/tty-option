@@ -22,6 +22,13 @@ module TTY
 
       attr_reader :parameters
 
+      PARAMETER_PARSERS = {
+        options: TTY::Option::Parser::Options,
+        keywords: TTY::Option::Parser::Keywords,
+        arguments: TTY::Option::Parser::Arguments,
+        environments: TTY::Option::Parser::Environments
+      }
+
       def initialize(parameters)
         @parameters = parameters
       end
@@ -30,25 +37,15 @@ module TTY
         argv = argv.dup
         params = {}
 
-        opts_parser = TTY::Option::Parser::Options.new(options)
-        parsed, unparsed_argv = opts_parser.parse(argv)
-
-        params.merge!(parsed)
-
-        keyword_parser = TTY::Option::Parser::Keywords.new(keywords)
-        parsed, unparsed_argv = keyword_parser.parse(unparsed_argv)
-
-        params.merge!(parsed)
-
-        arg_parser = TTY::Option::Parser::Arguments.new(arguments)
-        parsed, unparsed_argv = arg_parser.parse(unparsed_argv)
-
-        params.merge!(parsed)
-
-        env_parser = TTY::Option::Parser::Environments.new(environments)
-        parsed, unparsed_argv = env_parser.parse(unparsed_argv, env)
-
-        params.merge!(parsed)
+        PARAMETER_PARSERS.each do |name, parser_type|
+          parser = parser_type.new(parameters.send(name))
+          if name == :environments
+            parsed, argv = parser.parse(argv, env)
+          else
+            parsed, argv = parser.parse(argv)
+          end
+          params.merge!(parsed)
+        end
 
         params
       end
