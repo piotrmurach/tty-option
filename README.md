@@ -46,16 +46,101 @@ Or install it yourself as:
   * [2.4 option](#24-option)
   * [2.5 settings](#25-settings)
     * [2.5.1 arity](#251-arity)
-    * [2.5.2 default](#252-default)
-    * [2.5.3 convert](#253-convert)
+    * [2.5.2 convert](#252-convert)
+    * [2.5.3 default](#253-default)
+    * [2.5.4 permit](#254-permit)
+    * [2.5.5 validate](#255-validate)
 
 ## 1. Usage
+
+To start parsing command line parameters include `TTY::Option` module.
+
+Now, you're ready to define parsed parameters like arguments, keywords, flags, options or environment variables.
+
+For example, a quick demo to create a command that mixes all parameters usage:
 
 ```ruby
 class Command
   include TTY::Option
+
+  argument :action
+
+  argument :image
+
+  keyword :restart do
+    default "no"
+    permit %w[no on-failure always unless-stopped]
+  end
+
+  flag :detach do
+    short "-d"
+    long "--detach"
+  end
+
+  option :name do
+    required
+    long "--name string"
+  end
+
+  option :port do
+    short "-p"
+    long "--publish list"
+    convert :list
+  end
+
+  env :rails_env
+
+  def run
+    puts params[:action]
+    puts params[:image]
+    puts params[:detach]
+    puts params[:port]
+    puts params[:restart]
+    puts params[:name]
+    puts params[:rails_env]
+  end
 end
 ```
+
+Then create a command instance:
+
+```ruby
+cmd = Command.new
+```
+
+And provided input from the command line:
+
+```
+RAILS_ENV=production run restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4
+```
+
+Start parsing from `ARGV` or provide a custom array of inputs:
+
+```
+cmd.parse
+# or
+cmd.parse(["RAILS_ENV=production", "run", "restart=always", "-d", ...])
+```
+
+And run the command to see the values:
+
+```ruby
+cmd.run
+# =>
+#  "run"
+#  "ubuntu:16.4"
+#  true
+#  ["5000:3000", "5001:8080"]
+#  "always"
+#  "web"
+#  "production"
+````
+
+The `cmd` object also has a direct access to all the parameters via `params`:
+
+```ruby
+cmd.params[:name] # => "web"
+````
 
 ## 2. API
 
@@ -109,17 +194,16 @@ argument :foo do
 end
 ````
 
-Then parsing:
+Then parsing from the command line:
 
 ```ruby
-cmd.parse(%w[foo=1 foo=2])
+foo=1 foo=2
 ```
 
 Will give the following:
 
 ```ruby
-cmd.params[:foo]
-# => [1, 2]
+params[:foo] # => [1, 2]
 ```
 
 To match any number of times use `:any`, `-1`, or `zero_or_more`:
@@ -130,7 +214,7 @@ argument :foo do
 end
 ```
 
-To match at at least one time use `one_or_more`:
+To match at at least one time use `one_or_more` or `two_or_more` for two times:
 
 ```ruby
 option :foo do
@@ -148,9 +232,7 @@ keyword :foo do
 end
 ```
 
-#### 2.5.2 default
-
-#### 2.5.3 convert
+#### 2.5.2 convert
 
 You can convert any parameter argument to another type using the `convert` method with a predefined symbol or class name. For example, to convert an argument to integer you can do:
 
@@ -201,15 +283,15 @@ end
 And then parsing the following:
 
 ```ruby
-cmd.parse(%w[--foo t,f,t --bar a:1 b:2 c:3])
+--foo t,f,t --bar a:1 b:2 c:3
 ```
 
 Will give:
 
 ```ruby
-cmd.params[:foo]
+params[:foo]
 # => [true, false, true]
-cmd.params[:bar]
+params[:bar]
 # => {a:1, b:2, c:3}
 ````
 
@@ -221,6 +303,12 @@ option :bar do
   convert ->(val) { val.upcase }
 end
 ```
+
+#### 2.5.3 default
+
+#### 2.5.4 permit
+
+#### 2.5.5 validate
 
 ## Development
 
