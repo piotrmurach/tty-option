@@ -59,7 +59,25 @@ module TTY
     MissingArgument = Class.new(Error)
 
     # Raised when a parameter is required but not present
-    MissingParameter = Class.new(Error)
+    class MissingParameter < Error
+      def initialize(param_or_message)
+        if param_or_message.is_a?(Parameter)
+          param = param_or_message
+
+          name = if param.respond_to?(:long_name)
+            param.long? ? param.long_name : param.short_name
+          else
+            param.name
+          end
+
+          message =  "need to provide '#{name}' #{param.to_sym}"
+        else
+          message = param_or_message
+        end
+
+        super(message)
+      end
+    end
 
     # Raised when attempting to register already registered parameter
     ParameterConflict = Class.new(Error)
