@@ -116,7 +116,7 @@ RAILS_ENV=production run restart=always -d -p 5000:3000 5001:8080 --name web ubu
 
 Start parsing from `ARGV` or provide a custom array of inputs:
 
-```
+```ruby
 cmd.parse
 # or
 cmd.parse(["RAILS_ENV=production", "run", "restart=always", "-d", ...])
@@ -197,13 +197,33 @@ end
 Then parsing from the command line:
 
 ```ruby
-foo=1 foo=2
+bar baz
 ```
 
 Will give the following:
 
 ```ruby
-params[:foo] # => [1, 2]
+params[:foo] # => ["bar", "baz"]
+```
+
+For parameters that expect a value, specifying arity will collect all the values matching arity requirement. For example, matching keywords:
+
+```ruby
+keyword :foo do
+  arity 3
+end
+```
+
+And then parsing the following:
+
+```
+foo=1 foo=2 foo=3
+```
+
+Will produce:
+
+```ruby
+params[:foo] # => ["1", "2", "3"]
 ```
 
 To match any number of times use `:any`, `-1`, or `zero_or_more`:
@@ -307,6 +327,51 @@ end
 #### 2.5.3 default
 
 #### 2.5.4 permit
+
+The `permit` setting a restricted set of possible values:
+
+```
+option :foo do
+  long "--foo string"
+  permit ["bar", "baz"]
+end
+```
+
+And then parsing
+
+```
+--foo bar
+```
+
+Will populate parameters value:
+
+```ruby
+params[:foo] # => "bar"
+```
+
+Attempting to parse not permitted value will raise an error:
+
+```
+--foo qux
+# raises TTY::Option::UnpermitedArgument
+```
+
+Permitted values are checked after applying conversion:
+
+```ruby
+option :foo do
+  long "--foo int"
+  confert :int
+  permit [11, 12, 13]
+end
+```
+
+Then parsing:
+
+```
+--foo 14
+# raises TTY::Option::UnpermittedArgument
+```
 
 #### 2.5.5 validate
 
