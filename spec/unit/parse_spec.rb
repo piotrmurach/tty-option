@@ -576,4 +576,51 @@ RSpec.describe TTY::Option do
       end
     end
   end
+
+  context "when mixed parameters" do
+    it "parses a complex command" do
+      cmd = new_command do
+        argument :action
+
+        argument :image
+
+        keyword :restart do
+          default "no"
+          permit %w[no on-failure always unless-stopped]
+        end
+
+        flag :detach do
+          short "-d"
+          long "--detach"
+        end
+
+        option :name do
+          required
+          long "--name string"
+        end
+
+        option :port do
+          short "-p"
+          long "--publish list"
+          convert :list
+        end
+
+        env :rails_env do
+          default "development"
+        end
+      end
+
+      cmd.parse(%w[
+        RAILS_ENV=production run restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4
+      ])
+
+      expect(cmd.params[:action]).to eq("run")
+      expect(cmd.params[:image]).to eq("ubuntu:16.4")
+      expect(cmd.params[:detach]).to eq(true)
+      expect(cmd.params[:port]).to eq(%w[5000:3000 5001:8080])
+      expect(cmd.params[:restart]).to eq("always")
+      expect(cmd.params[:name]).to eq("web")
+      expect(cmd.params[:rails_env]).to eq("production")
+    end
+  end
 end
