@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../pipeline"
+require_relative "../error_aggregator"
 
 module TTY
   module Option
@@ -23,13 +24,13 @@ module TTY
           @raise_if_missing = config.fetch(:raise_if_missing) { true }
           @check_invalid_options = config.fetch(:check_invalid_options) { true }
           @parsed = {}
-          @errors = {}
           @remaining = []
           @shorts = {}
           @longs = {}
           @arities = Hash.new(0)
           @required = []
           @multiplies = {}
+          @error_aggregator = ErrorAggregator.new(**config)
 
           setup_opts
         end
@@ -82,7 +83,7 @@ module TTY
           check_arity
           check_required
 
-          [@parsed, @remaining, @errors]
+          [@parsed, @remaining, @error_aggregator.errors]
         end
 
         private
@@ -132,9 +133,9 @@ module TTY
               elsif !@argv.empty?
                 value = opt.multi_argument? ? consume_arguments(opt) : @argv.shift
               else
-                record_error(MissingArgument,
-                             "option #{long} requires an argument",
-                             opt)
+                @error_aggregator.(MissingArgument,
+                                   "option #{long} requires an argument",
+                                   opt)
               end
             elsif opt.argument_optional?
               if !rest.empty?
@@ -161,12 +162,12 @@ module TTY
 
             if matching_options.zero?
               if @check_invalid_options
-                record_error(InvalidOption, "invalid option #{long}")
+                @error_aggregator.(InvalidOption, "invalid option #{long}")
               end
             elsif matching_options == 1
               value = long[opt.long_name.size..-1]
             else
-              record_error(AmbiguousOption, "option #{long} is ambiguous")
+              @error_aggregator.(AmbiguousOption, "option #{long} is ambiguous")
             end
           end
 
@@ -193,9 +194,9 @@ module TTY
               elsif !@argv.empty?
                 value = opt.multi_argument? ? consume_arguments(opt) : @argv.shift
               else
-                record_error(MissingArgument,
-                             "option #{short} requires an argument",
-                             opt)
+                @error_aggregator.(MissingArgument,
+                                   "option #{short} requires an argument",
+                                   opt)
               end
             elsif opt.argument_optional?
               if !other_singles.empty?
@@ -214,7 +215,7 @@ module TTY
               value = true
             end
           elsif @check_invalid_options
-            record_error(InvalidOption, "invalid option #{short}")
+            @error_aggregator.(InvalidOption, "invalid option #{short}")
           end
 
           [opt, value]
@@ -240,32 +241,6 @@ module TTY
         # @api private
         def option?(value)
           !value.match(/^-./).nil?
-        end
-
-        # Record or raise an error
-        #
-        # @api private
-        def record_error(error, message, param = nil)
-          is_class = error.is_a?(Class)
-
-          if @raise_if_missing
-            if is_class
-              raise error, message
-            else
-              raise error
-            end
-          end
-
-          type_name = is_class ? error.name : error.class.name
-          type_key = type_name.to_s.split("::").last
-                         .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
-                         .downcase.to_sym
-
-          if param
-            (@errors[param.name] ||= {}).merge!(type_key => message)
-          else
-            @errors[:invalid] = message
-          end
         end
 
         # @api private
@@ -303,7 +278,7 @@ module TTY
 
             if 0 < param.arity.abs && arity < param.arity.abs
               error = InvalidArity.new(param, arity)
-              record_error(error, error.message, param)
+              @error_aggregator.(error, error.message, param)
             end
           end
         end
@@ -322,8 +297,8 @@ module TTY
             else
               opt.name
             end
-            record_error(MissingParameter,
-                         "need to provide #{name} #{opt.to_sym}", opt)
+            @error_aggregator.(MissingParameter,
+                              "need to provide #{name} #{opt.to_sym}", opt)
           end
         end
       end # Options
