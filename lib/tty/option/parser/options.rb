@@ -127,11 +127,11 @@ module TTY
               if !rest.empty? || sep.to_s.include?("=")
                 value = rest
                 if opt.multi_argument? &&
-                   !(consumed = consume_arguments(opt)).empty?
+                   !(consumed = consume_arguments).empty?
                   value = [rest] + consumed
                 end
               elsif !@argv.empty?
-                value = opt.multi_argument? ? consume_arguments(opt) : @argv.shift
+                value = opt.multi_argument? ? consume_arguments : @argv.shift
               else
                 @error_aggregator.(MissingArgument,
                                    "option #{long} requires an argument",
@@ -141,11 +141,11 @@ module TTY
               if !rest.empty?
                 value = rest
                 if opt.multi_argument? &&
-                   !(consumed = consume_arguments(opt)).empty?
+                   !(consumed = consume_arguments).empty?
                   value = [rest] + consumed
                 end
               elsif !@argv.empty?
-                value = opt.multi_argument? ? consume_arguments(opt) : @argv.shift
+                value = opt.multi_argument? ? consume_arguments : @argv.shift
               end
             else # boolean flag
               value = true
@@ -188,11 +188,11 @@ module TTY
               if !other_singles.empty?
                 value = other_singles
                 if opt.multi_argument? &&
-                   !(consumed = consume_arguments(opt)).empty?
+                   !(consumed = consume_arguments).empty?
                   value = [other_singles] + consumed
                 end
               elsif !@argv.empty?
-                value = opt.multi_argument? ? consume_arguments(opt) : @argv.shift
+                value = opt.multi_argument? ? consume_arguments : @argv.shift
               else
                 @error_aggregator.(MissingArgument,
                                    "option #{short} requires an argument",
@@ -202,11 +202,11 @@ module TTY
               if !other_singles.empty?
                 value = other_singles
                 if opt.multi_argument? &&
-                   !(consumed = consume_arguments(opt)).empty?
+                   !(consumed = consume_arguments).empty?
                   value = [other_singles] + consumed
                 end
               elsif !@argv.empty?
-                value = opt.multi_argument? ? consume_arguments(opt) : @argv.shift
+                value = opt.multi_argument? ? consume_arguments : @argv.shift
               end
             else # boolean flag
               if !other_singles.empty?
@@ -223,10 +223,8 @@ module TTY
 
         # Consume multi argument
         #
-        # @param [Option] opt
-        #
         # @api private
-        def consume_arguments(opt, values: [])
+        def consume_arguments(values: [])
           while (value = @argv.first) && !option?(value)
             val = @argv.shift
             parts = val.include?("&") ? val.split(/&/) : [val]
