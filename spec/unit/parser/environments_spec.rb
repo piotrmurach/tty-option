@@ -104,6 +104,28 @@ RSpec.describe TTY::Option::Parser::Environments do
       expect(params[:foo]).to eq(%w[a c b])
       expect(rest).to eq([])
     end
+
+    it "doesn't find enough env vars to match specific arity" do
+      expect {
+        parse(%w[FOO=a], {}, env(:foo, arity: 2))
+      }.to raise_error(TTY::Option::InvalidArity,
+                      "expected environment :foo to appear 2 times but " \
+                      "appeared 1 time")
+    end
+
+    it "parses minimum number of env vars to satisfy at least arity" do
+      params, = parse(%w[FOO=a FOO=b], {"FOO" => "c"}, env(:foo, arity: -3))
+
+      expect(params[:foo]).to eq(%w[a b c])
+    end
+
+    it "doesn't find enough env vars to match at least arity" do
+      expect {
+        parse(%w[FOO=a], {}, env(:foo, arity: -3))
+      }.to raise_error(TTY::Option::InvalidArity,
+                      "expected environment :foo to appear at least 2 times but " \
+                      "appeared 1 time")
+    end
   end
 
   context "when :default" do

@@ -21,10 +21,13 @@ module TTY
           @errors = {}
           @remaining = []
           @names = {}
+          @arities = Hash.new(0)
           @required = []
+          @multiplies = {}
 
           @environments.each do |env_arg|
             @names[env_arg.var.to_s] = env_arg
+            @multiplies[env_arg.name] = env_arg if env_arg.multiple?
 
             if env_arg.default?
               case env_arg.default
@@ -53,6 +56,7 @@ module TTY
             env_var, value = next_envvar
             break if env_var.nil?
             @required.delete(env_var)
+            @arities[env_var.name] += 1
 
             if block_given?
               yield(env_var, value)
@@ -63,10 +67,12 @@ module TTY
           @environments.each do |env_arg|
             if (value = env[env_arg.var])
               @required.delete(env_arg)
+              @arities[env_arg.name] += 1
               assign_envvar(env_arg, value)
             end
           end
 
+          check_arity
           check_required
 
           [@parsed, @remaining, @errors]
@@ -131,6 +137,22 @@ module TTY
             (@errors[param.name] ||= {}).merge!(type_key => message)
           else
             @errors[:invalid] = message
+          end
+        end
+
+        # Check if parameter matches arity
+        #
+        # @raise [InvalidArity]
+        #
+        # @api private
+        def check_arity
+          @multiplies.each do |name, param|
+            arity = @arities[name]
+
+            if 0 < param.arity.abs && arity < param.arity.abs
+              error = InvalidArity.new(param, arity)
+              record_error(error, error.message, param)
+            end
           end
         end
 
