@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../pipeline"
 require_relative "../error_aggregator"
+require_relative "../pipeline"
 
 module TTY
   module Option
@@ -23,6 +23,7 @@ module TTY
           @options = options
           @raise_if_missing = config.fetch(:raise_if_missing) { true }
           @check_invalid_options = config.fetch(:check_invalid_options) { true }
+          @error_aggregator = ErrorAggregator.new(**config)
           @parsed = {}
           @remaining = []
           @shorts = {}
@@ -30,7 +31,6 @@ module TTY
           @arities = Hash.new(0)
           @required = []
           @multiplies = {}
-          @error_aggregator = ErrorAggregator.new(**config)
 
           setup_opts
         end

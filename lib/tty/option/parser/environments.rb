@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "../error_aggregator"
 require_relative "../pipeline"
 
 module TTY
@@ -16,9 +17,8 @@ module TTY
         # @api public
         def initialize(environments, **config)
           @environments = environments
-          @raise_if_missing = config.fetch(:raise_if_missing) { true }
+          @error_aggregator = ErrorAggregator.new(**config)
           @parsed = {}
-          @errors = {}
           @remaining = []
           @names = {}
           @arities = Hash.new(0)
@@ -75,7 +75,7 @@ module TTY
           check_arity
           check_required
 
-          [@parsed, @remaining, @errors]
+          [@parsed, @remaining, @error_aggregator.errors]
         end
 
         private
@@ -121,25 +121,6 @@ module TTY
           end
         end
 
-        # Record or raise an error
-        #
-        # @api private
-        def record_error(type, message, param = nil)
-          if @raise_if_missing
-            raise type, message
-          end
-
-          type_key = type.to_s.split("::").last
-                         .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
-                         .downcase.to_sym
-
-          if param
-            (@errors[param.name] ||= {}).merge!(type_key => message)
-          else
-            @errors[:invalid] = message
-          end
-        end
-
         # Check if parameter matches arity
         #
         # @raise [InvalidArity]
@@ -151,7 +132,7 @@ module TTY
 
             if 0 < param.arity.abs && arity < param.arity.abs
               error = InvalidArity.new(param, arity)
-              record_error(error, error.message, param)
+              @error_aggregator.(error, error.message, param)
             end
           end
         end
@@ -170,8 +151,8 @@ module TTY
             else
               param.name
             end
-            record_error(MissingParameter,
-                         "need to provide '#{name}' #{param.to_sym}", param)
+            @error_aggregator.(MissingParameter,
+                               "need to provide '#{name}' #{param.to_sym}", param)
           end
         end
       end # Environments

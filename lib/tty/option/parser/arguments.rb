@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "../error_aggregator"
 require_relative "../pipeline"
 
 module TTY
@@ -16,8 +17,7 @@ module TTY
         # @api public
         def initialize(arguments, **config)
           @arguments = arguments
-          @raise_if_missing = config.fetch(:raise_if_missing) { true }
-          @errors = {}
+          @error_aggregator = ErrorAggregator.new(**config)
           @parsed = {}
           @remaining = []
           @required = []
@@ -61,7 +61,7 @@ module TTY
 
           check_required
 
-          [@parsed, @remaining, @errors]
+          [@parsed, @remaining, @error_aggregator.errors]
         end
 
         private
@@ -93,7 +93,7 @@ module TTY
           if 0 < values.size && values.size < arg.arity &&
               Array(@defaults[arg.name]).size < arg.arity
             error = InvalidArity.new(arg, values.size)
-            record_error(error, error.message, arg)
+            @error_aggregator.(error, error.message, arg)
           end
 
           values
@@ -124,7 +124,7 @@ module TTY
 
           if values.size < arity && Array(@defaults[arg.name]).size < arity
             error = InvalidArity.new(arg, values.size)
-            record_error(error, error.message, arg)
+            @error_aggregator.(error, error.message, arg)
           end
 
           values
@@ -164,32 +164,6 @@ module TTY
         # @api private
         def keyword?(value)
           !value.match(/^(.+)=(.+)/).nil?
-        end
-
-        # Record or raise an error
-        #
-        # @api private
-        def record_error(error, message, param = nil)
-          is_class = error.is_a?(Class)
-
-          if @raise_if_missing
-            if is_class
-              raise error, message
-            else
-              raise error
-            end
-          end
-
-          type_name = is_class ? error.name : error.class.name
-          type_key = type_name.to_s.split("::").last
-                         .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
-                         .downcase.to_sym
-
-          if param
-            (@errors[param.name] ||= {}).merge!(type_key => message)
-          else
-            @errors[:invalid] = message
-          end
         end
 
         # Assign argument to the parsed
@@ -232,8 +206,8 @@ module TTY
             else
               param.name
             end
-            record_error(MissingParameter,
-                         "need to provide '#{name}' #{param.to_sym}", param)
+            @error_aggregator.(MissingParameter,
+                              "need to provide '#{name}' #{param.to_sym}", param)
           end
         end
       end # Arguments
