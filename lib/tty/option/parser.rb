@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "error_aggregator"
 require_relative "parser/arguments"
 require_relative "parser/environments"
 require_relative "parser/keywords"
