@@ -289,14 +289,9 @@ module TTY
         def check_required
           return if @required.empty?
 
-          @required.each do |opt|
-            name = if opt.respond_to?(:long_name)
-              opt.long? ? opt.long_name : opt.short_name
-            else
-              opt.name
-            end
-            @error_aggregator.(MissingParameter,
-                              "need to provide #{name} #{opt.to_sym}", opt)
+          @required.each do |param|
+            error = MissingParameter.new(param)
+            @error_aggregator.(error, error.message, param)
           end
         end
       end # Options

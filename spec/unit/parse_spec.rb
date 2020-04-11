@@ -366,7 +366,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse([])
       }.to raise_error(TTY::Option::MissingParameter,
-                       "need to provide --foo option")
+                       "need to provide '--foo' option")
     end
 
     it "marks an option as optional with required argument" do

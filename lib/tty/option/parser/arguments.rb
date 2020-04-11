@@ -201,13 +201,8 @@ module TTY
           return if @required.empty?
 
           @required.each do |param|
-            name = if param.respond_to?(:long_name)
-              param.long? ? param.long_name : param.short_name
-            else
-              param.name
-            end
-            @error_aggregator.(MissingParameter,
-                              "need to provide '#{name}' #{param.to_sym}", param)
+            error = MissingParameter.new(param)
+            @error_aggregator.(error, error.message, param)
           end
         end
       end # Arguments
