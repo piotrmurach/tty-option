@@ -355,11 +355,48 @@ RSpec.describe TTY::Option::Parser::Options do
       expect(rest).to eq(%w[-f 3])
     end
 
+    it "parses short flag with required argument many times and keeps only two" do
+      opt = option(:foo, short: "-f int", convert: :int_map, arity: 2)
+      params, rest = parse(%w[-f a:1 -f b:2 -f c:3], opt)
+
+      expect(params[:foo]).to eq({a: 1, b: 2})
+      expect(rest).to eq(["-f", {c: 3}])
+    end
+
     it "parses short flag with required argument many times and keeps all" do
       params, rest = parse(%w[-f 1 -f 2 -f 3], option(:foo, short: "-f int", arity: :any))
 
       expect(params[:foo]).to eq(%w[1 2 3])
       expect(rest).to eq([])
+    end
+
+    it "fails to match required arity for short flag" do
+      expect {
+        parse(%w[-f 1], option(:foo, short: "-f int", arity: 2))
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "expected option :foo to appear 2 times but appeared 1 time")
+    end
+
+    it "doesn't find enought options to match at least arity for short flag" do
+      expect {
+        parse(%w[-f 1], option(:foo, short: "-f int", arity: -3))
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "expected option :foo to appear at least 2 times but " \
+                       "appeared 1 time")
+    end
+
+    it "collects all arity errors" do
+      options = []
+      options << option(:foo, short: "-f int", arity: 2)
+      options << option(:bar, short: "-b int", arity: -3)
+
+      params, rest, errors = parse(%w[-f 1 -b 2], options, raise_if_missing: false)
+
+      expect(params[:foo]).to eq(["1"])
+      expect(params[:bar]).to eq(["2"])
+      expect(rest).to eq([])
+      expect(errors[:foo]).to eq({invalid_arity: "expected option :foo to appear 2 times but appeared 1 time"})
+      expect(errors[:bar]).to eq({invalid_arity: "expected option :bar to appear at least 2 times but appeared 1 time"})
     end
 
     it "parses long flag with required argument and keeps the last argument" do

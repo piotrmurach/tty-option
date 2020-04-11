@@ -27,8 +27,9 @@ module TTY
           @remaining = []
           @shorts = {}
           @longs = {}
-          @arities = {}
+          @arities = Hash.new(0)
           @required = []
+          @multiplies = {}
 
           setup_opts
         end
@@ -40,6 +41,7 @@ module TTY
           @options.each do |opt|
             @shorts[opt.short_name] = opt
             @longs[opt.long_name] = opt
+            @multiplies[opt.name] = opt if opt.multiple?
 
             if opt.default?
               case opt.default
@@ -68,7 +70,7 @@ module TTY
             opt, value = next_option
             break if opt.nil?
             @required.delete(opt)
-            @arities[opt.name] = @arities[opt.name].to_i + 1
+            @arities[opt.name] += 1
 
             if block_given?
               yield(opt, value)
@@ -77,28 +79,10 @@ module TTY
             end
           end
 
+          check_arity
           check_required
 
           [@parsed, @remaining, @errors]
-        end
-
-        # Check if required options are provided
-        #
-        # @raise [MissingParameter]
-        #
-        # @api private
-        def check_required
-          return if @required.empty?
-
-          @required.each do |opt|
-            name = if opt.respond_to?(:long_name)
-              opt.long? ? opt.long_name : opt.short_name
-            else
-              opt.name
-            end
-            record_error(MissingParameter,
-                         "need to provide #{name} #{opt.to_sym}", opt)
-          end
         end
 
         private
@@ -296,6 +280,56 @@ module TTY
             end
           else
             @parsed[opt.name] = value
+          end
+        end
+
+        # Check if parameter matches arity
+        #
+        # @raise [InvalidArity]
+        #
+        # @api private
+        def check_arity
+          @multiplies.each do |name, param|
+            arity = @arities[name]
+
+            if 0 < param.arity.abs && arity < param.arity.abs
+              prefix = param.arity < 0 ? "at least " : ""
+              expected_arity = param.arity < 0 ? param.arity.abs - 1 : param.arity
+
+              record_error(InvalidArity, format(
+                "expected %s %s to appear %s but appeared %s",
+                param.to_sym,
+                name.inspect,
+                prefix + pluralize("time", expected_arity),
+                pluralize("time", arity)
+              ), param)
+            end
+          end
+        end
+
+        # Pluralize a noun
+        #
+        # @api private
+        def pluralize(noun, count = 1)
+          "#{count} #{noun}#{'s' unless count == 1}"
+        end
+
+        # Check if required options are provided
+        #
+        # @raise [MissingParameter]
+        #
+        # @api private
+        def check_required
+          return if @required.empty?
+
+          @required.each do |opt|
+            name = if opt.respond_to?(:long_name)
+              opt.long? ? opt.long_name : opt.short_name
+            else
+              opt.name
+            end
+            record_error(MissingParameter,
+                         "need to provide #{name} #{opt.to_sym}", opt)
           end
         end
       end # Options
