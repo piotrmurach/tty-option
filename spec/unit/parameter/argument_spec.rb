@@ -23,13 +23,15 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "is invalid when nil" do
       expect {
         described_class.new(:foo, arity: nil)
-      }.to raise_error(TTY::Option::InvalidArity, "expects an integer value")
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "argument :foo expects an integer value for arity")
     end
 
     it "is invalid when 0" do
       expect {
         described_class.new(:foo, arity: 0)
-      }.to raise_error(TTY::Option::InvalidArity, "cannot be zero")
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "argument :foo arity cannot be zero")
     end
 
     it "accepts * as zero or more arity" do

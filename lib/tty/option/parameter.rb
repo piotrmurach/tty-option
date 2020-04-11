@@ -16,8 +16,8 @@ module TTY
       attr_reader :settings
 
       def initialize(name, **settings, &block)
-        check_settings!(settings)
         @name = name
+        check_settings!(settings)
         @settings = settings
 
         arity(@settings[:arity]) if @settings.key?(:arity)
@@ -138,7 +138,8 @@ module TTY
       # @api private
       def check_arity(value)
         if value.nil?
-          raise InvalidArity, "expects an integer value"
+          raise InvalidArity,
+                "#{to_sym} #{name.inspect} expects an integer value for arity"
         end
 
         if value.to_s =~ %r{\*|any}
@@ -147,7 +148,7 @@ module TTY
         value = value.to_i
 
         if value.zero?
-          raise InvalidArity, "cannot be zero"
+          raise InvalidArity, "#{to_sym} #{name.inspect} arity cannot be zero"
         end
         value
       end
