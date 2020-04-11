@@ -60,6 +60,12 @@ RSpec.describe TTY::Option::Parser::Environments do
                     "need to provide 'foo' environment")
   end
 
+  it "checks for required env var in env hash" do
+    expect {
+      parse([], {"FOO" => "bar"}, env(:foo, required: true))
+    }.not_to raise_error
+  end
+
   it "accumulates errors for required env vars when missing" do
     envs = []
     envs << env(:foo, required: true)
@@ -90,6 +96,13 @@ RSpec.describe TTY::Option::Parser::Environments do
 
       expect(params[:foo]).to eq(%w[a b c])
       expect(rest).to eq(%w[])
+    end
+
+    it "parses env vars from command line and hash for any arity" do
+      params, rest = parse(%w[FOO=a FOO=c], {"FOO" => "b"}, env(:foo, arity: :any))
+
+      expect(params[:foo]).to eq(%w[a c b])
+      expect(rest).to eq([])
     end
   end
 

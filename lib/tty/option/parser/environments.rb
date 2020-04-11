@@ -62,6 +62,7 @@ module TTY
 
           @environments.each do |env_arg|
             if (value = env[env_arg.var])
+              @required.delete(env_arg)
               assign_envvar(env_arg, value)
             end
           end
