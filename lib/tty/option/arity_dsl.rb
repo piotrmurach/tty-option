@@ -29,6 +29,13 @@ module TTY
         -2
       end
 
+      # Two or more arity
+      #
+      # @api public
+      def two_or_more
+        -3
+      end
+
       # At last number values for arity
       #
       # @api public

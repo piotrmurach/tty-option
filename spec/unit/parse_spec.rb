@@ -140,10 +140,10 @@ RSpec.describe TTY::Option do
                       "appeared 2 times")
     end
 
-    it "reads one or more value and converts to map" do
+    it "reads two or more value and converts to map" do
       cmd = new_command do
         argument :foo do
-          arity one_or_more
+          arity two_or_more
           convert :int_map
         end
       end
