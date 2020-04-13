@@ -328,7 +328,7 @@ end
 
 #### 2.5.4 permit
 
-The `permit` setting a restricted set of possible values:
+The `permit` setting allows you to restrict an input to a set of possible values:
 
 ```
 option :foo do
@@ -374,6 +374,41 @@ Then parsing:
 ```
 
 #### 2.5.5 validate
+
+Use the `validate` setting if you wish to ensure only valid inputs are allowed.
+
+You can use a string or regular expression to describe your validation rule:
+
+```ruby`
+option :foo do
+  long "--foo VAL"
+  validate "\d+"
+end
+```
+
+Then parsing:
+
+```
+--foo bar
+# raises TTY::Option:InvalidArgument
+```
+
+You can also express a validation rule with a `proc` object:
+
+```ruby
+keyword :foo do
+  arity one_or_more
+  convert :int
+  validate ->(val) { val < 12 }
+end
+```
+
+Then parsing:
+
+```
+foo=11 foo=13
+# raises TTY::Option::InvalidArgument
+```
 
 ## Development
 
