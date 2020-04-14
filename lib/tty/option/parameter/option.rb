@@ -91,13 +91,6 @@ module TTY
         def optional?
           !@settings.fetch(:required) { argument_required? }
         end
-
-        # Check if this options is multi argument
-        #
-        # @api public
-        def multi_argument?
-          !convert.to_s.match(/list|array|map|hash|\w+s/).nil?
-        end
       end # Option
     end # Parameter
   end # Option

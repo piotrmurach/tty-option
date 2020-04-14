@@ -85,6 +85,13 @@ module TTY
         @settings.key?(:default) && !@settings[:default].nil?
       end
 
+      # Check if this options is multi argument
+      #
+      # @api public
+      def multi_argument?
+        !convert.to_s.match(/list|array|map|hash|\w+s/).nil?
+      end
+
       def optional
         @settings[:required] = false
       end
