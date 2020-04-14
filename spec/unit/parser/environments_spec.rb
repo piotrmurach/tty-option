@@ -144,11 +144,61 @@ RSpec.describe TTY::Option::Parser::Environments do
     end
   end
 
-  context "when :convert" do
+  context "when a list argument" do
     it "converts an argument to a list" do
       params, rest = parse(%w[FOO=a,b,c], {}, env(:foo, convert: :list))
 
       expect(params[:foo]).to eq(%w[a b c])
+      expect(rest).to eq([])
+    end
+
+    it "parses space delimited arguments as a list" do
+      params, rest = parse(%w[FOO=a b c], {}, env(:foo, convert: :list))
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(rest).to eq([])
+    end
+
+    it "parsers envs with list arguments correctly" do
+      envs = []
+      envs << env(:foo, convert: :list)
+      envs << env(:bar, convert: :list)
+
+      params, rest = parse(%w[FOO=a b BAR=c d e --baz], {}, envs)
+
+      expect(params[:foo]).to eq(%w[a b])
+      expect(params[:bar]).to eq(%w[c d e])
+      expect(rest).to eq(%w[--baz])
+    end
+  end
+
+  context "when a map argument" do
+    it "parses a space delimited arguments as a map" do
+      params, rest = parse(%w[FOO=a:1 b:2 c:3], {}, env(:foo, convert: :map))
+
+      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(rest).to eq([])
+    end
+
+    it "parses maps from different envs" do
+      envs = []
+      envs << env(:foo, convert: :int_map)
+      envs << env(:bar, convert: :int_map)
+
+      params, rest = parse(%w[FOO=a:1 b:2 c:3 BAR=x:1 y:2], {}, envs)
+
+      expect(params[:foo]).to eq({a:1, b:2, c:3})
+      expect(params[:bar]).to eq({x:1, y:2})
+      expect(rest).to eq([])
+    end
+
+    it "combines multiple envs with map arguments" do
+      envs = []
+      envs << env(:foo, convert: :int_map, arity: :any)
+
+      params, rest = parse(%w[FOO=a:1 b:2 FOO=c:3 d:4], {}, envs)
+
+      expect(params[:foo]).to eq({a:1, b:2, c:3, d: 4})
       expect(rest).to eq([])
     end
   end

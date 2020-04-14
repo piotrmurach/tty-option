@@ -92,11 +92,49 @@ module TTY
             name, val = environment.split("=")
 
             if (env_var = @names[name])
-              value = val
+              if env_var.multi_argument? &&
+                  !(consumed = consume_arguments).empty?
+                value = [val] + consumed
+              else
+                value = val
+              end
             end
           end
 
           [env_var, value]
+        end
+
+        # Consume multi argument
+        #
+        # @api private
+        def consume_arguments(values: [])
+          while (value = @argv.first) &&
+            !option?(value) && !keyword?(value) && !env_var?(value)
+
+            val = @argv.shift
+            parts = val.include?("&") ? val.split(/&/) : [val]
+            parts.each { |part| values << part }
+          end
+
+          values
+        end
+
+        # Check if values looks like option
+        #
+        # @api private
+        def option?(value)
+          !value.match(/^-./).nil?
+        end
+
+        # Check if value looks like keyword
+        #
+        # @param [String] value
+        #
+        # @return [Boolean]
+        #
+        # @api private
+        def keyword?(value)
+          !value.to_s.match(/^([^-=][\p{Ll}_\-\d]*)=([^=]+)/).nil?
         end
 
         # Check if value is an environment variable
@@ -109,15 +147,25 @@ module TTY
         end
 
         # @api private
-        def assign_envvar(env_arg, value)
+        def assign_envvar(env_arg, val)
+          value = Pipeline.process(env_arg, val)
+
           if env_arg.multiple?
-            if env_arg.arity < 0 || (@parsed[env_arg.name] || []).size < env_arg.arity
-              (@parsed[env_arg.name] ||=  []) << Pipeline.process(env_arg, value)
+            allowed = env_arg.arity < 0 || @arities[env_arg.name] <= env_arg.arity
+            if allowed
+              case value
+              when Hash
+                (@parsed[env_arg.name] ||=  {}).merge!(value)
+              else
+                Array(value).each do |v|
+                  (@parsed[env_arg.name] ||=  []) << v
+                end
+              end
             else
               @remaining << "#{env_arg.var}=#{value}"
             end
           else
-            @parsed[env_arg.name] = Pipeline.process(env_arg, value)
+            @parsed[env_arg.name] = value
           end
         end
 
