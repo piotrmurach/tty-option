@@ -606,13 +606,13 @@ RSpec.describe TTY::Option do
           convert :list
         end
 
-        env :rails_env do
+        env :cmd_env do
           default "development"
         end
       end
 
       cmd.parse(%w[
-        RAILS_ENV=production run restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4
+        CMD_ENV=production run restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4
       ])
 
       expect(cmd.params[:action]).to eq("run")
@@ -621,7 +621,7 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:port]).to eq(%w[5000:3000 5001:8080])
       expect(cmd.params[:restart]).to eq("always")
       expect(cmd.params[:name]).to eq("web")
-      expect(cmd.params[:rails_env]).to eq("production")
+      expect(cmd.params[:cmd_env]).to eq("production")
     end
   end
 end
