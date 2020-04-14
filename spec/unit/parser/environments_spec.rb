@@ -83,7 +83,7 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect(errors[:baz]).to eq(nil)
   end
 
-  context "when :arity" do
+  context "when multiple times" do
     it "parses an env var matching param name with exact arity" do
       params, rest = parse(%w[FOO=a FOO=b FOO=c], {}, env(:foo, arity: 2))
 
@@ -102,6 +102,15 @@ RSpec.describe TTY::Option::Parser::Environments do
       params, rest = parse(%w[FOO=a FOO=c], {"FOO" => "b"}, env(:foo, arity: :any))
 
       expect(params[:foo]).to eq(%w[a c b])
+      expect(rest).to eq([])
+    end
+
+    it "parses env var many times and keeps all" do
+      envs = []
+      envs << env(:foo, convert: :int_list, arity: -2)
+      params, rest = parse(%w[FOO=1 FOO=2 FOO=3], {}, envs)
+
+      expect(params[:foo]).to eq([1, 2, 3])
       expect(rest).to eq([])
     end
 
@@ -126,9 +135,32 @@ RSpec.describe TTY::Option::Parser::Environments do
                       "expected environment :foo to appear at least 2 times but " \
                       "appeared 1 time")
     end
+
+    it "doesn't find any env vars to match at least arity" do
+      expect {
+        parse([], {}, env(:foo, arity: -2))
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "expected environment :foo to appear at least 1 time but " \
+                       "appeared 0 times")
+    end
+
+    it "collects all arity errors" do
+      envs = []
+      envs << env(:foo, arity: 2)
+      envs << env(:bar, arity: -3)
+
+      params, rest, errors = parse(%w[FOO=1 BAR=2], {}, envs,
+                                   raise_if_missing: false)
+
+      expect(params[:foo]).to eq(["1"])
+      expect(params[:bar]).to eq(["2"])
+      expect(rest).to eq([])
+      expect(errors[:foo]).to eq({invalid_arity: "expected environment :foo to appear 2 times but appeared 1 time"})
+      expect(errors[:bar]).to eq({invalid_arity: "expected environment :bar to appear at least 2 times but appeared 1 time"})
+    end
   end
 
-  context "when :default" do
+  context "when default" do
     it "defaults an env var" do
       params, rest = parse([], {}, env(:foo, default: "bar"))
 

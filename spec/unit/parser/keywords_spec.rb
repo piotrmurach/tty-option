@@ -105,7 +105,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
                       "appeared 1 time")
     end
 
-    it "doesn't find any keywords to match at least arity for short flag" do
+    it "doesn't find any keywords to match at least arity" do
       expect {
         parse([], keyword(:foo, arity: -2))
       }.to raise_error(TTY::Option::InvalidArity,
