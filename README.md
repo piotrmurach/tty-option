@@ -379,7 +379,7 @@ Use the `validate` setting if you wish to ensure only valid inputs are allowed.
 
 You can use a string or regular expression to describe your validation rule:
 
-```ruby`
+```ruby
 option :foo do
   long "--foo VAL"
   validate "\d+"
