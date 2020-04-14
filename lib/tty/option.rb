@@ -21,14 +21,33 @@ module TTY
     end
 
     module Interface
+      # The parsed parameters
+      #
+      # @api public
       def parameters
         @parameters ||= {}
       end
       alias :params :parameters
 
+      # The remaining unparsed arguments
+      #
+      # @api public
+      def remaining
+        @remaining ||= []
+      end
+      alias :remaining_args :remaining
+
+      # Parse command line arguments
+      #
+      # @param [Array<String>] argv
+      #   the command line arguments
+      # @param [Hash] env
+      #   the hash of environment variables
+      #
+      # @api public
       def parse(argv = ARGV, env = ENV)
         parser = Parser.new(self.class.parameters)
-        @parameters = parser.parse(argv, env)
+        @parameters, @remaining = parser.parse(argv, env)
       end
     end
   end # Option

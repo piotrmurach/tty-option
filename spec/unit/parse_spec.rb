@@ -624,4 +624,59 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:cmd_env]).to eq("production")
     end
   end
+
+  context "when remaining arguments" do
+    it "adds unparsed arumguments to remaining" do
+      cmd = new_command do
+        argument :foo
+      end
+
+      cmd.parse(%w[a b c])
+
+      expect(cmd.params[:foo]).to eq("a")
+      expect(cmd.remaining).to eq(%w[b c])
+    end
+  end
+
+  context "stops parsing on --" do
+    it "doesn't include arguments -- split" do
+      cmd = new_command { }
+
+      cmd.parse(%w[--])
+
+      expect(cmd.params).to be_empty
+      expect(cmd.remaining).to eq([])
+    end
+
+    it "doesn't include arguments after --- split" do
+      cmd = new_command { }
+
+      cmd.parse(%w[--- a b])
+
+      expect(cmd.params).to be_empty
+      expect(cmd.remaining).to eq(%w[a b])
+    end
+
+    it "parses anything after -- as remaining arguments" do
+      cmd = new_command do
+        option :foo do
+          arity one_or_more
+          short "-f"
+          long "--foo list"
+          convert :list
+        end
+
+        option :bar do
+          optional
+          short "-b"
+          long "--bar string"
+        end
+      end
+
+      cmd.parse(%w[--foo a b -- --bar c d])
+
+      expect(cmd.params[:foo]).to eq(%w[a b])
+      expect(cmd.remaining).to eq(%w[--bar c d])
+    end
+  end
 end

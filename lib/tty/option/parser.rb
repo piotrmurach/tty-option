@@ -29,6 +29,8 @@ module TTY
         environments: TTY::Option::Parser::Environments
       }
 
+      ARGUMENT_SEPARATOR = /^-{2,}$/.freeze
+
       def initialize(parameters)
         @parameters = parameters
       end
@@ -36,6 +38,15 @@ module TTY
       def parse(argv, env)
         argv = argv.dup
         params = {}
+        ignored = []
+
+        # split argv into processable args and leftovers
+        stop_index = argv.index { |arg| arg.match(ARGUMENT_SEPARATOR) }
+
+        if stop_index
+          ignored = argv.slice!(stop_index..-1)
+          ignored.shift
+        end
 
         PARAMETER_PARSERS.each do |name, parser_type|
           parser = parser_type.new(parameters.send(name))
@@ -47,7 +58,9 @@ module TTY
           params.merge!(parsed)
         end
 
-        params
+        argv += ignored unless ignored.empty?
+
+        [params, argv]
       end
     end # Parser
   end # Option
