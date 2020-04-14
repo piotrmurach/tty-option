@@ -60,7 +60,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(errors[:bar]).to eq({missing_parameter: "need to provide 'bar' keyword"})
   end
 
-  context ":arity" do
+  context "when multiple times" do
     it "parses last keyword without arity" do
       params, rest = parse(%w[foo=1 foo=2], keyword(:foo))
 
@@ -73,6 +73,14 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
       expect(params[:foo]).to eq(%w[1 2])
       expect(rest).to eq(["foo=3"])
+    end
+
+    it "parses short flag with required argument many times and keeps all" do
+      keyword = keyword(:foo, convert: :int_list, arity: -2)
+      params, rest = parse(%w[foo=1 foo=2 foo=3], keyword)
+
+      expect(params[:foo]).to eq([1, 2, 3])
+      expect(rest).to eq([])
     end
 
     it "doesn't find enough keywords to match specific arity" do
@@ -97,15 +105,38 @@ RSpec.describe TTY::Option::Parser::Keywords do
                       "appeared 1 time")
     end
 
+    it "doesn't find any keywords to match at least arity for short flag" do
+      expect {
+        parse([], keyword(:foo, arity: -2))
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "expected keyword :foo to appear at least 1 time but " \
+                       "appeared 0 times")
+    end
+
     it "parses multiple keywords" do
       params, rest = parse(%w[foo=1 foo=2 foo=3], keyword(:foo, arity: :any))
 
       expect(params[:foo]).to eq(%w[1 2 3])
       expect(rest).to eq([])
     end
+
+    it "collects all arity errors" do
+      keywords = []
+      keywords << keyword(:foo, arity: 2)
+      keywords << keyword(:bar, arity: -3)
+
+      params, rest, errors = parse(%w[foo=1 bar=2], keywords,
+                                   raise_if_missing: false)
+
+      expect(params[:foo]).to eq(["1"])
+      expect(params[:bar]).to eq(["2"])
+      expect(rest).to eq([])
+      expect(errors[:foo]).to eq({invalid_arity: "expected keyword :foo to appear 2 times but appeared 1 time"})
+      expect(errors[:bar]).to eq({invalid_arity: "expected keyword :bar to appear at least 2 times but appeared 1 time"})
+    end
   end
 
-  context ":default" do
+  context "when default" do
     it "parses last keyword without arity" do
       params, rest = parse(%w[], keyword(:foo, default: "1"))
 
@@ -114,11 +145,61 @@ RSpec.describe TTY::Option::Parser::Keywords do
     end
   end
 
-  context "when :convert" do
-    it "converts an argument to a list" do
+  context "when a list argument" do
+    it "parses a comma delimited argument as a list" do
       params, rest = parse(%w[foo=a,b,c], keyword(:foo, convert: :list))
 
       expect(params[:foo]).to eq(%w[a b c])
+      expect(rest).to eq([])
+    end
+
+    it "parses space delimited arguments as a list" do
+      params, rest = parse(%w[foo=a b c], keyword(:foo, convert: :list))
+
+      expect(params[:foo]).to eq(%w[a b c])
+      expect(rest).to eq([])
+    end
+
+    it "parsers keywords with list arguments correctly" do
+      keywords = []
+      keywords << keyword(:foo, convert: :list)
+      keywords << keyword(:bar, convert: :list)
+
+      params, rest = parse(%w[foo=a b bar=c d e --baz], keywords)
+
+      expect(params[:foo]).to eq(%w[a b])
+      expect(params[:bar]).to eq(%w[c d e])
+      expect(rest).to eq(%w[--baz])
+    end
+  end
+
+  context "when a map argument" do
+    it "parses a space delimited arguments as a map" do
+      params, rest = parse(%w[foo=a:1 b:2 c:3], keyword(:foo, convert: :map))
+
+      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(rest).to eq([])
+    end
+
+    it "parses maps from different keywords" do
+      keywords = []
+      keywords << keyword(:foo, convert: :int_map)
+      keywords << keyword(:bar, convert: :int_map)
+
+      params, rest = parse(%w[foo=a:1 b:2 c:3 bar=x:1 y:2], keywords)
+
+      expect(params[:foo]).to eq({a:1, b:2, c:3})
+      expect(params[:bar]).to eq({x:1, y:2})
+      expect(rest).to eq([])
+    end
+
+    it "combines multiple keywords with map arguments" do
+      keywords = []
+      keywords << keyword(:foo, convert: :int_map, arity: :any)
+
+      params, rest = parse(%w[foo=a:1 b:2 foo=c:3 d:4], keywords)
+
+      expect(params[:foo]).to eq({a:1, b:2, c:3, d: 4})
       expect(rest).to eq([])
     end
   end

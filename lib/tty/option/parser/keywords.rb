@@ -88,11 +88,36 @@ module TTY
             _, name, val = *match.to_a
 
             if (kwarg = @names[name])
-              value = val
+              if kwarg.multi_argument? &&
+                 !(consumed = consume_arguments).empty?
+                value = [val] + consumed
+              else
+                value = val
+              end
             end
           end
 
           [kwarg, value]
+        end
+
+        # Consume multi argument
+        #
+        # @api private
+        def consume_arguments(values: [])
+          while (value = @argv.first) && !option?(value) && !keyword?(value)
+            val = @argv.shift
+            parts = val.include?("&") ? val.split(/&/) : [val]
+            parts.each { |part| values << part }
+          end
+
+          values
+        end
+
+        # Check if values looks like option
+        #
+        # @api private
+        def option?(value)
+          !value.match(/^-./).nil?
         end
 
         # Check if value looks like keyword
@@ -107,15 +132,25 @@ module TTY
         end
 
         # @api private
-        def assign_keyword(kwarg, value)
+        def assign_keyword(kwarg, val)
+          value = Pipeline.process(kwarg, val)
+
           if kwarg.multiple?
-            if kwarg.arity < 0 || (@parsed[kwarg.name] || []).size < kwarg.arity
-              (@parsed[kwarg.name] ||=  []) << Pipeline.process(kwarg, value)
+            allowed = kwarg.arity < 0 || @arities[kwarg.name] <= kwarg.arity
+            if allowed
+              case value
+              when Hash
+                (@parsed[kwarg.name] ||= {}).merge!(value)
+              else
+                Array(value).each do |v|
+                  (@parsed[kwarg.name] ||=  []) << v
+                end
+              end
             else
               @remaining << "#{kwarg.name}=#{value}"
             end
           else
-            @parsed[kwarg.name] = Pipeline.process(kwarg, value)
+            @parsed[kwarg.name] = value
           end
         end
 
@@ -127,8 +162,9 @@ module TTY
         def check_arity
           @multiplies.each do |name, param|
             arity = @arities[name]
+            min_arity = param.arity < 0 ? param.arity.abs - 1 : param.arity
 
-            if 0 < param.arity.abs && arity < param.arity.abs
+            if arity < min_arity
               error = InvalidArity.new(param, arity)
               @error_aggregator.(error, error.message, param)
             end
