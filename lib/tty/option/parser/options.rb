@@ -246,7 +246,7 @@ module TTY
           value = Pipeline.process(opt, val)
 
           if opt.multiple?
-            allowed = opt.arity < 0 || (@arities[opt.name] || 0) <= opt.arity
+            allowed = opt.arity < 0 || @arities[opt.name] <= opt.arity
             if allowed
               case value
               when Hash
