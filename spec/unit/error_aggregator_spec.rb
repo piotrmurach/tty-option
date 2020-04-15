@@ -39,14 +39,14 @@ RSpec.describe TTY::Option::ErrorAggregator do
     })
   end
 
-  it "collects unknown error messages" do
+  it "collects unknown error instances with messages" do
     aggregator = described_class.new(raise_if_missing: false)
 
     foo_error = TTY::Option::MissingParameter.new("foo boom")
     bar_error = TTY::Option::MissingParameter.new("bar boom")
 
-    aggregator.(foo_error, foo_error.message)
-    aggregator.(bar_error, bar_error.message)
+    aggregator.(foo_error)
+    aggregator.(bar_error)
 
     expect(aggregator.errors).to eq({
       messages: [

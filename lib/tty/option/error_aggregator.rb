@@ -17,7 +17,7 @@ module TTY
       # @param [String] message
       #
       # @api public
-      def call(error, message)
+      def call(error, message = nil)
         is_class = error.is_a?(Class)
 
         if @raise_if_missing
@@ -33,10 +33,12 @@ module TTY
                             .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
                             .downcase.to_sym
 
+        msg = message ? message : error.message
+
         if error.respond_to?(:param) && error.param
-          (@errors[error.param.name] ||= {}).merge!(type_key => message)
+          (@errors[error.param.name] ||= {}).merge!(type_key => msg)
         else
-          (@errors[:messages] ||= []) << { type_key => message }
+          (@errors[:messages] ||= []) << { type_key => msg }
         end
       end
     end # ErrorAggregator
