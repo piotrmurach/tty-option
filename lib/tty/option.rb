@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "option/arity_dsl"
 require_relative "option/conversions"
 require_relative "option/dsl"
 require_relative "option/errors"
@@ -15,7 +14,6 @@ module TTY
     def self.included(base)
       base.module_eval do
         include Interface
-        extend ArityDSL
         extend DSL
       end
     end
