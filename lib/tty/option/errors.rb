@@ -15,9 +15,11 @@ module TTY
 
     # Raised when number of arguments doesn't match
     class InvalidArity < Error
+      attr_reader :param
+
       def initialize(param_or_message, arity = nil)
         if param_or_message.is_a?(Parameter)
-          param = param_or_message
+          @param = param_or_message
           prefix = param.arity < 0 ? "at least " : ""
           expected_arity = param.arity < 0 ? param.arity.abs - 1 : param.arity
 
