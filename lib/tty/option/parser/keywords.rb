@@ -165,8 +165,7 @@ module TTY
             min_arity = param.arity < 0 ? param.arity.abs - 1 : param.arity
 
             if arity < min_arity
-              error = InvalidArity.new(param, arity)
-              @error_aggregator.(error, error.message)
+              @error_aggregator.(InvalidArity.new(param, arity))
             end
           end
         end
@@ -180,8 +179,7 @@ module TTY
           return if @required.empty?
 
           @required.each do |param|
-            error = MissingParameter.new(param)
-            @error_aggregator.(error, error.message)
+            @error_aggregator.(MissingParameter.new(param))
           end
         end
       end # Keywords

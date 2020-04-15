@@ -92,8 +92,7 @@ module TTY
 
           if 0 < values.size && values.size < arg.arity &&
               Array(@defaults[arg.name]).size < arg.arity
-            error = InvalidArity.new(arg, values.size)
-            @error_aggregator.(error, error.message)
+            @error_aggregator.(InvalidArity.new(arg, values.size))
           end
 
           values
@@ -123,8 +122,7 @@ module TTY
           end
 
           if values.size < arity && Array(@defaults[arg.name]).size < arity
-            error = InvalidArity.new(arg, values.size)
-            @error_aggregator.(error, error.message)
+            @error_aggregator.(InvalidArity.new(arg, values.size))
           end
 
           values
@@ -201,8 +199,7 @@ module TTY
           return if @required.empty?
 
           @required.each do |param|
-            error = MissingParameter.new(param)
-            @error_aggregator.(error, error.message)
+            @error_aggregator.(MissingParameter.new(param))
           end
         end
       end # Arguments
