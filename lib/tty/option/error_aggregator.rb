@@ -15,10 +15,9 @@ module TTY
       #
       # @param [TTY::Option::Error] error
       # @param [String] message
-      # @param [TTY::Option::Parameter] param
       #
       # @api public
-      def call(error, message, param = nil)
+      def call(error, message)
         is_class = error.is_a?(Class)
 
         if @raise_if_missing
@@ -36,8 +35,6 @@ module TTY
 
         if error.respond_to?(:param) && error.param
           (@errors[error.param.name] ||= {}).merge!(type_key => message)
-        elsif param
-          (@errors[param.name] ||= {}).merge!(type_key => message)
         else
           (@errors[:messages] ||= []) << { type_key => message }
         end
