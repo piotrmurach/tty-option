@@ -274,7 +274,7 @@ module TTY
 
             if arity < min_arity
               error = InvalidArity.new(param, arity)
-              @error_aggregator.(error, error.message, param)
+              @error_aggregator.(error, error.message)
             end
           end
         end
@@ -289,7 +289,7 @@ module TTY
 
           @required.each do |param|
             error = MissingParameter.new(param)
-            @error_aggregator.(error, error.message, param)
+            @error_aggregator.(error, error.message)
           end
         end
       end # Options
