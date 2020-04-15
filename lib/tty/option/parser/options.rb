@@ -21,7 +21,6 @@ module TTY
         # @api public
         def initialize(options, **config)
           @options = options
-          @raise_if_missing = config.fetch(:raise_if_missing) { true }
           @check_invalid_options = config.fetch(:check_invalid_options) { true }
           @error_aggregator = ErrorAggregator.new(**config)
           @parsed = {}
@@ -133,9 +132,8 @@ module TTY
               elsif !@argv.empty?
                 value = opt.multi_argument? ? consume_arguments : @argv.shift
               else
-                @error_aggregator.(MissingArgument,
-                                   "option #{long} requires an argument",
-                                   opt)
+                error = MissingArgument.new(opt, long)
+                @error_aggregator.(error, error.message)
               end
             elsif opt.argument_optional?
               if !rest.empty?
@@ -194,9 +192,8 @@ module TTY
               elsif !@argv.empty?
                 value = opt.multi_argument? ? consume_arguments : @argv.shift
               else
-                @error_aggregator.(MissingArgument,
-                                   "option #{short} requires an argument",
-                                   opt)
+                error = MissingArgument.new(opt, short)
+                @error_aggregator.(error, error.message)
               end
             elsif opt.argument_optional?
               if !other_singles.empty?

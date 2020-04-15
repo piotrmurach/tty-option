@@ -34,7 +34,9 @@ module TTY
                             .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
                             .downcase.to_sym
 
-        if param
+        if error.respond_to?(:param) && error.param
+          (@errors[error.param.name] ||= {}).merge!(type_key => message)
+        elsif param
           (@errors[param.name] ||= {}).merge!(type_key => message)
         else
           (@errors[:messages] ||= []) << { type_key => message }

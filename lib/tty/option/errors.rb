@@ -56,13 +56,25 @@ module TTY
     InvalidValidation = Class.new(Error)
 
     # Raised when option requires an argument
-    MissingArgument = Class.new(Error)
+    class MissingArgument  < Error
+      attr_reader :param
+
+      def initialize(param, switch_name = nil)
+        @param = param
+        name = switch_name.nil? ? param.name : switch_name
+        message = "#{param.to_sym} #{name} requires an argument"
+
+        super(message)
+      end
+    end
 
     # Raised when a parameter is required but not present
     class MissingParameter < Error
+      attr_reader :param
+
       def initialize(param_or_message)
         if param_or_message.is_a?(Parameter)
-          param = param_or_message
+          @param = param_or_message
 
           name = if param.respond_to?(:long_name)
             param.long? ? param.long_name : param.short_name
