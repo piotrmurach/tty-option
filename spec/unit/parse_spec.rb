@@ -257,6 +257,19 @@ RSpec.describe TTY::Option do
       }.to raise_error(TTY::Option::UnpermittedArgument,
                       "unpermitted argument 14 for :foo parameter")
     end
+
+    it "requires a keyword presence" do
+      cmd = new_command do
+        keyword :foo do
+          required
+        end
+      end
+
+      expect {
+        cmd.parse([])
+      }.to raise_error(TTY::Option::MissingParameter,
+                       "need to provide 'foo' keyword")
+    end
   end
 
   context "env" do
@@ -327,6 +340,17 @@ RSpec.describe TTY::Option do
         cmd.parse(%w[FOO=14])
       }.to raise_error(TTY::Option::UnpermittedArgument,
                       "unpermitted argument 14 for :foo parameter")
+    end
+
+    it "requires an env variable presence" do
+      cmd = new_command do
+        env :foo, required: true
+      end
+
+      expect {
+        cmd.parse([], {})
+      }.to raise_error(TTY::Option::MissingParameter,
+                       "need to provide 'foo' environment")
     end
   end
 
