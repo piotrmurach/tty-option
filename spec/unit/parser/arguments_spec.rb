@@ -65,8 +65,8 @@ RSpec.describe TTY::Option::Parser::Arguments do
     expect(rest).to eq([])
   end
 
-  it "collects errors when :raise_if_missing is false" do
-    args, rest, errors = parse(%w[a], arg(:foo, arity: 2), raise_if_missing: false)
+  it "collects errors when :raise_on_parsing_error is false" do
+    args, rest, errors = parse(%w[a], arg(:foo, arity: 2), raise_on_parsing_error: false)
 
     expect(args[:foo]).to eq("a")
     expect(rest).to eq([])

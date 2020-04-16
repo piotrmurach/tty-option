@@ -72,7 +72,7 @@ RSpec.describe TTY::Option::Parser::Environments do
     envs << env(:bar, required: true)
     envs << env(:baz, optional: true)
 
-    params, rest, errors = parse([], {}, envs, raise_if_missing: false)
+    params, rest, errors = parse([], {}, envs, raise_on_parsing_error: false)
 
     expect(params[:foo]).to eq(nil)
     expect(params[:bar]).to eq(nil)
@@ -150,7 +150,7 @@ RSpec.describe TTY::Option::Parser::Environments do
       envs << env(:bar, arity: -3)
 
       params, rest, errors = parse(%w[FOO=1 BAR=2], {}, envs,
-                                   raise_if_missing: false)
+                                   raise_on_parsing_error: false)
 
       expect(params[:foo]).to eq(["1"])
       expect(params[:bar]).to eq(["2"])

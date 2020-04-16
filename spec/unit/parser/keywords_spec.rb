@@ -51,7 +51,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
     keywords << keyword(:foo, required: true)
     keywords << keyword(:bar, required: true)
 
-    params, rest, errors = parse(%w[], keywords, raise_if_missing: false)
+    params, rest, errors = parse(%w[], keywords, raise_on_parsing_error: false)
 
     expect(params[:foo]).to eq(nil)
     expect(params[:bar]).to eq(nil)
@@ -126,7 +126,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
       keywords << keyword(:bar, arity: -3)
 
       params, rest, errors = parse(%w[foo=1 bar=2], keywords,
-                                   raise_if_missing: false)
+                                   raise_on_parsing_error: false)
 
       expect(params[:foo]).to eq(["1"])
       expect(params[:bar]).to eq(["2"])

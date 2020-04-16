@@ -105,7 +105,7 @@ RSpec.describe TTY::Option::Parser::Options do
   it "collects errors when :rais_if_missing is false" do
     options = []
     options << option(:foo, short: "-f")
-    params, rest, errors = parse(%w[-b], options, raise_if_missing: false)
+    params, rest, errors = parse(%w[-b], options, raise_on_parsing_error: false)
 
     expect(params[:foo]).to eq(false)
     expect(rest).to eq([])
@@ -273,7 +273,7 @@ RSpec.describe TTY::Option::Parser::Options do
     options << option(:foo, long: "--foo string", required: true)
     options << option(:bar, short: "-b string", required: true)
 
-    params, rest, errors = parse(%w[], options, raise_if_missing: false)
+    params, rest, errors = parse(%w[], options, raise_on_parsing_error: false)
 
     expect(params[:foo]).to eq(nil)
     expect(params[:bar]).to eq(nil)
@@ -406,7 +406,7 @@ RSpec.describe TTY::Option::Parser::Options do
       options << option(:foo, short: "-f int", arity: 2)
       options << option(:bar, short: "-b int", arity: -3)
 
-      params, rest, errors = parse(%w[-f 1 -b 2], options, raise_if_missing: false)
+      params, rest, errors = parse(%w[-f 1 -b 2], options, raise_on_parsing_error: false)
 
       expect(params[:foo]).to eq(["1"])
       expect(params[:bar]).to eq(["2"])

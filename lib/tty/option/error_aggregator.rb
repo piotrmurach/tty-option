@@ -8,7 +8,7 @@ module TTY
 
       def initialize(errors = {}, **config)
         @errors = errors
-        @raise_if_missing = config.fetch(:raise_if_missing) { true }
+        @raise_on_parsing_error = config.fetch(:raise_on_parsing_error) { true }
       end
 
       # Record or raise an error
@@ -20,7 +20,7 @@ module TTY
       def call(error, message = nil)
         is_class = error.is_a?(Class)
 
-        if @raise_if_missing
+        if @raise_on_parsing_error
           if is_class
             raise error, message
           else
