@@ -20,6 +20,13 @@
 
 > Parser for command line arguments, keywords, options and environment variables
 
+## Features
+
+* Supports parsing of arguments, keywords, flags, options and environment variables
+* Exposes a powerful DSL or hash-like way to specify various settings
+* Flexible parsing of arguments that can handle lists and maps separated by comma or space characters
+* Has a variety of conversions for basic types like integer and more complex like lists and maps
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -234,7 +241,7 @@ argument :foo do
 end
 ```
 
-To match at at least one time use `one_or_more` or `two_or_more` for two times:
+To match at at least one time use `one_or_more` or `two_or_more` for many times:
 
 ```ruby
 option :foo do
@@ -330,7 +337,7 @@ end
 
 The `permit` setting allows you to restrict an input to a set of possible values:
 
-```
+```ruby
 option :foo do
   long "--foo string"
   permit ["bar", "baz"]
