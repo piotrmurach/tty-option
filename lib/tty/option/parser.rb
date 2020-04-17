@@ -22,6 +22,8 @@ module TTY
 
       attr_reader :parameters
 
+      attr_reader :config
+
       PARAMETER_PARSERS = {
         options: TTY::Option::Parser::Options,
         keywords: TTY::Option::Parser::Keywords,
@@ -31,8 +33,9 @@ module TTY
 
       ARGUMENT_SEPARATOR = /^-{2,}$/.freeze
 
-      def initialize(parameters)
+      def initialize(parameters, **config)
         @parameters = parameters
+        @config = config
       end
 
       def parse(argv, env)
@@ -49,7 +52,7 @@ module TTY
         end
 
         PARAMETER_PARSERS.each do |name, parser_type|
-          parser = parser_type.new(parameters.send(name))
+          parser = parser_type.new(parameters.send(name), **config)
           if name == :environments
             parsed, argv = parser.parse(argv, env)
           else

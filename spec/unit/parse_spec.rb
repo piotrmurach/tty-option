@@ -348,7 +348,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse([], {})
+        cmd.parse([], {}, **{})
       }.to raise_error(TTY::Option::MissingParameter,
                        "need to provide 'foo' environment")
     end
