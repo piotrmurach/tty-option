@@ -35,6 +35,13 @@ module TTY
       end
       alias :remaining_args :remaining
 
+      # The parsing errors
+      #
+      # @api public
+      def errors
+        @errors ||= {}
+      end
+
       # Parse command line arguments
       #
       # @param [Array<String>] argv
@@ -45,7 +52,7 @@ module TTY
       # @api public
       def parse(argv = ARGV, env = ENV, **config)
         parser = Parser.new(self.class.parameters, **config)
-        @parameters, @remaining = parser.parse(argv, env)
+        @parameters, @remaining, @errors = parser.parse(argv, env)
       end
     end
   end # Option

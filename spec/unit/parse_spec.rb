@@ -41,10 +41,11 @@ RSpec.describe TTY::Option do
         end
       end
 
-      expect {
-        cmd.parse([])
-      }.to raise_error(TTY::Option::MissingParameter,
-                       "need to provide 'foo' argument")
+      cmd.parse([], raise_on_parsing_error: false)
+
+      expect(cmd.errors[:foo]).to eq({
+        missing_parameter: "need to provide 'foo' argument"
+      })
     end
 
     it "defauls argument to a value" do
@@ -646,6 +647,27 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:restart]).to eq("always")
       expect(cmd.params[:name]).to eq("web")
       expect(cmd.params[:cmd_env]).to eq("production")
+    end
+
+    it "collects errors from different parsers" do
+      cmd = new_command do
+        argument(:foo) { required }
+
+        keyword(:bar) { required }
+
+        option(:baz) { required; long "--baz string" }
+
+        env(:qux) { required }
+      end
+
+      cmd.parse(%w[], raise_on_parsing_error: false)
+
+      expect(cmd.errors).to eq({
+        foo: { missing_parameter: "need to provide 'foo' argument" },
+        bar: { missing_parameter: "need to provide 'bar' keyword" },
+        baz: { missing_parameter: "need to provide '--baz' option" },
+        qux: { missing_parameter: "need to provide 'qux' environment" }
+      })
     end
   end
 

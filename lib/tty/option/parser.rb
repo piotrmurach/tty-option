@@ -41,6 +41,7 @@ module TTY
       def parse(argv, env)
         argv = argv.dup
         params = {}
+        errors = {}
         ignored = []
 
         # split argv into processable args and leftovers
@@ -54,16 +55,17 @@ module TTY
         PARAMETER_PARSERS.each do |name, parser_type|
           parser = parser_type.new(parameters.send(name), **config)
           if name == :environments
-            parsed, argv = parser.parse(argv, env)
+            parsed, argv, err = parser.parse(argv, env)
           else
-            parsed, argv = parser.parse(argv)
+            parsed, argv, err = parser.parse(argv)
           end
           params.merge!(parsed)
+          errors.merge!(err)
         end
 
         argv += ignored unless ignored.empty?
 
-        [params, argv]
+        [params, argv, errors]
       end
     end # Parser
   end # Option
