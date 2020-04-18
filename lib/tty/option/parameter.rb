@@ -39,16 +39,23 @@ module TTY
         end
       end
 
-      def default_arity
-        1
-      end
-
       def arity(value = (not_set = true))
         if not_set
           @settings.fetch(:arity) { default_arity }
         else
           @settings[:arity] = check_arity(value)
         end
+      end
+
+      def default_arity
+        1
+      end
+
+      # Determine minimum boundary for arity parameter
+      #
+      # @api private
+      def min_arity
+        arity < 0 ? arity.abs - 1 : arity
       end
 
       # Check if multiple occurrences are allowed

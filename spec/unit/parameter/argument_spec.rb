@@ -17,6 +17,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "defaults to 1" do
       arg = described_class.new(:foo)
       expect(arg.arity).to eq(1)
+      expect(arg.min_arity).to eq(1)
       expect(arg.multiple?).to eq(false)
     end
 
@@ -37,12 +38,21 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "accepts * as zero or more arity" do
       arg = described_class.new(:foo, arity: "*")
       expect(arg.arity).to eq(-1)
+      expect(arg.min_arity).to eq(0)
       expect(arg.multiple?).to eq(true)
     end
 
     it "accepts :any as zero or more arity" do
       arg = described_class.new(:foo, arity: :any)
       expect(arg.arity).to eq(-1)
+      expect(arg.min_arity).to eq(0)
+      expect(arg.multiple?).to eq(true)
+    end
+
+    it "accepts one or more arity" do
+      arg = described_class.new(:foo, arity: -2)
+      expect(arg.arity).to eq(-2)
+      expect(arg.min_arity).to eq(1)
       expect(arg.multiple?).to eq(true)
     end
   end
