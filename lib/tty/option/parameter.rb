@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "arity_dsl"
+require_relative "dsl/arity"
 
 module TTY
   module Option
     class Parameter
-      include ArityDSL
+      include DSL::Arity
 
       def self.create(name, **settings, &block)
         new(name, **settings, &block)

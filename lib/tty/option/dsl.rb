@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "arity_dsl"
+require_relative "dsl/arity"
 require_relative "parameter/argument"
 require_relative "parameter/environment"
 require_relative "parameter/keyword"
@@ -10,7 +10,7 @@ require_relative "parameters"
 module TTY
   module Option
     module DSL
-      include ArityDSL
+      include Arity
 
       # Specify an argument
       #
