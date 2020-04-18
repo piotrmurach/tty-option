@@ -13,21 +13,24 @@ module TTY
       def call(param, values)
         return values unless param.validate?
 
-        Array(values).each do |value|
-          result = case param.validate
-                   when Proc
-                     param.validate.(value)
-                   when Regexp
-                     !param.validate.match(value.to_s).nil?
-                   end
+        result = Array(values).reduce([]) do |acc, value|
+          valid = case param.validate
+                  when Proc
+                    param.validate.(value)
+                  when Regexp
+                    !param.validate.match(value.to_s).nil?
+                  end
 
-          result || raise(TTY::Option::InvalidArgument.new(
-            format("value of `%s` fails validation rule for %s parameter",
-                   value, param.name.inspect)
-          ))
+          if valid
+            acc << value
+          else
+            acc << TTY::Option::InvalidArgument.new(
+                     format("value of `%s` fails validation rule for %s parameter",
+                            value, param.name.inspect))
+          end
+          acc
         end
-
-        values
+        result.size <= 1 ? result.first : result
       end
       module_function :call
 

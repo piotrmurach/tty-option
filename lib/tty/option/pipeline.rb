@@ -22,7 +22,12 @@ module TTY
       end
 
       def next(callable)
-        self.class.new(@param, callable[@param, @value])
+        result = callable[@param, @value]
+        error = Array(result).find { |res| res.is_a?(Error) }
+        if error
+          raise error
+        end
+        self.class.new(@param, result)
       end
 
       def value

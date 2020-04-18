@@ -16,9 +16,8 @@ RSpec.describe TTY::Option::ParamPermitted do
   it "doesn't permit an option arguemnt" do
     param = TTY::Option::Parameter::Option.create(:foo, permit: %w[a b c])
 
-    expect {
-      described_class[param, "d"]
-    }.to raise_error(TTY::Option::UnpermittedArgument,
-                    "unpermitted argument d for :foo parameter")
+    error = described_class[param, "d"]
+    expect(error).to be_an_instance_of(TTY::Option::UnpermittedArgument)
+    expect(error.message).to eq("unpermitted argument d for :foo parameter")
   end
 end

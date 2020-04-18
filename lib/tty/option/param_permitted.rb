@@ -16,9 +16,10 @@ module TTY
         if param.permit.include?(value)
           value
         else
-          raise UnpermittedArgument,
-                format("unpermitted argument %s for %s parameter",
-                       value, param.name.inspect)
+          UnpermittedArgument.new(
+            format("unpermitted argument %s for %s parameter",
+                   value, param.name.inspect)
+          )
         end
       end
       module_function :call

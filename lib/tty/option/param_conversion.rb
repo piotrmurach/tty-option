@@ -21,6 +21,8 @@ module TTY
         else
           Conversions[cast].(value)
         end
+      rescue InvalidConversionArgument => err
+        err
       end
       module_function :call
 
