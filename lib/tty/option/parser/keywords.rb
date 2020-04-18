@@ -22,6 +22,7 @@ module TTY
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)
+          @pipeline = Pipeline.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @names = {}
@@ -135,7 +136,7 @@ module TTY
 
         # @api private
         def assign_keyword(kwarg, val)
-          value = Pipeline.process(kwarg, val)
+          value = @pipeline.(kwarg, val)
 
           if kwarg.multiple?
             allowed = kwarg.arity < 0 || @arities[kwarg.name] <= kwarg.arity

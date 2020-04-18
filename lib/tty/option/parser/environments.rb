@@ -22,6 +22,7 @@ module TTY
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)
+          @pipeline = Pipeline.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @names = {}
@@ -150,7 +151,7 @@ module TTY
 
         # @api private
         def assign_envvar(env_arg, val)
-          value = Pipeline.process(env_arg, val)
+          value = @pipeline.(env_arg, val)
 
           if env_arg.multiple?
             allowed = env_arg.arity < 0 || @arities[env_arg.name] <= env_arg.arity

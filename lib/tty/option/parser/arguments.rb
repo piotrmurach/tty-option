@@ -20,6 +20,7 @@ module TTY
           @arguments = arguments
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
+          @pipeline = Pipeline.new(@error_aggregator)
           @parsed = {}
           @remaining = []
 
@@ -188,7 +189,7 @@ module TTY
                   values
                 end
 
-          @parsed[arg.name] = Pipeline.process(arg, val)
+          @parsed[arg.name] = @pipeline.(arg, val)
         end
       end # Arguments
     end # Parser

@@ -27,6 +27,7 @@ module TTY
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)
+          @pipeline = Pipeline.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @shorts = {}
@@ -241,7 +242,7 @@ module TTY
 
         # @api private
         def assign_option(opt, val)
-          value = Pipeline.process(opt, val)
+          value = @pipeline.(opt, val)
 
           if opt.multiple?
             allowed = opt.arity < 0 || @arities[opt.name] <= opt.arity
