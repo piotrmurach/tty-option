@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "arity_check"
+require_relative "required_check"
 require_relative "../error_aggregator"
 require_relative "../pipeline"
 
@@ -19,15 +21,15 @@ module TTY
           @environments = environments
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
+          @arity_check = ArityCheck.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @names = {}
           @arities = Hash.new(0)
-          @multiplies = {}
 
           @environments.each do |env_arg|
             @names[env_arg.var.to_s] = env_arg
-            @multiplies[env_arg.name] = env_arg if env_arg.multiple?
+            @arity_check << env_arg if env_arg.multiple?
 
             if env_arg.default?
               case env_arg.default
@@ -72,7 +74,7 @@ module TTY
             end
           end
 
-          check_arity
+          @arity_check.(@arities)
           @required_check.()
 
           [@parsed, @remaining, @error_aggregator.errors]
@@ -166,21 +168,6 @@ module TTY
             end
           else
             @parsed[env_arg.name] = value
-          end
-        end
-
-        # Check if parameter matches arity
-        #
-        # @raise [InvalidArity]
-        #
-        # @api private
-        def check_arity
-          @multiplies.each do |name, param|
-            arity = @arities[name]
-
-            if arity < param.min_arity
-              @error_aggregator.(InvalidArity.new(param, arity))
-            end
           end
         end
       end # Environments

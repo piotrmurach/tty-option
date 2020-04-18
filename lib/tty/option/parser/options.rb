@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "arity_check"
+require_relative "required_check"
 require_relative "../error_aggregator"
 require_relative "../pipeline"
-require_relative "required_check"
 
 module TTY
   module Option
@@ -25,12 +26,12 @@ module TTY
           @check_invalid_options = config.fetch(:check_invalid_options) { true }
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
+          @arity_check = ArityCheck.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @shorts = {}
           @longs = {}
           @arities = Hash.new(0)
-          @multiplies = {}
 
           setup_opts
         end
@@ -42,7 +43,7 @@ module TTY
           @options.each do |opt|
             @shorts[opt.short_name] = opt
             @longs[opt.long_name] = opt
-            @multiplies[opt.name] = opt if opt.multiple?
+            @arity_check << opt if opt.multiple?
 
             if opt.default?
               case opt.default
@@ -80,7 +81,7 @@ module TTY
             end
           end
 
-          check_arity
+          @arity_check.(@arities)
           @required_check.()
 
           [@parsed, @remaining, @error_aggregator.errors]
@@ -259,21 +260,6 @@ module TTY
             end
           else
             @parsed[opt.name] = value
-          end
-        end
-
-        # Check if parameter matches arity
-        #
-        # @raise [InvalidArity]
-        #
-        # @api private
-        def check_arity
-          @multiplies.each do |name, param|
-            arity = @arities[name]
-
-            if arity < param.min_arity
-              @error_aggregator.(InvalidArity.new(param, arity))
-            end
           end
         end
       end # Options

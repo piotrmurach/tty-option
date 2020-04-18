@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "arity_check"
+require_relative "required_check"
 require_relative "../error_aggregator"
 require_relative "../pipeline"
-require_relative "required_check"
 
 module TTY
   module Option
@@ -20,15 +21,15 @@ module TTY
           @keywords = keywords
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
+          @arity_check = ArityCheck.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @names = {}
           @arities = Hash.new(0)
-          @multiplies = {}
 
           @keywords.each do |kwarg|
             @names[kwarg.name.to_s] = kwarg
-            @multiplies[kwarg.name] = kwarg if kwarg.multiple?
+            @arity_check << kwarg if kwarg.multiple?
 
             if kwarg.default?
               case kwarg.default
@@ -61,7 +62,7 @@ module TTY
             assign_keyword(kwarg, value)
           end
 
-          check_arity
+          @arity_check.(@arities)
           @required_check.()
 
           [@parsed, @remaining, @error_aggregator.errors]
@@ -152,21 +153,6 @@ module TTY
             end
           else
             @parsed[kwarg.name] = value
-          end
-        end
-
-        # Check if parameter matches arity
-        #
-        # @raise [InvalidArity]
-        #
-        # @api private
-        def check_arity
-          @multiplies.each do |name, param|
-            arity = @arities[name]
-
-            if arity < param.min_arity
-              @error_aggregator.(InvalidArity.new(param, arity))
-            end
           end
         end
       end # Keywords
