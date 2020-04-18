@@ -64,7 +64,9 @@ module TTY
     end
 
     # Raised when conversion provided with unexpected argument
-    InvalidConversionArgument = Class.new(Error)
+    class InvalidConversionArgument < Error
+      attr_accessor :param
+    end
 
     # Raised when found unrecognized option
     InvalidOption = Class.new(Error)

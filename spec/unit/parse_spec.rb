@@ -185,6 +185,21 @@ RSpec.describe TTY::Option do
       })
     end
 
+    it "doesn't raise on a conversion failure and reads an error message" do
+      cmd = new_command do
+        argument :foo do
+          convert :int
+        end
+      end
+
+      cmd.parse(%w[bar], raise_on_parsing_error: false)
+
+      expect(cmd.params[:foo]).to eq(nil)
+      expect(cmd.errors[:foo]).to eq({
+        invalid_conversion_argument: "Invalid value of \"bar\" for :int conversion"
+      })
+    end
+
     it "doesn't permit a value" do
       cmd = new_command do
         argument :foo do

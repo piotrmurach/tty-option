@@ -23,6 +23,7 @@ module TTY
           Result.success(Conversions[cast].(value))
         end
       rescue InvalidConversionArgument => err
+        err.param = param
         Result.failure(err)
       end
       module_function :call
