@@ -11,7 +11,25 @@ module TTY
     ConversionAlreadyDefined = Class.new(Error)
 
     # Raised when argument doesn't match expected value
-    InvalidArgument = Class.new(Error)
+    class InvalidArgument < Error
+      attr_reader :param
+
+      def initialize(param_or_message, value = nil)
+        if param_or_message.is_a?(Parameter)
+          @param = param_or_message
+
+          message = format(
+            "value of `%s` fails validation rule for %s parameter",
+            value,
+            param.name.inspect
+          )
+        else
+          message = param_or_message
+        end
+
+        super(message)
+      end
+    end
 
     # Raised when number of arguments doesn't match
     class InvalidArity < Error
@@ -100,6 +118,24 @@ module TTY
     UnsupportedConversion = Class.new(Error)
 
     # Raised when argument value isn't permitted
-    UnpermittedArgument = Class.new(Error)
+    class UnpermittedArgument < Error
+      attr_reader :param
+
+      def initialize(param_or_message, value = nil)
+        if param_or_message.is_a?(Parameter)
+          @param = param_or_message
+
+          message = format(
+            "unpermitted argument %s for %s parameter",
+            value,
+            param.name.inspect
+          )
+        else
+          message = param_or_message
+        end
+
+        super(message)
+      end
+    end
   end # Option
 end # TTY
