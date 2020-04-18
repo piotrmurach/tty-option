@@ -7,31 +7,34 @@ require_relative "param_validation"
 module TTY
   module Option
     class Pipeline
-      def self.process(param, value)
-        new(param, value)
-          .next(ParamConversion)
-          .next(ParamPermitted)
-          .next(ParamValidation)
-          .value
+      PROCESSORS = [
+        ParamConversion,
+        ParamPermitted,
+        ParamValidation
+      ]
+
+      # Create a param processing pipeline
+      #
+      # @api private
+      def initialize(error_aggregator)
+        @error_aggregator = error_aggregator
       end
 
-      def initialize(param, value)
-        @param = param
-        @value = value
-        freeze
-      end
-
-      def next(callable)
-        result = callable[@param, @value]
-        error = Array(result).find { |res| res.is_a?(Error) }
-        if error
-          raise error
+      # Process param value through conditions
+      #
+      # @api public
+      def call(param, value)
+        PROCESSORS.each do |processor|
+          result = processor[param, value]
+          error = Array(result).find { |res| res.is_a?(Error) }
+          if error
+            @error_aggregator.(error)
+            value = nil
+          else
+            value = result
+          end
         end
-        self.class.new(@param, result)
-      end
-
-      def value
-        @value
+        value
       end
     end # Pipeline
   end # Option
