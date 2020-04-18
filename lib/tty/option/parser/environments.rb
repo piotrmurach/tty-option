@@ -177,9 +177,8 @@ module TTY
         def check_arity
           @multiplies.each do |name, param|
             arity = @arities[name]
-            min_arity = param.arity < 0 ? param.arity.abs - 1 : param.arity
 
-            if arity < min_arity
+            if arity < param.min_arity
               @error_aggregator.(InvalidArity.new(param, arity))
             end
           end
