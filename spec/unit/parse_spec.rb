@@ -170,6 +170,21 @@ RSpec.describe TTY::Option do
                 "value of `[:c, 3]` fails validation rule for :foo parameter")
     end
 
+    it "doesn't raise on a validation rule failure and reads an error message" do
+      cmd = new_command do
+        argument :foo do
+          convert :int
+          validate ->(val) { val < 10 }
+        end
+      end
+
+      cmd.parse(%w[11], raise_on_parsing_error: false)
+
+      expect(cmd.errors[:foo]).to eq({
+        invalid_argument: "value of `11` fails validation rule for :foo parameter"
+      })
+    end
+
     it "doesn't permit a value" do
       cmd = new_command do
         argument :foo do
@@ -182,6 +197,21 @@ RSpec.describe TTY::Option do
         cmd.parse(%w[14])
       }.to raise_error(TTY::Option::UnpermittedArgument,
                       "unpermitted argument 14 for :foo parameter")
+    end
+
+    it "doesn't raise on an unpermitted value and reads error message" do
+      cmd = new_command do
+        argument :foo do
+          convert :int
+          permit [11, 12, 13]
+        end
+      end
+
+      cmd.parse(%w[14], raise_on_parsing_error: false)
+
+      expect(cmd.errors[:foo]).to eq({
+        unpermitted_argument: "unpermitted argument 14 for :foo parameter"
+      })
     end
   end
 
