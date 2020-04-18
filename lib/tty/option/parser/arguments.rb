@@ -2,6 +2,7 @@
 
 require_relative "../error_aggregator"
 require_relative "../pipeline"
+require_relative "required_check"
 
 module TTY
   module Option
@@ -18,9 +19,9 @@ module TTY
         def initialize(arguments, **config)
           @arguments = arguments
           @error_aggregator = ErrorAggregator.new(**config)
+          @required_check = RequiredCheck.new(@error_aggregator)
           @parsed = {}
           @remaining = []
-          @required = []
 
           @defaults = {}
           @arguments.each do |arg|
@@ -32,7 +33,7 @@ module TTY
                 @defaults[arg.name] = arg.default
               end
             elsif arg.required?
-              @required << arg
+              @required_check << arg
             end
           end
         end
@@ -50,7 +51,7 @@ module TTY
 
           @arguments.each do |arg|
             values = next_argument(arg)
-            @required.delete(arg) unless values.empty?
+            @required_check.delete(arg) unless values.empty?
 
             assign_argument(arg, values)
           end
@@ -59,7 +60,7 @@ module TTY
             @remaining << val
           end
 
-          check_required
+          @required_check.()
 
           [@parsed, @remaining, @error_aggregator.errors]
         end
@@ -188,19 +189,6 @@ module TTY
                 end
 
           @parsed[arg.name] = Pipeline.process(arg, val)
-        end
-
-        # Check if required parameters are provided
-        #
-        # @raise [MissingParameter]
-        #
-        # @api private
-        def check_required
-          return if @required.empty?
-
-          @required.each do |param|
-            @error_aggregator.(MissingParameter.new(param))
-          end
         end
       end # Arguments
     end # Parser

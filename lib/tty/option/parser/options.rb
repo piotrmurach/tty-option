@@ -2,6 +2,7 @@
 
 require_relative "../error_aggregator"
 require_relative "../pipeline"
+require_relative "required_check"
 
 module TTY
   module Option
@@ -23,12 +24,12 @@ module TTY
           @options = options
           @check_invalid_options = config.fetch(:check_invalid_options) { true }
           @error_aggregator = ErrorAggregator.new(**config)
+          @required_check = RequiredCheck.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @shorts = {}
           @longs = {}
           @arities = Hash.new(0)
-          @required = []
           @multiplies = {}
 
           setup_opts
@@ -53,7 +54,7 @@ module TTY
             elsif !(opt.argument_optional? || opt.argument_required?)
               assign_option(opt, false)
             elsif opt.required?
-              @required << opt
+              @required_check << opt
             end
           end
         end
@@ -69,7 +70,7 @@ module TTY
           loop do
             opt, value = next_option
             break if opt.nil?
-            @required.delete(opt)
+            @required_check.delete(opt)
             @arities[opt.name] += 1
 
             if block_given?
@@ -80,7 +81,7 @@ module TTY
           end
 
           check_arity
-          check_required
+          @required_check.()
 
           [@parsed, @remaining, @error_aggregator.errors]
         end
@@ -274,19 +275,6 @@ module TTY
             if arity < min_arity
               @error_aggregator.(InvalidArity.new(param, arity))
             end
-          end
-        end
-
-        # Check if required options are provided
-        #
-        # @raise [MissingParameter]
-        #
-        # @api private
-        def check_required
-          return if @required.empty?
-
-          @required.each do |param|
-            @error_aggregator.(MissingParameter.new(param))
           end
         end
       end # Options

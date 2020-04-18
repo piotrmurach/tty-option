@@ -2,6 +2,7 @@
 
 require_relative "../error_aggregator"
 require_relative "../pipeline"
+require_relative "required_check"
 
 module TTY
   module Option
@@ -18,10 +19,10 @@ module TTY
         def initialize(keywords, **config)
           @keywords = keywords
           @error_aggregator = ErrorAggregator.new(**config)
+          @required_check = RequiredCheck.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @names = {}
-          @required = []
           @arities = Hash.new(0)
           @multiplies = {}
 
@@ -37,7 +38,7 @@ module TTY
                 assign_keyword(kwarg, kwarg.default)
               end
             elsif kwarg.required?
-              @required << kwarg
+              @required_check << kwarg
             end
           end
         end
@@ -51,7 +52,7 @@ module TTY
           loop do
             kwarg, value = next_keyword
             break if kwarg.nil?
-            @required.delete(kwarg)
+            @required_check.delete(kwarg)
             @arities[kwarg.name] += 1
 
             if block_given?
@@ -61,7 +62,7 @@ module TTY
           end
 
           check_arity
-          check_required
+          @required_check.()
 
           [@parsed, @remaining, @error_aggregator.errors]
         end
@@ -167,19 +168,6 @@ module TTY
             if arity < min_arity
               @error_aggregator.(InvalidArity.new(param, arity))
             end
-          end
-        end
-
-        # Check if required parameters are provided
-        #
-        # @raise [MissingParameter]
-        #
-        # @api private
-        def check_required
-          return if @required.empty?
-
-          @required.each do |param|
-            @error_aggregator.(MissingParameter.new(param))
           end
         end
       end # Keywords

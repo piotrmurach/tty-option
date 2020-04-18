@@ -18,11 +18,11 @@ module TTY
         def initialize(environments, **config)
           @environments = environments
           @error_aggregator = ErrorAggregator.new(**config)
+          @required_check = RequiredCheck.new(@error_aggregator)
           @parsed = {}
           @remaining = []
           @names = {}
           @arities = Hash.new(0)
-          @required = []
           @multiplies = {}
 
           @environments.each do |env_arg|
@@ -37,7 +37,7 @@ module TTY
                 assign_envvar(env_arg, env_arg.default)
               end
             elsif env_arg.required?
-              @required << env_arg
+              @required_check << env_arg
             end
           end
         end
@@ -55,7 +55,7 @@ module TTY
           loop do
             env_var, value = next_envvar
             break if env_var.nil?
-            @required.delete(env_var)
+            @required_check.delete(env_var)
             @arities[env_var.name] += 1
 
             if block_given?
@@ -66,14 +66,14 @@ module TTY
 
           @environments.each do |env_arg|
             if (value = env[env_arg.var])
-              @required.delete(env_arg)
+              @required_check.delete(env_arg)
               @arities[env_arg.name] += 1
               assign_envvar(env_arg, value)
             end
           end
 
           check_arity
-          check_required
+          @required_check.()
 
           [@parsed, @remaining, @error_aggregator.errors]
         end
@@ -182,19 +182,6 @@ module TTY
             if arity < min_arity
               @error_aggregator.(InvalidArity.new(param, arity))
             end
-          end
-        end
-
-        # Check if required parameters are provided
-        #
-        # @raise [MissingParameter]
-        #
-        # @api private
-        def check_required
-          return if @required.empty?
-
-          @required.each do |param|
-            @error_aggregator.(MissingParameter.new(param))
           end
         end
       end # Environments
