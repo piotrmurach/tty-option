@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "result"
+
 module TTY
   module Option
     module ParamValidation
@@ -11,7 +13,9 @@ module TTY
       #
       # @api public
       def call(param, values)
-        return values unless param.validate?
+        return Result.success(values) unless param.validate?
+
+        errors = []
 
         result = Array(values).reduce([]) do |acc, value|
           valid = case param.validate
@@ -24,13 +28,19 @@ module TTY
           if valid
             acc << value
           else
-            acc << TTY::Option::InvalidArgument.new(
-                     format("value of `%s` fails validation rule for %s parameter",
+            error = TTY::Option::InvalidArgument.new(
+                      format("value of `%s` fails validation rule for %s parameter",
                             value, param.name.inspect))
+            errors << error
           end
           acc
         end
-        result.size <= 1 ? result.first : result
+
+        if errors.empty?
+          Result.success(result.size <= 1 ? result.first : result)
+        else
+          Result.failure(errors)
+        end
       end
       module_function :call
 

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "result"
+
 module TTY
   module Option
     module ParamPermitted
@@ -11,15 +13,15 @@ module TTY
       #
       # @api public
       def call(param, value)
-        return value unless param.permit?
+        return Result.success(value) unless param.permit?
 
         if param.permit.include?(value)
-          value
+          Result.success(value)
         else
-          UnpermittedArgument.new(
-            format("unpermitted argument %s for %s parameter",
-                   value, param.name.inspect)
-          )
+          error = UnpermittedArgument.new(
+                    format("unpermitted argument %s for %s parameter",
+                      value, param.name.inspect))
+          Result.failure(error)
         end
       end
       module_function :call

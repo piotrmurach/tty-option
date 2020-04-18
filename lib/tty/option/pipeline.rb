@@ -24,17 +24,14 @@ module TTY
       #
       # @api public
       def call(param, value)
+        result = Result.success(value)
         PROCESSORS.each do |processor|
-          result = processor[param, value]
-          error = Array(result).find { |res| res.is_a?(Error) }
-          if error
-            @error_aggregator.(error)
-            value = nil
-          else
-            value = result
+          result = processor[param, result.value]
+          if result.failure?
+            Array(result.error).each { |err| @error_aggregator.(err) }
           end
         end
-        value
+        result.value
       end
     end # Pipeline
   end # Option

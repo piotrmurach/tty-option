@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "conversions"
+require_relative "result"
 
 module TTY
   module Option
@@ -13,16 +14,16 @@ module TTY
       #
       # @api public
       def call(param, value)
-        return value unless param.convert?
+        return Result.success(value) unless param.convert?
 
         case cast = param.convert
         when Proc
-          cast.(value)
+          Result.success(cast.(value))
         else
-          Conversions[cast].(value)
+          Result.success(Conversions[cast].(value))
         end
       rescue InvalidConversionArgument => err
-        err
+        Result.failure(err)
       end
       module_function :call
 

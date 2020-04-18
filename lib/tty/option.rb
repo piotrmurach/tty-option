@@ -4,7 +4,6 @@ require_relative "option/conversions"
 require_relative "option/dsl"
 require_relative "option/errors"
 require_relative "option/parser"
-require_relative "option/result"
 require_relative "option/version"
 
 module TTY
