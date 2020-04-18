@@ -28,10 +28,7 @@ module TTY
           if valid
             acc << value
           else
-            error = TTY::Option::InvalidArgument.new(
-                      format("value of `%s` fails validation rule for %s parameter",
-                            value, param.name.inspect))
-            errors << error
+            errors << TTY::Option::InvalidArgument.new(param, value)
           end
           acc
         end
