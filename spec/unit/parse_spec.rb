@@ -425,6 +425,18 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq(["baz", "qux"])
     end
 
+    it "doens't require options by default" do
+      cmd = new_command do
+        option :foo do
+          long "--foo string"
+        end
+      end
+
+      cmd.parse([])
+
+      expect(cmd.params[:foo]).to eq(nil)
+    end
+
     it "requires an option to be present" do
       cmd = new_command do
         option :foo do

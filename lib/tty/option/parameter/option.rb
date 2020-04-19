@@ -77,20 +77,6 @@ module TTY
           !short.to_s.match(SHORT_ARGUMENT_OPTIONAL_RE).nil? ||
             !long.to_s.match(LONG_ARGUMENT_OPTIONAL_RE).nil?
         end
-
-        # Check if this option is required
-        #
-        # @api public
-        def required?
-          @settings.fetch(:required) { argument_required? }
-        end
-
-        # Check if this option is optional?
-        #
-        # @api public
-        def optional?
-          !@settings.fetch(:required) { argument_required? }
-        end
       end # Option
     end # Parameter
   end # Option

@@ -93,8 +93,8 @@ RSpec.describe TTY::Option::Parameter::Option do
       expect(option.long_name).to eq("")
       expect(option.long?).to eq(false)
 
-      expect(option.required?).to eq(true)
-      expect(option.optional?).to eq(false)
+      expect(option.required?).to eq(false)
+      expect(option.optional?).to eq(true)
       expect(option.argument_required?).to eq(true)
       expect(option.argument_optional?).to eq(false)
     end
@@ -110,8 +110,8 @@ RSpec.describe TTY::Option::Parameter::Option do
       expect(option.long_name).to eq("")
       expect(option.long?).to eq(false)
 
-      expect(option.required?).to eq(true)
-      expect(option.optional?).to eq(false)
+      expect(option.required?).to eq(false)
+      expect(option.optional?).to eq(true)
       expect(option.argument_required?).to eq(true)
       expect(option.argument_optional?).to eq(false)
     end
@@ -177,8 +177,8 @@ RSpec.describe TTY::Option::Parameter::Option do
       expect(option.long_name).to eq("--foo")
       expect(option.long?).to eq(true)
 
-      expect(option.required?).to eq(true)
-      expect(option.optional?).to eq(false)
+      expect(option.required?).to eq(false)
+      expect(option.optional?).to eq(true)
       expect(option.argument_required?).to eq(true)
       expect(option.argument_optional?).to eq(false)
     end
@@ -194,8 +194,8 @@ RSpec.describe TTY::Option::Parameter::Option do
       expect(option.long_name).to eq("--foo")
       expect(option.long?).to eq(true)
 
-      expect(option.required?).to eq(true)
-      expect(option.optional?).to eq(false)
+      expect(option.required?).to eq(false)
+      expect(option.optional?).to eq(true)
       expect(option.argument_required?).to eq(true)
       expect(option.argument_optional?).to eq(false)
     end
@@ -247,8 +247,8 @@ RSpec.describe TTY::Option::Parameter::Option do
       expect(option.long_name).to eq("--foo")
       expect(option.long?).to eq(true)
 
-      expect(option.required?).to eq(true)
-      expect(option.optional?).to eq(false)
+      expect(option.required?).to eq(false)
+      expect(option.optional?).to eq(true)
       expect(option.argument_required?).to eq(true)
       expect(option.argument_optional?).to eq(false)
     end
@@ -264,8 +264,8 @@ RSpec.describe TTY::Option::Parameter::Option do
       expect(option.long_name).to eq("--foo")
       expect(option.long?).to eq(true)
 
-      expect(option.required?).to eq(true)
-      expect(option.optional?).to eq(false)
+      expect(option.required?).to eq(false)
+      expect(option.optional?).to eq(true)
       expect(option.argument_required?).to eq(true)
       expect(option.argument_optional?).to eq(false)
     end
