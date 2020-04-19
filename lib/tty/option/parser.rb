@@ -4,6 +4,7 @@ require_relative "parser/arguments"
 require_relative "parser/environments"
 require_relative "parser/keywords"
 require_relative "parser/options"
+require_relative "parser/param_types"
 require_relative "pipeline"
 
 module TTY
