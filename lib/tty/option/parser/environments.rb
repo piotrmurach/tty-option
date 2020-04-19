@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "arity_check"
+require_relative "param_types"
 require_relative "required_check"
 require_relative "../error_aggregator"
 require_relative "../pipeline"
@@ -9,6 +10,8 @@ module TTY
   module Option
     class Parser
       class Environments
+        include ParamTypes
+
         # Create a command line env variables parser
         #
         # @param [Array<Environment>] environments
@@ -120,33 +123,6 @@ module TTY
           end
 
           values
-        end
-
-        # Check if values looks like option
-        #
-        # @api private
-        def option?(value)
-          !value.match(/^-./).nil?
-        end
-
-        # Check if value looks like keyword
-        #
-        # @param [String] value
-        #
-        # @return [Boolean]
-        #
-        # @api private
-        def keyword?(value)
-          !value.to_s.match(/^([^-=][\p{Ll}_\-\d]*)=([^=]+)/).nil?
-        end
-
-        # Check if value is an environment variable
-        #
-        # @return [Boolean]
-        #
-        # @api private
-        def env_var?(value)
-          !value.match(/^[\p{Lu}_\-\d]+=/).nil?
         end
 
         # @api private

@@ -2,12 +2,15 @@
 
 require_relative "../error_aggregator"
 require_relative "../pipeline"
+require_relative "param_types"
 require_relative "required_check"
 
 module TTY
   module Option
     class Parser
       class Arguments
+        include ParamTypes
+
         # Create a command line arguments parser
         #
         # @param [Array<Argument>] arguments
@@ -128,42 +131,6 @@ module TTY
           end
 
           values
-        end
-
-        # Check if value is an argument
-        #
-        # @return [Boolean]
-        #
-        # @api private
-        def argument?(value)
-          !option?(value) && !keyword?(value) && !env_var?(value)
-        end
-
-        # Check if value is an environment variable
-        #
-        # @return [Boolean]
-        #
-        # @api private
-        def env_var?(value)
-          !value.match(/^[\p{Lu}_\-\d]+=/).nil?
-        end
-
-        # Check if value is an option
-        #
-        # @return [Boolean]
-        #
-        # @api private
-        def option?(value)
-          !value.match(/^-./).nil?
-        end
-
-        # Check if value is a keyword
-        #
-        # @return [Boolean]
-        #
-        # @api private
-        def keyword?(value)
-          !value.match(/^(.+)=(.+)/).nil?
         end
 
         # Assign argument to the parsed

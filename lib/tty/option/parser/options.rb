@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "arity_check"
+require_relative "param_types"
 require_relative "required_check"
 require_relative "../error_aggregator"
 require_relative "../pipeline"
@@ -9,6 +10,8 @@ module TTY
   module Option
     class Parser
       class Options
+        include ParamTypes
+
         LONG_OPTION_RE = /^(--[^=]+)(\s+|=)?(.*)?$/.freeze
 
         SHORT_OPTION_RE = /^(-.)(.*)$/.freeze
@@ -231,13 +234,6 @@ module TTY
           end
 
           values.size == 1 ? values.first : values
-        end
-
-        # Check if values looks like option
-        #
-        # @api private
-        def option?(value)
-          !value.match(/^-./).nil?
         end
 
         # @api private
