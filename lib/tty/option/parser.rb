@@ -41,7 +41,7 @@ module TTY
 
       def parse(argv, env)
         argv = argv.dup
-        params = {}
+        params = Params.new
         errors = {}
         ignored = []
 

@@ -77,7 +77,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[x y z w])
 
-      expect(cmd.params[:foo]).to eq(%w[x y z])
+      expect(cmd.params["foo"]).to eq(%w[x y z])
       expect(cmd.params[:bar]).to eq("w")
     end
 
