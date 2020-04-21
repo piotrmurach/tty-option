@@ -2,10 +2,12 @@
 
 RSpec.describe TTY::Option::Params do
   it "allows indifferent access to keys via has like syntax" do
-    params = described_class.new({foo: "bar"})
+    params = described_class.new({foo: "bar", "baz" => :qux})
 
     expect(params[:foo]).to eq("bar")
     expect(params["foo"]).to eq("bar")
+    expect(params[:baz]).to eq(:qux)
+    expect(params["baz"]).to eq(:qux)
   end
 
   it "allows indifferent access to keys via fetch" do

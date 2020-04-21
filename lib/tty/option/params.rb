@@ -8,25 +8,36 @@ module TTY
       extend Forwardable
 
       def_delegators :@parameters,
-        :keys, :key?, :has_key?, :member?, :value?, :has_value?, :empty?,
-        :include?, :each_key, :each_value
+                     :keys, :key?, :has_key?, :member?, :value?, :has_value?,
+                     :empty?, :include?, :each_key, :each_value
 
       def initialize(parameters = {})
         @parameters = parameters
+
+        @parameters.default_proc = ->(hash, key) do
+          return hash[key] if hash.key?(key)
+
+          case key
+          when Symbol
+            hash[key.to_s] if hash.key?(key.to_s)
+          when String
+            hash[key.to_sym] if hash.key?(key.to_sym)
+          end
+        end
       end
 
       # Access a given value for a key
       #
       # @api public
       def [](key)
-        @parameters[key.to_sym]
+        @parameters[key]
       end
 
       # Assign value to a key
       #
       # @api public
       def []=(key, value)
-        @parameters[key.to_sym] = value
+        @parameters[key] = value
       end
 
       # Access a given value for a key
@@ -49,6 +60,7 @@ module TTY
 
       def ==(other)
         return false unless other.kind_of?(TTY::Option::Params)
+
         @parameters == other.to_h
       end
       alias eql? ==
