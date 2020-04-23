@@ -92,6 +92,18 @@ module TTY
         @settings.key?(:default) && !@settings[:default].nil?
       end
 
+      def desc(value = (not_set = true))
+        if not_set
+          @settings[:desc]
+        else
+          @settings[:desc] = value
+        end
+      end
+
+      def desc?
+        @settings.key?(:desc) && !@settings[:desc].nil?
+      end
+
       # Check if this options is multi argument
       #
       # @api public
