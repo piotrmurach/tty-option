@@ -5,6 +5,7 @@ require_relative "dsl/arity"
 module TTY
   module Option
     class Parameter
+      include Comparable
       include DSL::Arity
 
       def self.create(name, **settings, &block)
@@ -157,6 +158,13 @@ module TTY
 
       def to_h
         @settings.dup
+      end
+
+      # Compare this parameter name with the other
+      #
+      # @api public
+      def <=>(other)
+        name <=> other.name
       end
 
       private

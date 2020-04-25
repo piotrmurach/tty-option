@@ -214,4 +214,16 @@ RSpec.describe TTY::Option::Parameter::Argument do
                        "only accepts a Proc or a Regexp type")
     end
   end
+
+  context "comparison" do
+    it "orders arguments by name" do
+      option_foo = described_class.new(:foo)
+      option_bar = described_class.new(:bar)
+      option_baz = described_class.new(:baz)
+
+      options = [option_foo, option_baz, option_bar]
+
+      expect(options.sort).to eq([option_bar, option_baz, option_foo])
+    end
+  end
 end
