@@ -77,6 +77,15 @@ module TTY
           !short.to_s.match(SHORT_ARGUMENT_OPTIONAL_RE).nil? ||
             !long.to_s.match(LONG_ARGUMENT_OPTIONAL_RE).nil?
         end
+
+        # Compare this option short and long names
+        #
+        # @api public
+        def <=>(other)
+          left = long? ? long_name : short_name
+          right = other.long? ? other.long_name : other.short_name
+          left <=> right
+        end
       end # Option
     end # Parameter
   end # Option

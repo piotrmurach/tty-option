@@ -304,4 +304,36 @@ RSpec.describe TTY::Option::Parameter::Option do
       expect(option.argument_optional?).to eq(true)
     end
   end
+
+  context "comparison" do
+    it "orders options by long name" do
+      option_b = described_class.new(:foo, long: "--bb")
+      option_a = described_class.new(:bar, long: "--aaa")
+      option_c = described_class.new(:baz, long: "--cccc")
+
+      options = [option_b, option_c, option_a]
+
+      expect(options.sort).to eq([option_a, option_b, option_c])
+    end
+
+    it "orders options by short name" do
+      option_b = described_class.new(:foo, short: "-b")
+      option_c = described_class.new(:bar, short: "-c")
+      option_a = described_class.new(:baz, short: "-a")
+
+      options = [option_b, option_c, option_a]
+
+      expect(options.sort).to eq([option_a, option_b, option_c])
+    end
+
+    it "orders options by short & long name" do
+      option_b = described_class.new(:foo, short: "-b")
+      option_c = described_class.new(:bar, long: "--ccc")
+      option_a = described_class.new(:baz, long: "--aa")
+
+      options = [option_b, option_c, option_a]
+
+      expect(options.sort).to eq([option_a, option_c, option_b])
+    end
+  end
 end
