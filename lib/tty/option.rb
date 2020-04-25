@@ -4,6 +4,7 @@ require_relative "option/conversions"
 require_relative "option/dsl"
 require_relative "option/errors"
 require_relative "option/parser"
+require_relative "option/formatter"
 require_relative "option/version"
 
 module TTY
@@ -53,6 +54,15 @@ module TTY
       def parse(argv = ARGV, env = ENV, **config)
         parser = Parser.new(self.class.parameters, **config)
         @parameters, @remaining, @errors = parser.parse(argv, env)
+      end
+
+      # Provide a formatted help usage for the configured parameters
+      #
+      # @return [String]
+      #
+      # @api public
+      def help
+        Formatter.help(self.class.parameters)
       end
     end
   end # Option
