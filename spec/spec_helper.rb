@@ -18,7 +18,14 @@ end
 require "bundler/setup"
 require "tty/option"
 
+module Helpers
+  def unindent(s)
+    s.gsub(/^#{s.scan(/^[ \t]+(?=\S)/).min}/, "")
+  end
+end
+
 RSpec.configure do |config|
+  config.include(Helpers)
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
 
