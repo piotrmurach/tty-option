@@ -53,6 +53,13 @@ module TTY
       end
       alias add <<
 
+      # Add query methods
+      [:arguments, :environments, :keywords, :options].each do |name|
+        define_method(:"#{name}?") do
+          !self.public_send(name).empty?
+        end
+      end
+
       private
 
       # @api private
