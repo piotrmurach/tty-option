@@ -21,6 +21,13 @@ module TTY
         def default_variable_name
           name.to_s.gsub(/-/, "_").upcase
         end
+
+        # Compare this env var to another
+        #
+        # @api public
+        def <=>(other)
+          variable <=> other.variable
+        end
       end
     end # Parameter
   end # Option
