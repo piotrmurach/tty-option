@@ -6,11 +6,14 @@ module TTY
       SHORT_OPT_LENGTH = 4
       NEWLINE = "\n"
       ELLIPSIS = "..."
+      SPACE = " "
 
       # @api public
       def self.help(parameters, usage)
         new(parameters, usage).help
       end
+
+      attr_reader :indentation
 
       # Create a help formatter
       #
@@ -21,6 +24,7 @@ module TTY
         @parameters = parameters
         @usage = usage
         @indent = 2
+        @indentation = " " * 2
       end
 
       # A formatted help usage information
@@ -117,7 +121,7 @@ module TTY
         line = []
 
         if any_short
-          short_option = option.short? ? option.short_name : " "
+          short_option = option.short? ? option.short_name : SPACE
           line << format("%#{SHORT_OPT_LENGTH}s", short_option)
         end
 
@@ -131,7 +135,7 @@ module TTY
             line << option.long
           end
         else
-          line << format("%-#{longest_length}s", " ")
+          line << format("%-#{longest_length}s", SPACE)
         end
 
         if option.desc?
@@ -177,10 +181,10 @@ module TTY
         line = []
 
         if env.desc?
-          line << format("%s%-#{longest_var}s", " " * @indent, env.variable.upcase)
+          line << format("%s%-#{longest_var}s", indentation, env.variable.upcase)
           line << "   #{env.desc}"
         else
-          line << format("%s%s", " " * @indent, env.variable.upcase)
+          line << format("%s%s", indentation, env.variable.upcase)
         end
 
         if (default = format_default(env))
