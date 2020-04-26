@@ -5,6 +5,7 @@ module TTY
     class Formatter
       SHORT_OPT_LENGTH = 4
       NEWLINE = "\n"
+      ELLIPSIS = "..."
 
       # @api public
       def self.help(parameters, usage)
@@ -19,6 +20,7 @@ module TTY
       def initialize(parameters, usage)
         @parameters = parameters
         @usage = usage
+        @indent = 2
       end
 
       # A formatted help usage information
@@ -40,6 +42,11 @@ module TTY
           output << format_options
         end
 
+        if @parameters.environments?
+          output << NEWLINE + "Environment:"
+          output << format_environment
+        end
+
         formatted = output.join(NEWLINE)
         formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
       end
@@ -52,6 +59,7 @@ module TTY
         output << "Usage: "
         output << @usage.program
         output << " [OPTIONS]" if @parameters.options?
+        output << " [ENVIRONMENT]" if @parameters.environments?
         output << " #{format_arguments}" if @parameters.arguments?
         output.join
       end
@@ -71,7 +79,7 @@ module TTY
             acc << args.join
           else
             (arg.arity.abs - 1).times { acc << arg_name }
-            acc << "[#{arg_name}...]"
+            acc << "[#{arg_name}#{ELLIPSIS}]"
           end
           acc
         end.join(" ")
@@ -123,12 +131,53 @@ module TTY
           line << "   #{option.desc}"
         end
 
-        if option.default? && ![true, false].include?(option.default)
-          if option.default.is_a?(String)
-            line << format(" (default %p)", option.default)
-          else
-            line << format(" (default %s)", option.default)
-          end
+        if (default = format_default(option))
+          line << default
+        end
+
+        line.join
+      end
+
+      # Format default value
+      #
+      # @api private
+      def format_default(param)
+        return if !param.default? || [true, false].include?(param.default)
+
+        if param.default.is_a?(String)
+          format(" (default %p)", param.default)
+        else
+          format(" (default %s)", param.default)
+        end
+      end
+
+      # @api private
+      def format_environment
+        output = []
+        longest_var = @parameters.environments.map(&:variable)
+                                 .compact.max_by(&:length).length
+        ordered_envs = @parameters.environments.sort
+
+        ordered_envs.each do |env|
+          output << format_env(env, longest_var)
+        end
+
+        output.join(NEWLINE)
+      end
+
+      # @api private
+      def format_env(env, longest_var)
+        line = []
+
+        if env.desc?
+          line << format("%s%-#{longest_var}s", " " * @indent, env.variable.upcase)
+          line << "   #{env.desc}"
+        else
+          line << format("%s%s", " " * @indent, env.variable.upcase)
+        end
+
+        if (default = format_default(env))
+          line << default
         end
 
         line.join
