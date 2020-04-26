@@ -12,6 +12,26 @@ RSpec.describe TTY::Option::Formatter do
     command(&block).new
   end
 
+  context "Usage header & footer" do
+    it "includes header and footer in help display" do
+      cmd = new_command do
+        header "CLI app"
+
+        footer "Run --help to see more info."
+      end
+
+      expected_output = unindent(<<-EOS)
+      CLI app
+
+      Usage: rspec
+
+      Run --help to see more info.
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+  end
+
   context "Usage banner" do
     it "formats banner with a single argument, description and no options" do
       cmd = new_command do

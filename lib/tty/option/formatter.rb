@@ -31,6 +31,8 @@ module TTY
       def help
         output = []
 
+        output << @usage.header + NEWLINE if @usage.header?
+
         output << (@usage.banner? ? @usage.banner : format_usage) + NEWLINE
 
         if @usage.desc?
@@ -46,6 +48,8 @@ module TTY
           output << NEWLINE + "Environment:"
           output << format_environment
         end
+
+        output << @usage.footer + NEWLINE if @usage.footer?
 
         formatted = output.join(NEWLINE)
         formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
