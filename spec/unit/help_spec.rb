@@ -137,6 +137,55 @@ RSpec.describe TTY::Option::Formatter do
 
       expect(cmd.help).to eq(expected_output)
     end
+
+    it "formats banner with keyword arguments and no arguments or options" do
+      cmd = new_command do
+        program "foo"
+
+        keyword :bar do
+          required
+          convert :uri
+        end
+
+        keyword :baz
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo BAR=URI [BAZ=BAZ]
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "formats banner with keyword and positional arguments and options" do
+      cmd = new_command do
+        program "foo"
+
+        keyword :bar do
+          required
+          convert :uri
+        end
+
+        keyword :baz
+
+        argument :fum do
+          required
+        end
+
+        option :qux do
+          desc "Some description"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo [OPTIONS] FUM BAR=URI [BAZ=BAZ]
+
+      Options:
+        --qux   Some description
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
   end
 
   context "Options section" do

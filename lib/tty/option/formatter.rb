@@ -69,6 +69,7 @@ module TTY
         output << " [OPTIONS]" if @parameters.options?
         output << " [ENVIRONMENT]" if @parameters.environments?
         output << " #{format_arguments}" if @parameters.arguments?
+        output << " #{format_keywords}" if @parameters.keywords?
         output.join
       end
 
@@ -90,7 +91,27 @@ module TTY
             acc << "[#{arg_name}#{ELLIPSIS}]"
           end
           acc
-        end.join(" ")
+        end.join(SPACE)
+      end
+
+      # @api public
+      def format_keywords
+        return "" unless @parameters.keywords?
+
+        @parameters.keywords.reduce([]) do |acc, kwarg|
+          kwarg_name = kwarg.name.to_s.upcase
+          conv_name = case kwarg.convert
+                      when Proc, NilClass
+                        kwarg_name
+                      else
+                        kwarg.convert.to_s.upcase
+                      end
+          if kwarg.required?
+            acc << "#{kwarg_name}=#{conv_name}"
+          else
+            acc << "[#{kwarg_name}=#{conv_name}]"
+          end
+        end.join(SPACE)
       end
 
       # Returns all the options formatted to fit 80 columns
