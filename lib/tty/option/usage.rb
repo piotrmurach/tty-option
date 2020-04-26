@@ -19,6 +19,21 @@ module TTY
         end
       end
 
+      # Display info before anything else in the usage help
+      #
+      # @api public
+      def header(value = (not_set = true))
+        if not_set
+          @properties[:header]
+        else
+          @properties[:header] = value
+        end
+      end
+
+      def header?
+        @properties.key?(:header) && !@properties[:header].nil?
+      end
+
       # Main way to show how all parameters can be used
       #
       # @api public
@@ -47,6 +62,21 @@ module TTY
 
       def desc?
         @properties.key?(:desc) && !@properties[:desc].nil?
+      end
+
+      # Display info after everyting else in the usage help
+      #
+      # @api public
+      def footer(value = (not_set = true))
+        if not_set
+          @properties[:footer]
+        else
+          @properties[:footer] = value
+        end
+      end
+
+      def footer?
+        @properties.key?(:footer) && !@properties[:footer].nil?
       end
     end # Usage
   end # Option

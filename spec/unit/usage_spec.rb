@@ -19,6 +19,23 @@ RSpec.describe TTY::Option::Usage do
     end
   end
 
+  context "header" do
+    it "changes header via property" do
+      usage = described_class.new(header: "foo")
+      expect(usage.header).to eq("foo")
+    end
+
+    it "changes header via method" do
+      usage = described_class.new
+      expect(usage.header?).to eq(false)
+
+      usage.header("foo")
+
+      expect(usage.header).to eq("foo")
+      expect(usage.header?).to eq(true)
+    end
+  end
+
   context "banner" do
     it "changes banner via property" do
       usage = described_class.new(banner: "foo")
@@ -50,6 +67,23 @@ RSpec.describe TTY::Option::Usage do
 
       expect(usage.desc?).to eq(true)
       expect(usage.desc).to eq("Some description")
+    end
+  end
+
+  context "footer" do
+    it "changes footer via property" do
+      usage = described_class.new(footer: "foo")
+      expect(usage.footer).to eq("foo")
+    end
+
+    it "changes footer via method" do
+      usage = described_class.new
+      expect(usage.footer?).to eq(false)
+
+      usage.footer("foo")
+
+      expect(usage.footer).to eq("foo")
+      expect(usage.footer?).to eq(true)
     end
   end
 end
