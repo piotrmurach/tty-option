@@ -62,7 +62,7 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec [OPTIONS]
 
       Options:
-            --foo   Some description
+        --foo   Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -88,7 +88,7 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec [OPTIONS] FOO FOO [BAR]
 
       Options:
-            --baz   Some description
+        --baz   Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -184,6 +184,31 @@ RSpec.describe TTY::Option::Formatter do
             --fum             Some description
             --qux-long ints   Some description (default [1, 2, 3])
         -c                    Some description
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "prints help information for only long options" do
+      cmd = new_command do
+        option :foo do
+          long "--foo string"
+          desc "Some description"
+        end
+
+        option :bar do
+          long "--bar string"
+          default "baz"
+          desc "Some description"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec [OPTIONS]
+
+      Options:
+        --bar string   Some description (default "baz")
+        --foo string   Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)

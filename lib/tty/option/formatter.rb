@@ -100,10 +100,11 @@ module TTY
         output = []
         longest_option = @parameters.options.map(&:long)
                                     .compact.max_by(&:length).length
+        any_short = @parameters.options.map(&:short).compact.any?
         ordered_options = @parameters.options.sort
 
         ordered_options.each do |option|
-          output << format_option(option, longest_option)
+          output << format_option(option, longest_option, any_short)
         end
 
         output.join(NEWLINE)
@@ -112,11 +113,13 @@ module TTY
       # Format an option
       #
       # @api private
-      def format_option(option, longest_length)
+      def format_option(option, longest_length, any_short)
         line = []
 
-        short_option = option.short? ? option.short_name : " "
-        line << format("%#{SHORT_OPT_LENGTH}s", short_option)
+        if any_short
+          short_option = option.short? ? option.short_name : " "
+          line << format("%#{SHORT_OPT_LENGTH}s", short_option)
+        end
 
         # short & long option separator
         line << ((option.short? && option.long?) ? ", " : "  ")
