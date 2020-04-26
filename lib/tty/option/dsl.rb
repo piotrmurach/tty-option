@@ -6,6 +6,7 @@ require_relative "parameter/environment"
 require_relative "parameter/keyword"
 require_relative "parameter/option"
 require_relative "parameters"
+require_relative "usage"
 
 module TTY
   module Option
