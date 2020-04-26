@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 require_relative "dsl/arity"
 require_relative "parameter/argument"
 require_relative "parameter/environment"
@@ -12,6 +14,16 @@ module TTY
   module Option
     module DSL
       include Arity
+      extend Forwardable
+
+      def_delegators :usage, :banner, :desc, :program
+
+      # Holds the usage information
+      #
+      # @api public
+      def usage
+        @usage ||= Usage.new
+      end
 
       # Specify an argument
       #

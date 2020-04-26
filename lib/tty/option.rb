@@ -62,7 +62,7 @@ module TTY
       #
       # @api public
       def help
-        Formatter.help(self.class.parameters)
+        Formatter.help(self.class.parameters, self.class.usage)
       end
     end
   end # Option

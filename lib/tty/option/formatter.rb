@@ -4,33 +4,87 @@ module TTY
   module Option
     class Formatter
       SHORT_OPT_LENGTH = 4
-      SHORT_OPT_SPACING = 6
       NEWLINE = "\n"
 
       # @api public
-      def self.help(parameters)
-        new(parameters).help
+      def self.help(parameters, usage)
+        new(parameters, usage).help
       end
 
+      # Create a help formatter
+      #
       # @param [Parameters]
       #
       # @api public
-      def initialize(parameters)
+      def initialize(parameters, usage)
         @parameters = parameters
+        @usage = usage
       end
 
+      # A formatted help usage information
+      #
+      # @return [String]
+      #
+      # @api public
       def help
-        "Options:\n" + format_options
+        output = []
+
+        output << (@usage.banner? ? @usage.banner : format_usage) + NEWLINE
+
+        if @usage.desc?
+          output << @usage.desc + NEWLINE
+        end
+
+        if @parameters.options?
+          output << "Options:"
+          output << format_options
+        end
+
+        formatted = output.join(NEWLINE)
+        formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
       end
 
       private
+
+      # @api private
+      def format_usage
+        output = []
+        output << "Usage: "
+        output << @usage.program
+        output << " [OPTIONS]" if @parameters.options?
+        output << " #{format_arguments}" if @parameters.arguments?
+        output.join
+      end
+
+      # @api private
+      def format_arguments
+        return "" unless @parameters.arguments?
+
+        @parameters.arguments.reduce([]) do |acc, arg|
+          arg_name = arg.name.to_s.upcase
+          if 0 < arg.arity
+            args = []
+            args << "[" if arg.optional?
+            args << arg_name
+            (arg.arity - 1).times { args << " #{arg_name}" }
+            args << "]" if arg.optional?
+            acc << args.join
+          else
+            (arg.arity.abs - 1).times { acc << arg_name }
+            acc << "[#{arg_name}...]"
+          end
+          acc
+        end.join(" ")
+      end
 
       # Returns all the options formatted to fit 80 columns
       #
       # @return [String]
       #
-      # @api public
+      # @api private
       def format_options
+        return "" if @parameters.options.empty?
+
         output = []
         longest_option = @parameters.options.map(&:long)
                                     .compact.max_by(&:length).length

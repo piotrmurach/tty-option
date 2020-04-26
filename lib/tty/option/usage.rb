@@ -30,6 +30,10 @@ module TTY
         end
       end
 
+      def banner?
+        @properties.key?(:banner) && !@properties[:banner].nil?
+      end
+
       # Description
       #
       # @api public

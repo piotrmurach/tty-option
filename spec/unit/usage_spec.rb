@@ -27,8 +27,12 @@ RSpec.describe TTY::Option::Usage do
 
     it "changes banner via method" do
       usage = described_class.new
+      expect(usage.banner?).to eq(false)
+
       usage.banner("foo")
+
       expect(usage.banner).to eq("foo")
+      expect(usage.banner?).to eq(true)
     end
   end
 
