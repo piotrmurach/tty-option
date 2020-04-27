@@ -25,6 +25,12 @@ module TTY
         @usage = usage
         @indent = 2
         @indentation = " " * 2
+        @sections = {
+          usage: "Usage:",
+          options: "Options:",
+          env: "Environment:",
+          examples: "Examples:"
+        }
       end
 
       # A formatted help usage information
@@ -44,17 +50,17 @@ module TTY
         end
 
         if @parameters.options?
-          output << NEWLINE + "Options:"
+          output << NEWLINE + @sections[:options]
           output << format_options
         end
 
         if @parameters.environments?
-          output << NEWLINE + "Environment:"
+          output << NEWLINE + @sections[:env]
           output << format_environment
         end
 
         if @usage.example?
-          output << NEWLINE + "Examples:"
+          output << NEWLINE + @sections[:examples]
           output << format_examples
         end
 
@@ -71,7 +77,7 @@ module TTY
       # @api private
       def format_usage
         output = []
-        output << "Usage: "
+        output << @sections[:usage] + SPACE
         output << @usage.program
         output << " [OPTIONS]" if @parameters.options?
         output << " [ENVIRONMENT]" if @parameters.environments?
