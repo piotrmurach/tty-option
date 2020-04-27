@@ -70,6 +70,43 @@ RSpec.describe TTY::Option::Usage do
     end
   end
 
+  context "example" do
+    it "adds multiline example as separate arguments" do
+      usage = described_class.new
+      expect(usage.example?).to eq(false)
+
+      usage.example "The following does something",
+                    "  $ foo bar"
+
+      expect(usage.example).to eq([["The following does something", "  $ foo bar"]])
+      expect(usage.example?).to eq(true)
+    end
+
+    it "adds multiline example as a single string" do
+      usage = described_class.new
+      expect(usage.example?).to eq(false)
+
+      usage.example unindent(<<-EOS)
+      The following does something
+        $ foo bar
+      EOS
+      expect(usage.example).to eq([["The following does something\n  $ foo bar\n"]])
+      expect(usage.example?).to eq(true)
+    end
+
+    it "adds multiple examples" do
+      usage = described_class.new
+      expect(usage.example?).to eq(false)
+
+      usage.example "foo"
+      usage.example "bar"
+      usage.example "baz"
+
+      expect(usage.example).to eq([["foo"], ["bar"], ["baz"]])
+      expect(usage.example?).to eq(true)
+    end
+  end
+
   context "footer" do
     it "changes footer via property" do
       usage = described_class.new(footer: "foo")

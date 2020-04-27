@@ -64,6 +64,21 @@ module TTY
         @properties.key?(:desc) && !@properties[:desc].nil?
       end
 
+      # Collects usage examples
+      #
+      # @api public
+      def example(*values)
+        if values.empty?
+          @properties.fetch(:example) { [] }
+        else
+          (@properties[:example] ||= []) << values
+        end
+      end
+
+      def example?
+        @properties.key?(:example) && !@properties[:example].empty?
+      end
+
       # Display info after everyting else in the usage help
       #
       # @api public
