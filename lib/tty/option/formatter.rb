@@ -74,6 +74,8 @@ module TTY
 
       private
 
+      # Provide a default usage banner
+      #
       # @api private
       def format_usage
         output = []
@@ -86,6 +88,8 @@ module TTY
         output.join
       end
 
+      # Format arguments
+      #
       # @api private
       def format_arguments
         return "" unless @parameters.arguments?
@@ -93,42 +97,58 @@ module TTY
         @parameters.arguments.reduce([]) do |acc, arg|
           next acc if arg.hidden?
 
-          arg_name = arg.name.to_s.upcase
-          if 0 < arg.arity
-            args = []
-            args << "[" if arg.optional?
-            args << arg_name
-            (arg.arity - 1).times { args << " #{arg_name}" }
-            args << "]" if arg.optional?
-            acc << args.join
-          else
-            (arg.arity.abs - 1).times { acc << arg_name }
-            acc << "[#{arg_name}#{ELLIPSIS}]"
-          end
-          acc
+          acc << format_argument(arg)
         end.join(SPACE)
       end
 
-      # @api public
+      # Provide an argument summary
+      #
+      # @api private
+      def format_argument(arg)
+        arg_name = arg.name.to_s.upcase
+        args = []
+        if 0 < arg.arity
+          args << "[" if arg.optional?
+          args << arg_name
+          (arg.arity - 1).times { args << " #{arg_name}" }
+          args << "]" if arg.optional?
+          args.join
+        else
+          (arg.arity.abs - 1).times { args << arg_name }
+          args << "[#{arg_name}#{ELLIPSIS}]"
+          args.join(SPACE)
+        end
+      end
+
+      # Format keywords
+      #
+      # @api private
       def format_keywords
         return "" unless @parameters.keywords?
 
         @parameters.keywords.reduce([]) do |acc, kwarg|
           next acc if kwarg.hidden?
 
-          kwarg_name = kwarg.name.to_s.upcase
-          conv_name = case kwarg.convert
-                      when Proc, NilClass
-                        kwarg_name
-                      else
-                        kwarg.convert.to_s.upcase
-                      end
-          if kwarg.required?
-            acc << "#{kwarg_name}=#{conv_name}"
-          else
-            acc << "[#{kwarg_name}=#{conv_name}]"
-          end
+          acc << format_keyword(kwarg)
         end.join(SPACE)
+      end
+
+      # Provide a keyword summary
+      #
+      # @api private
+      def format_keyword(kwarg)
+        kwarg_name = kwarg.name.to_s.upcase
+        conv_name = case kwarg.convert
+                    when Proc, NilClass
+                      kwarg_name
+                    else
+                      kwarg.convert.to_s.upcase
+                    end
+        if kwarg.required?
+          "#{kwarg_name}=#{conv_name}"
+        else
+          "[#{kwarg_name}=#{conv_name}]"
+        end
       end
 
       # Format multiline description
@@ -146,18 +166,15 @@ module TTY
       def format_options
         return "" if @parameters.options.empty?
 
-        output = []
         longest_option = @parameters.options.map(&:long)
                                     .compact.max_by(&:length).length
         any_short = @parameters.options.map(&:short).compact.any?
         ordered_options = @parameters.options.sort
 
-        ordered_options.each do |option|
-          next if option.hidden?
-          output << format_option(option, longest_option, any_short)
-        end
-
-        output.join(NEWLINE)
+        ordered_options.reduce([]) do |acc, option|
+          next acc if option.hidden?
+          acc << format_option(option, longest_option, any_short)
+        end.join(NEWLINE)
       end
 
       # Format an option
@@ -210,18 +227,15 @@ module TTY
 
       # @api private
       def format_environment
-        output = []
         longest_var = @parameters.environments.map(&:variable)
                                  .compact.max_by(&:length).length
         ordered_envs = @parameters.environments.sort
 
-        ordered_envs.each do |env|
-          next if env.hidden?
+        ordered_envs.reduce([]) do |acc, env|
+          next acc if env.hidden?
 
-          output << format_env(env, longest_var)
-        end
-
-        output.join(NEWLINE)
+          acc << format_env(env, longest_var)
+        end.join(NEWLINE)
       end
 
       # @api private
