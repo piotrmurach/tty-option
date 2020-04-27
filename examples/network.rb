@@ -8,9 +8,17 @@ module Network
 
     header "CLI app v1.2.3"
 
-    banner "#{program} create [OPTIONS] NETWORK"
+    banner "Usage: #{program} create [OPTIONS] NETWORK"
 
     desc "Create a network"
+
+    example "The following creates a bridge network:",
+            "  $ docker network create -d bridge my-bridge-network"
+
+    example <<~EOS
+    The following creates a bridge network with a subnet:
+      $ docker network create --driver=bridge --subnet=192.168.0.0/16 br0
+    EOS
 
     footer "Run 'network create --help' for more information on a command."
 
