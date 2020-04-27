@@ -139,6 +139,20 @@ RSpec.describe TTY::Option::Parameter::Argument do
     end
   end
 
+  context "hidden setting" do
+    it "doesn't hide argument from usage by default" do
+      arg = described_class.new(:foo)
+
+      expect(arg.hidden?).to eq(false)
+    end
+
+    it "hides argument from usage" do
+      arg = described_class.new(:foo, hidden: true)
+
+      expect(arg.hidden?).to eq(true)
+    end
+  end
+
   context "permit setting" do
     it "returns nil" do
       arg = described_class.new(:foo)
