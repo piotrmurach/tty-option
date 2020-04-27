@@ -46,7 +46,7 @@ module TTY
         output << (@usage.banner? ? @usage.banner : format_usage)
 
         if @usage.desc?
-          output << NEWLINE + @usage.desc
+          output << NEWLINE + format_description
         end
 
         if @parameters.options?
@@ -125,6 +125,17 @@ module TTY
             acc << "[#{kwarg_name}=#{conv_name}]"
           end
         end.join(SPACE)
+      end
+
+      # Format multiline description
+      #
+      # @api private
+      def format_description(indent: "")
+        @usage.desc.map do |desc|
+          desc.map do |des|
+            des.split(NEWLINE).map { |d| indent + d }.join(NEWLINE)
+          end.join(NEWLINE) + NEWLINE
+        end.join(NEWLINE)
       end
 
       # Returns all the options formatted to fit 80 columns

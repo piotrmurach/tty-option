@@ -59,14 +59,27 @@ RSpec.describe TTY::Option::Usage do
       expect(usage.desc).to eq("Some description")
     end
 
-    it "changes description via method" do
+    it "adds multiline description as a separate arguments via method" do
       usage = described_class.new
       expect(usage.desc?).to be(false)
 
-      usage.desc("Some description")
+      usage.desc "Some description", "on multiline"
 
       expect(usage.desc?).to eq(true)
-      expect(usage.desc).to eq("Some description")
+      expect(usage.desc).to eq([["Some description", "on multiline"]])
+    end
+
+    it "adds multiline description as a single string via method" do
+      usage = described_class.new
+      expect(usage.desc?).to be(false)
+
+      usage.desc unindent(<<-EOS)
+        Some description
+        on multiline
+      EOS
+
+      expect(usage.desc?).to eq(true)
+      expect(usage.desc).to eq([["Some description\non multiline\n"]])
     end
   end
 

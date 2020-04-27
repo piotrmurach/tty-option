@@ -34,18 +34,28 @@ RSpec.describe TTY::Option::Formatter do
 
   context "Usage banner" do
     it "formats banner with a single argument, description and no options" do
+      func = method(:unindent)
       cmd = new_command do
         argument :foo do
           required
         end
 
-        desc "Some description"
+        desc "Some description", "on multiline"
+
+        desc func.(<<-EOS)
+        Another description
+        on multiline
+        EOS
       end
 
       expected_output = unindent(<<-EOS)
       Usage: rspec FOO
 
       Some description
+      on multiline
+
+      Another description
+      on multiline
       EOS
 
       expect(cmd.help).to eq(expected_output)

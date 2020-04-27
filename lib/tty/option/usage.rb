@@ -52,16 +52,16 @@ module TTY
       # Description
       #
       # @api public
-      def desc(value = (not_set = true))
-        if not_set
-          @properties[:desc]
+      def desc(*values)
+        if values.empty?
+          @properties.fetch(:desc) { [] }
         else
-          @properties[:desc] = value
+          (@properties[:desc] ||= []) << values
         end
       end
 
       def desc?
-        @properties.key?(:desc) && !@properties[:desc].nil?
+        @properties.key?(:desc) && !@properties[:desc].empty?
       end
 
       # Collects usage examples
