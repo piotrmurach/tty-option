@@ -3,9 +3,20 @@
 module TTY
   module Option
     class Usage
+      # Create an usage
+      #
       # @api public
       def initialize(**properties)
-        @properties = properties
+        @properties = {}
+        properties.each do |key, val|
+          case key.to_sym
+          when :desc, :description
+            key, val = :desc, [Array(val)]
+          when :example, :examples
+            key, val = :example, [Array(val)]
+          end
+          @properties[key.to_sym] = val
+        end
       end
 
       # Program name for display in help and error messages
@@ -59,10 +70,12 @@ module TTY
           (@properties[:desc] ||= []) << values
         end
       end
+      alias description desc
 
       def desc?
         @properties.key?(:desc) && !@properties[:desc].empty?
       end
+      alias description? desc?
 
       # Collects usage examples
       #
@@ -74,10 +87,12 @@ module TTY
           (@properties[:example] ||= []) << values
         end
       end
+      alias examples example
 
       def example?
         @properties.key?(:example) && !@properties[:example].empty?
       end
+      alias examples? example?
 
       # Display info after everyting else in the usage help
       #

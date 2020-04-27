@@ -54,19 +54,24 @@ RSpec.describe TTY::Option::Usage do
   end
 
   context "description" do
-    it "changes description via property" do
+    it "adds multiline description via property" do
       usage = described_class.new(desc: "Some description")
-      expect(usage.desc).to eq("Some description")
+      expect(usage.desc).to eq([["Some description"]])
+    end
+
+    it "adds mulitline description wrapped in array via property" do
+      usage = described_class.new(desc: ["Some description"])
+      expect(usage.desc).to eq([["Some description"]])
     end
 
     it "adds multiline description as a separate arguments via method" do
       usage = described_class.new
-      expect(usage.desc?).to be(false)
+      expect(usage.description?).to be(false)
 
-      usage.desc "Some description", "on multiline"
+      usage.description "Some description", "on multiline"
 
-      expect(usage.desc?).to eq(true)
-      expect(usage.desc).to eq([["Some description", "on multiline"]])
+      expect(usage.description?).to eq(true)
+      expect(usage.description).to eq([["Some description", "on multiline"]])
     end
 
     it "adds multiline description as a single string via method" do
@@ -84,9 +89,19 @@ RSpec.describe TTY::Option::Usage do
   end
 
   context "example" do
+    it "adds multiline description via property" do
+      usage = described_class.new(example: "Some example")
+      expect(usage.example).to eq([["Some example"]])
+    end
+
+    it "adds mulitline description wrapped in array via property" do
+      usage = described_class.new(example: ["Some example"])
+      expect(usage.example).to eq([["Some example"]])
+    end
+
     it "adds multiline example as separate arguments" do
       usage = described_class.new
-      expect(usage.example?).to eq(false)
+      expect(usage.examples?).to eq(false)
 
       usage.example "The following does something",
                     "  $ foo bar"
