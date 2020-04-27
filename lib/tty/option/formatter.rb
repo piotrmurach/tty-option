@@ -91,6 +91,8 @@ module TTY
         return "" unless @parameters.arguments?
 
         @parameters.arguments.reduce([]) do |acc, arg|
+          next acc if arg.hidden?
+
           arg_name = arg.name.to_s.upcase
           if 0 < arg.arity
             args = []
@@ -112,6 +114,8 @@ module TTY
         return "" unless @parameters.keywords?
 
         @parameters.keywords.reduce([]) do |acc, kwarg|
+          next acc if kwarg.hidden?
+
           kwarg_name = kwarg.name.to_s.upcase
           conv_name = case kwarg.convert
                       when Proc, NilClass
@@ -149,6 +153,7 @@ module TTY
         ordered_options = @parameters.options.sort
 
         ordered_options.each do |option|
+          next if option.hidden?
           output << format_option(option, longest_option, any_short)
         end
 
@@ -211,6 +216,8 @@ module TTY
         ordered_envs = @parameters.environments.sort
 
         ordered_envs.each do |env|
+          next if env.hidden?
+
           output << format_env(env, longest_var)
         end
 

@@ -40,6 +40,10 @@ RSpec.describe TTY::Option::Formatter do
           required
         end
 
+        argument :bar do
+          hidden
+        end
+
         desc "Some description", "on multiline"
 
         desc func.(<<-EOS)
@@ -162,6 +166,10 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         keyword :baz
+
+        keyword :qux do
+          hidden
+        end
       end
 
       expected_output = unindent(<<-EOS)
@@ -222,6 +230,10 @@ RSpec.describe TTY::Option::Formatter do
           long "--qux-long ints"
           desc "Some description"
           default [1,2,3]
+        end
+
+        option :quux do
+          hidden
         end
 
         flag :fum do
@@ -305,6 +317,10 @@ RSpec.describe TTY::Option::Formatter do
 
         env :fum do
           var "FUM_VAR"
+        end
+
+        env :quuz do
+          hidden
         end
       end
 
