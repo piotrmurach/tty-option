@@ -130,12 +130,8 @@ module TTY
       # Format multiline description
       #
       # @api private
-      def format_description(indent: "")
-        @usage.desc.map do |desc|
-          desc.map do |des|
-            des.split(NEWLINE).map { |d| indent + d }.join(NEWLINE)
-          end.join(NEWLINE) + NEWLINE
-        end.join(NEWLINE)
+      def format_description
+        format_multiline(@usage.desc, "")
       end
 
       # Returns all the options formatted to fit 80 columns
@@ -243,10 +239,17 @@ module TTY
       #
       # @api private
       def format_examples
-        last_index = @usage.example.size - 1
-        @usage.example.map.with_index do |example, i|
-          example.map do |ex|
-            ex.split(NEWLINE).map { |e| indentation + e }.join(NEWLINE)
+        format_multiline(@usage.example, indentation)
+      end
+
+      # Format multiline content
+      #
+      # @api private
+      def format_multiline(lines, indent)
+        last_index = lines.size - 1
+        lines.map.with_index do |line, i|
+          line.map do |part|
+            part.split(NEWLINE).map { |p| indent + p }.join(NEWLINE)
           end.join(NEWLINE) + (last_index != i ? NEWLINE : "")
         end.join(NEWLINE)
       end

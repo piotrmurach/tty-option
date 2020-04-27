@@ -63,6 +63,8 @@ RSpec.describe TTY::Option::Formatter do
 
     it "formats banner with no arguments and some options" do
       cmd = new_command do
+        desc "Main description"
+
         option :foo do
           desc "Some description"
         end
@@ -70,6 +72,8 @@ RSpec.describe TTY::Option::Formatter do
 
       expected_output = unindent(<<-EOS)
       Usage: rspec [OPTIONS]
+
+      Main description
 
       Options:
         --foo   Some description
