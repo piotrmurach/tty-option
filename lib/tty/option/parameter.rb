@@ -8,6 +8,9 @@ module TTY
       include Comparable
       include DSL::Arity
 
+      # A parameter factory
+      #
+      # @api public
       def self.create(name, **settings, &block)
         new(name, **settings, &block)
       end
@@ -16,28 +19,25 @@ module TTY
 
       attr_reader :settings
 
+      # Create a parameter
+      #
+      # @api private
       def initialize(name, **settings, &block)
         @name = name
-        check_settings!(settings)
-        @settings = settings
-
-        arity(@settings[:arity]) if @settings.key?(:arity)
-        permit(@settings[:permit]) if @settings.key?(:permit)
-        validate(@settings[:validate]) if @settings.key?(:validate)
+        @settings = {}
+        settings.each do |key, val|
+          case key.to_sym
+          when :arity
+            val = check_arity(val)
+          when :permit
+            val = check_permitted(val)
+          when :validate
+            val = check_validation(val)
+          end
+          @settings[key.to_sym] = val
+        end
 
         instance_eval(&block) if block_given?
-      end
-
-      def check_settings!(settings)
-        if settings.key?(:arity)
-          check_arity(settings[:arity])
-        end
-        if settings.key?(:permit)
-          check_permitted(settings[:permit])
-        end
-        if settings.key?(:validate)
-          check_validation(settings[:validate])
-        end
       end
 
       def arity(value = (not_set = true))
