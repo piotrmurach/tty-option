@@ -2,6 +2,6 @@
 
 module TTY
   module Option
-    VERSION = "0.0.0"
-  end
-end
+    VERSION = "0.1.0"
+  end # Option
+end # TTY
