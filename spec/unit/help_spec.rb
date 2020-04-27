@@ -362,6 +362,8 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         example "The following does something:", "  $ foo bar"
+
+        footer "Version 1.2.3"
       end
 
       expected_output = unindent(<<-EOS)
@@ -376,6 +378,8 @@ RSpec.describe TTY::Option::Formatter do
       Examples:
         The following does something:
           $ foo bar
+
+      Version 1.2.3
       EOS
 
       expect(cmd.help).to eq(expected_output)

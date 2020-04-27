@@ -243,10 +243,11 @@ module TTY
       #
       # @api private
       def format_examples
-        @usage.example.map do |example|
+        last_index = @usage.example.size - 1
+        @usage.example.map.with_index do |example, i|
           example.map do |ex|
             ex.split(NEWLINE).map { |e| indentation + e }.join(NEWLINE)
-          end.join(NEWLINE) + NEWLINE
+          end.join(NEWLINE) + (last_index != i ? NEWLINE : "")
         end.join(NEWLINE)
       end
     end # Formatter
