@@ -16,7 +16,7 @@ module TTY
       include Arity
       extend Forwardable
 
-      def_delegators :usage, :banner, :desc, :program, :header, :footer
+      def_delegators :usage, :banner, :desc, :program, :header, :footer, :example
 
       # Holds the usage information
       #

@@ -310,4 +310,65 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
   end
+
+  context "Examples section" do
+    it "displays examples in help when present" do
+      func = method(:unindent)
+      cmd = new_command do
+        program "foo"
+
+        example "The following does something:", "  $ foo bar"
+
+        example func.(<<-EOS)
+        The following does something as well:
+          $ foo baz
+        EOS
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo
+
+      Examples:
+        The following does something:
+          $ foo bar
+
+        The following does something as well:
+          $ foo baz
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "displays examples in help with other sections" do
+      cmd = new_command do
+        program "foo"
+
+        option :bar do
+          desc "Some description"
+        end
+
+        env :baz do
+          desc "Some description"
+        end
+
+        example "The following does something:", "  $ foo bar"
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo [OPTIONS] [ENVIRONMENT]
+
+      Options:
+        --bar   Some description
+
+      Environment:
+        BAZ   Some description
+
+      Examples:
+        The following does something:
+          $ foo bar
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+  end
 end

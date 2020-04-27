@@ -37,14 +37,14 @@ module TTY
 
         output << @usage.header + NEWLINE if @usage.header?
 
-        output << (@usage.banner? ? @usage.banner : format_usage) + NEWLINE
+        output << (@usage.banner? ? @usage.banner : format_usage)
 
         if @usage.desc?
-          output << @usage.desc + NEWLINE
+          output << NEWLINE + @usage.desc
         end
 
         if @parameters.options?
-          output << "Options:"
+          output << NEWLINE + "Options:"
           output << format_options
         end
 
@@ -53,7 +53,14 @@ module TTY
           output << format_environment
         end
 
-        output << @usage.footer + NEWLINE if @usage.footer?
+        if @usage.example?
+          output << NEWLINE + "Examples:"
+          output << format_examples
+        end
+
+        if @usage.footer?
+          output << NEWLINE + @usage.footer
+        end
 
         formatted = output.join(NEWLINE)
         formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
@@ -213,6 +220,17 @@ module TTY
         end
 
         line.join
+      end
+
+      # Format examples section
+      #
+      # @api private
+      def format_examples
+        @usage.example.map do |example|
+          example.map do |ex|
+            ex.split(NEWLINE).map { |e| indentation + e }.join(NEWLINE)
+          end.join(NEWLINE) + NEWLINE
+        end.join(NEWLINE)
       end
     end # Formatter
   end # Option
