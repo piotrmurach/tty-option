@@ -53,12 +53,12 @@ module TTY
 
         if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
           output << NEWLINE + @sections[:arguments]
-          output << format_arguments
+          output << format_section(:arguments, :name)
         end
 
         if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
           output << NEWLINE + @sections[:keywords]
-          output << format_keywords
+          output << format_section(:keywords, :name)
         end
 
         if @parameters.options?
@@ -68,7 +68,7 @@ module TTY
 
         if @parameters.environments?
           output << NEWLINE + @sections[:env]
-          output << format_environment
+          output << format_section(:environments, :variable)
         end
 
         if @usage.example?
@@ -163,18 +163,21 @@ module TTY
         end
       end
 
-      # Format arguments section
+      # Format a parameter section in the help display
+      #
+      # @return [String]
       #
       # @api private
-      def format_arguments
-        longest_arg = @parameters.arguments.map(&:name)
-                                 .compact.max_by(&:length).length
-        ordered_args = @parameters.arguments.sort
+      def format_section(parameters, variable)
+        params = @parameters.public_send(parameters)
+        longest_param = params.map(&variable).compact.max_by(&:length).length
+        ordered_params = params.sort
 
-        ordered_args.reduce([]) do |acc, arg|
-          next acc if arg.hidden?
+        ordered_params.reduce([]) do |acc, param|
+          next acc if param.hidden?
 
-          acc << format_argument(arg, longest_arg)
+          acc << send(:"format_#{parameters.to_s.chomp("s")}",
+                      param, longest_param)
         end.join(NEWLINE)
       end
 
@@ -201,21 +204,6 @@ module TTY
         end
 
         line.join
-      end
-
-      # Format keyword arguments section
-      #
-      # @api private
-      def format_keywords
-        longest_kwarg = @parameters.keywords.map(&:name)
-                                   .compact.max_by(&:length).length
-        ordered_kwargs = @parameters.keywords.sort
-
-        ordered_kwargs.reduce([]) do |acc, kwarg|
-          next acc if kwarg.hidden?
-
-          acc << format_keyword(kwarg, longest_kwarg)
-        end.join(NEWLINE)
       end
 
       # Format keyword section line
@@ -322,20 +310,7 @@ module TTY
       end
 
       # @api private
-      def format_environment
-        longest_var = @parameters.environments.map(&:variable)
-                                 .compact.max_by(&:length).length
-        ordered_envs = @parameters.environments.sort
-
-        ordered_envs.reduce([]) do |acc, env|
-          next acc if env.hidden?
-
-          acc << format_env(env, longest_var)
-        end.join(NEWLINE)
-      end
-
-      # @api private
-      def format_env(env, longest_var)
+      def format_environment(env, longest_var)
         line = []
 
         if env.desc?
