@@ -205,6 +205,10 @@ module TTY
           line << "   #{option.desc}"
         end
 
+        if option.permit?
+          line << format(" (permitted: %s)", option.permit.join(","))
+        end
+
         if (default = format_default(option))
           line << default
         end

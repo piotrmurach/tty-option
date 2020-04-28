@@ -216,6 +216,7 @@ RSpec.describe TTY::Option::Formatter do
         option :foo do
           short "-f"
           long "--foo string"
+          permit %w[a b c d]
           desc "Some description"
         end
 
@@ -255,7 +256,7 @@ RSpec.describe TTY::Option::Formatter do
       Options:
         -b, --bar string      Some description (default "baz")
             --baz
-        -f, --foo string      Some description
+        -f, --foo string      Some description (permitted: a,b,c,d)
             --fum             Some description
             --qux-long ints   Some description (default [1, 2, 3])
         -c                    Some description
