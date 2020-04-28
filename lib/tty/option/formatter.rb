@@ -176,55 +176,31 @@ module TTY
         ordered_params.reduce([]) do |acc, param|
           next acc if param.hidden?
 
-          acc << send(:"format_#{parameters.to_s.chomp("s")}",
-                      param, longest_param)
+          acc << format_section_parameter(param, longest_param, variable)
         end.join(NEWLINE)
       end
 
-      # Format argument section line
+      # Format a section parameter line
+      #
+      # @return [String]
       #
       # @api private
-      def format_argument(arg, longest_arg)
+      def format_section_parameter(param, longest_param, variable)
         line = []
-        arg_name = arg.name.to_s.upcase
+        param_name = param.public_send(variable).to_s.upcase
 
-        if arg.desc?
-          line << format("%s%-#{longest_arg}s", indentation, arg_name)
-          line << "   #{arg.desc}"
+        if param.desc?
+          line << format("%s%-#{longest_param}s", indentation, param_name)
+          line << "   #{param.desc}"
         else
-          line << format("%s%s", indentation, arg_name)
+          line << format("%s%s", indentation, param_name)
         end
 
-        if arg.permit?
-          line << format(" (permitted: %s)", arg.permit.join(","))
+        if param.permit?
+          line << format(" (permitted: %s)", param.permit.join(","))
         end
 
-        if (default = format_default(arg))
-          line << default
-        end
-
-        line.join
-      end
-
-      # Format keyword section line
-      #
-      # @api private
-      def format_keyword(kwarg, longest_kwarg)
-        line = []
-        kwarg_name = kwarg.name.to_s.upcase
-
-        if kwarg.desc?
-          line << format("%s%-#{longest_kwarg}s", indentation, kwarg_name)
-          line << "   #{kwarg.desc}"
-        else
-          line << format("%s%s", indentation, kwarg_name)
-        end
-
-        if kwarg.permit?
-          line << format(" (permitted: %s)", kwarg.permit.join(","))
-        end
-
-        if (default = format_default(kwarg))
+        if (default = format_default(param))
           line << default
         end
 
@@ -307,28 +283,6 @@ module TTY
         else
           format(" (default %s)", param.default)
         end
-      end
-
-      # @api private
-      def format_environment(env, longest_var)
-        line = []
-
-        if env.desc?
-          line << format("%s%-#{longest_var}s", indentation, env.variable.upcase)
-          line << "   #{env.desc}"
-        else
-          line << format("%s%s", indentation, env.variable.upcase)
-        end
-
-        if env.permit?
-          line << format(" (permitted: %s)", env.permit.join(","))
-        end
-
-        if (default = format_default(env))
-          line << default
-        end
-
-        line.join
       end
 
       # Format examples section
