@@ -3,6 +3,10 @@
 module TTY
   module Option
     class Usage
+      def self.create(**properties)
+        new(**properties)
+      end
+
       # Create an usage
       #
       # @api public

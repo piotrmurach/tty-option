@@ -405,4 +405,55 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
   end
+
+  context "full usage info" do
+    it "displays usage info using properties" do
+      cmd = new_command do
+        usage program: "foo",
+              header: "CLI foo app",
+              description: "Some foo app description",
+              example: ["Some example", "on multiline"],
+              footer: "Run --help to see more info."
+
+        argument :bar do
+          required
+          desc "Some argument description"
+        end
+
+        keyword :baz do
+          desc "Some keyword description"
+        end
+
+        flag :qux do
+          desc "Some option description"
+        end
+
+        env :fum do
+          desc "Some env description"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      CLI foo app
+
+      Usage: foo [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
+
+      Some foo app description
+
+      Options:
+        --qux   Some option description
+
+      Environment:
+        FUM   Some env description
+
+      Examples:
+        Some example
+        on multiline
+
+      Run --help to see more info.
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+  end
 end
