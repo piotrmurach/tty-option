@@ -325,6 +325,7 @@ RSpec.describe TTY::Option::Formatter do
         env :baz do
           var "BAZ_VAR"
           desc "Some description"
+          permit %w[a b c]
         end
 
         env :qux_var do
@@ -350,7 +351,7 @@ RSpec.describe TTY::Option::Formatter do
       Environment:
         A_VAR         Some description
         BARRRRR_VAR   Some description (default "some")
-        BAZ_VAR       Some description
+        BAZ_VAR       Some description (permitted: a,b,c)
         FUM_VAR
       EOS
 

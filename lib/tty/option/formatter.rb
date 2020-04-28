@@ -345,6 +345,10 @@ module TTY
           line << format("%s%s", indentation, env.variable.upcase)
         end
 
+        if env.permit?
+          line << format(" (permitted: %s)", env.permit.join(","))
+        end
+
         if (default = format_default(env))
           line << default
         end
