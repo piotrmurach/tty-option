@@ -27,6 +27,7 @@ module TTY
         @indentation = " " * 2
         @sections = {
           usage: "Usage:",
+          arguments: "Arguments:",
           options: "Options:",
           env: "Environment:",
           examples: "Examples:"
@@ -47,6 +48,11 @@ module TTY
 
         if @usage.desc?
           output << NEWLINE + format_description
+        end
+
+        if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
+          output << NEWLINE + @sections[:arguments]
+          output << format_arguments
         end
 
         if @parameters.options?
@@ -83,28 +89,28 @@ module TTY
         output << @usage.program
         output << " [OPTIONS]" if @parameters.options?
         output << " [ENVIRONMENT]" if @parameters.environments?
-        output << " #{format_arguments}" if @parameters.arguments?
-        output << " #{format_keywords}" if @parameters.keywords?
+        output << " #{format_arguments_usage}" if @parameters.arguments?
+        output << " #{format_keywords_usage}" if @parameters.keywords?
         output.join
       end
 
       # Format arguments
       #
       # @api private
-      def format_arguments
+      def format_arguments_usage
         return "" unless @parameters.arguments?
 
         @parameters.arguments.reduce([]) do |acc, arg|
           next acc if arg.hidden?
 
-          acc << format_argument(arg)
+          acc << format_argument_usage(arg)
         end.join(SPACE)
       end
 
       # Provide an argument summary
       #
       # @api private
-      def format_argument(arg)
+      def format_argument_usage(arg)
         arg_name = arg.name.to_s.upcase
         args = []
         if 0 < arg.arity
@@ -120,23 +126,23 @@ module TTY
         end
       end
 
-      # Format keywords
+      # Format keywords usage
       #
       # @api private
-      def format_keywords
+      def format_keywords_usage
         return "" unless @parameters.keywords?
 
         @parameters.keywords.reduce([]) do |acc, kwarg|
           next acc if kwarg.hidden?
 
-          acc << format_keyword(kwarg)
+          acc << format_keyword_usage(kwarg)
         end.join(SPACE)
       end
 
       # Provide a keyword summary
       #
       # @api private
-      def format_keyword(kwarg)
+      def format_keyword_usage(kwarg)
         kwarg_name = kwarg.name.to_s.upcase
         conv_name = case kwarg.convert
                     when Proc, NilClass
@@ -149,6 +155,46 @@ module TTY
         else
           "[#{kwarg_name}=#{conv_name}]"
         end
+      end
+
+      # Format arguments section
+      #
+      # @api private
+      def format_arguments
+        longest_arg = @parameters.arguments.map(&:name)
+                                 .compact.max_by(&:length).length
+        ordered_args = @parameters.arguments.sort
+
+        ordered_args.reduce([]) do |acc, arg|
+          next acc if arg.hidden?
+
+          acc << format_argument(arg, longest_arg)
+        end.join(NEWLINE)
+      end
+
+      # Format argument section line
+      #
+      # @api private
+      def format_argument(arg, longest_arg)
+        line = []
+        arg_name = arg.name.to_s.upcase
+
+        if arg.desc?
+          line << format("%s%-#{longest_arg}s", indentation, arg_name)
+          line << "   #{arg.desc}"
+        else
+          line << format("%s%s", indentation, arg_name)
+        end
+
+        if arg.permit?
+          line << format(" (permitted: %s)", arg.permit.join(","))
+        end
+
+        if (default = format_default(arg))
+          line << default
+        end
+
+        line.join
       end
 
       # Format multiline description

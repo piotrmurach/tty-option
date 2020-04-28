@@ -91,10 +91,14 @@ RSpec.describe TTY::Option::Formatter do
         argument :foo do
           required
           arity 2
+          desc "Foo arg description"
+          permit [10, 11, 12]
         end
 
         argument :bar do
           optional
+          desc "Bar arg description"
+          default "fum"
         end
 
         option :baz do
@@ -104,6 +108,10 @@ RSpec.describe TTY::Option::Formatter do
 
       expected_output = unindent(<<-EOS)
       Usage: rspec [OPTIONS] FOO FOO [BAR]
+
+      Arguments:
+        BAR   Bar arg description (default "fum")
+        FOO   Foo arg description (permitted: 10,11,12)
 
       Options:
         --baz   Some description
@@ -440,6 +448,9 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
 
       Some foo app description
+
+      Arguments:
+        BAR   Some argument description
 
       Options:
         --qux   Some option description
