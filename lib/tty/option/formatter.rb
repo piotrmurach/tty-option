@@ -191,7 +191,7 @@ module TTY
 
         if param.desc?
           line << format("%s%-#{longest_param}s", indentation, param_name)
-          line << "   #{param.desc}"
+          line << "  #{param.desc}"
         else
           line << format("%s%s", indentation, param_name)
         end
