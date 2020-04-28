@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/piotrmurach/tty-option"
 
-  spec.files         = Dir["lib/**/*", ]
+  spec.files         = Dir["lib/**/*"]
   spec.extra_rdoc_files = ["README.md", "CHANGELOG.md", "LICENSE.txt"]
   spec.require_paths = ["lib"]
   spec.required_ruby_version = Gem::Requirement.new(">= 2.0.0")
