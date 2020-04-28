@@ -28,6 +28,7 @@ module TTY
         @sections = {
           usage: "Usage:",
           arguments: "Arguments:",
+          keywords: "Keywords:",
           options: "Options:",
           env: "Environment:",
           examples: "Examples:"
@@ -53,6 +54,11 @@ module TTY
         if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
           output << NEWLINE + @sections[:arguments]
           output << format_arguments
+        end
+
+        if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
+          output << NEWLINE + @sections[:keywords]
+          output << format_keywords
         end
 
         if @parameters.options?
@@ -191,6 +197,46 @@ module TTY
         end
 
         if (default = format_default(arg))
+          line << default
+        end
+
+        line.join
+      end
+
+      # Format keyword arguments section
+      #
+      # @api private
+      def format_keywords
+        longest_kwarg = @parameters.keywords.map(&:name)
+                                   .compact.max_by(&:length).length
+        ordered_kwargs = @parameters.keywords.sort
+
+        ordered_kwargs.reduce([]) do |acc, kwarg|
+          next acc if kwarg.hidden?
+
+          acc << format_keyword(kwarg, longest_kwarg)
+        end.join(NEWLINE)
+      end
+
+      # Format keyword section line
+      #
+      # @api private
+      def format_keyword(kwarg, longest_kwarg)
+        line = []
+        kwarg_name = kwarg.name.to_s.upcase
+
+        if kwarg.desc?
+          line << format("%s%-#{longest_kwarg}s", indentation, kwarg_name)
+          line << "   #{kwarg.desc}"
+        else
+          line << format("%s%s", indentation, kwarg_name)
+        end
+
+        if kwarg.permit?
+          line << format(" (permitted: %s)", kwarg.permit.join(","))
+        end
+
+        if (default = format_default(kwarg))
           line << default
         end
 

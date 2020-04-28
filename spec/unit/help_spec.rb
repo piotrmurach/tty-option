@@ -171,9 +171,13 @@ RSpec.describe TTY::Option::Formatter do
         keyword :bar do
           required
           convert :uri
+          desc "Bar keyword description"
         end
 
-        keyword :baz
+        keyword :baz do
+          default "fum"
+          desc "Baz keyword description"
+        end
 
         keyword :qux do
           hidden
@@ -182,6 +186,10 @@ RSpec.describe TTY::Option::Formatter do
 
       expected_output = unindent(<<-EOS)
       Usage: foo BAR=URI [BAZ=BAZ]
+
+      Keywords:
+        BAR   Bar keyword description
+        BAZ   Baz keyword description (default "fum")
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -451,6 +459,9 @@ RSpec.describe TTY::Option::Formatter do
 
       Arguments:
         BAR   Some argument description
+
+      Keywords:
+        BAZ   Some keyword description
 
       Options:
         --qux   Some option description
