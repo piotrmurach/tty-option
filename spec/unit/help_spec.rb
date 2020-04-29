@@ -215,8 +215,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo BAR=URI [BAZ=BAZ]
 
       Keywords:
-        bar  Bar keyword description
-        baz  Baz keyword description (default "fum")
+        bar=uri  Bar keyword description
+        baz=baz  Baz keyword description (default "fum")
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -253,9 +253,9 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo FOO-BAR=INT FOO-BAR=INT [BARRED=BARRED BARRED=BARRED] BAZZED=LIST [BAZZED=LIST...]
 
       Keywords:
-        barred   Some keyword description
-        bazzed   Some keyword description
-        foo-bar  Some keyword description
+        barred=barred  Some keyword description
+        bazzed=list    Some keyword description
+        foo-bar=int    Some keyword description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -567,7 +567,7 @@ RSpec.describe TTY::Option::Formatter do
         bar  Some argument description
 
       Keywords:
-        baz  Some keyword description
+        baz=baz  Some keyword description
 
       Options:
         --qux   Some option description
@@ -615,9 +615,9 @@ RSpec.describe TTY::Option::Formatter do
         f  Some argument description
 
       Keywords:
-        zz  Some keyword description
-        dd  Some keyword description
-        ff  Some keyword description
+        zz=zz  Some keyword description
+        dd=dd  Some keyword description
+        ff=ff  Some keyword description
 
       Options:
         --zzz

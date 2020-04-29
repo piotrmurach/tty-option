@@ -8,15 +8,17 @@ module TTY
       ELLIPSIS = "..."
       SPACE = " "
 
+      DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
+      DEFAULT_ORDER = ->(params) { params.sort }
+      NOOP_PROC = ->(param) { param }
+      DEFAULT_NAME_SELECTOR = ->(param) { param.variable }
+
       # @api public
       def self.help(parameters, usage, **config)
         new(parameters, usage, **config).help
       end
 
       attr_reader :indentation
-
-      DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
-      DEFAULT_ORDER = ->(params) { params.sort }
 
       # Create a help formatter
       #
@@ -58,12 +60,13 @@ module TTY
 
         if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
           output << NEWLINE + @sections[:arguments]
-          output << format_section(:arguments, :variable)
+          output << format_section(:arguments)
         end
 
         if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
           output << NEWLINE + @sections[:keywords]
-          output << format_section(:keywords, :variable)
+          output << format_section(:keywords,
+                                   ->(param) { kwarg_param_display(param) })
         end
 
         if @parameters.options?
@@ -73,7 +76,7 @@ module TTY
 
         if @parameters.environments?
           output << NEWLINE + @sections[:env]
-          output << format_section(:environments, :variable)
+          output << format_section(:environments)
         end
 
         if @usage.example?
@@ -161,32 +164,47 @@ module TTY
       #
       # @api private
       def format_keyword_usage(kwarg)
-        kwarg_name = @param_display.(kwarg.variable)
+        param_name = kwarg_param_display(kwarg, @param_display)
+        format_parameter_usage(kwarg, param_name)
+      end
+
+
+      # Provide a keyword argument display format
+      #
+      # @api private
+      def kwarg_param_display(kwarg, param_display = NOOP_PROC)
+        kwarg_name = param_display.(kwarg.variable)
         conv_name = case kwarg.convert
                     when Proc, NilClass
                       kwarg_name
                     else
-                      @param_display.(kwarg.convert)
+                      param_display.(kwarg.convert)
                     end
 
-        param_name = "#{kwarg_name}=#{conv_name}"
-        format_parameter_usage(kwarg, param_name)
+        "#{kwarg_name}=#{conv_name}"
       end
 
+
       # Format a parameter section in the help display
+      #
+      # @param [String] parameters_name
+      #   the name of parameter type
+      #
+      # @param [Proc] name_selector
+      #   selects a name from the parameter, by defeault the variable
       #
       # @return [String]
       #
       # @api private
-      def format_section(parameters, variable)
-        params = @parameters.public_send(parameters)
-        longest_param = params.map(&variable).compact.max_by(&:length).length
+      def format_section(parameters_name, name_selector = DEFAULT_NAME_SELECTOR)
+        params = @parameters.public_send(parameters_name)
+        longest_param = params.map(&name_selector).compact.max_by(&:length).length
         ordered_params = @order.(params)
 
         ordered_params.reduce([]) do |acc, param|
           next acc if param.hidden?
 
-          acc << format_section_parameter(param, longest_param, variable)
+          acc << format_section_parameter(param, longest_param, name_selector)
         end.join(NEWLINE)
       end
 
@@ -195,9 +213,9 @@ module TTY
       # @return [String]
       #
       # @api private
-      def format_section_parameter(param, longest_param, variable)
+      def format_section_parameter(param, longest_param, name_selector)
         line = []
-        param_name = param.public_send(variable).to_s
+        param_name = name_selector.(param)
 
         if param.desc?
           line << format("%s%-#{longest_param}s", indentation, param_name)
