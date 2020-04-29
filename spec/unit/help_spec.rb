@@ -222,6 +222,45 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
 
+    it "formats banner with custom keyword names" do
+      cmd = new_command do
+        program "foo"
+
+        keyword :foo do
+          variable "foo-bar"
+          required
+          arity 2
+          desc "Some keyword description"
+          convert :int
+        end
+
+        keyword :bar do
+          variable "barred"
+          optional
+          arity 2
+          desc "Some keyword description"
+        end
+
+        keyword :baz do
+          variable "bazzed"
+          arity one_or_more
+          desc "Some keyword description"
+          convert :list
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo FOO-BAR=INT FOO-BAR=INT [BARRED=BARRED BARRED=BARRED] BAZZED=LIST [BAZZED=LIST...]
+
+      Keywords:
+        barred   Some keyword description
+        bazzed   Some keyword description
+        foo-bar  Some keyword description
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
     it "formats banner with keyword and positional arguments and options" do
       cmd = new_command do
         program "foo"

@@ -63,7 +63,7 @@ module TTY
 
         if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
           output << NEWLINE + @sections[:keywords]
-          output << format_section(:keywords, :name)
+          output << format_section(:keywords, :variable)
         end
 
         if @parameters.options?
@@ -123,16 +123,23 @@ module TTY
       # @api private
       def format_argument_usage(arg)
         arg_name = @param_display.(arg.variable)
+        format_parameter_usage(arg, arg_name)
+      end
+
+      # Format parameter usage
+      #
+      # @api private
+      def format_parameter_usage(param, param_name)
         args = []
-        if 0 < arg.arity
-          args << "[" if arg.optional?
-          args << arg_name
-          (arg.arity - 1).times { args << " #{arg_name}" }
-          args << "]" if arg.optional?
+        if 0 < param.arity
+          args << "[" if param.optional?
+          args << param_name
+          (param.arity - 1).times { args << " #{param_name}" }
+          args. << "]" if param.optional?
           args.join
         else
-          (arg.arity.abs - 1).times { args << arg_name }
-          args << "[#{arg_name}#{ELLIPSIS}]"
+          (param.arity.abs - 1).times { args << param_name }
+          args << "[#{param_name}#{ELLIPSIS}]"
           args.join(SPACE)
         end
       end
@@ -154,18 +161,16 @@ module TTY
       #
       # @api private
       def format_keyword_usage(kwarg)
-        kwarg_name = @param_display.(kwarg.name)
+        kwarg_name = @param_display.(kwarg.variable)
         conv_name = case kwarg.convert
                     when Proc, NilClass
                       kwarg_name
                     else
                       @param_display.(kwarg.convert)
                     end
-        if kwarg.required?
-          "#{kwarg_name}=#{conv_name}"
-        else
-          "[#{kwarg_name}=#{conv_name}]"
-        end
+
+        param_name = "#{kwarg_name}=#{conv_name}"
+        format_parameter_usage(kwarg, param_name)
       end
 
       # Format a parameter section in the help display
