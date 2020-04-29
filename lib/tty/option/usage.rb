@@ -3,14 +3,14 @@
 module TTY
   module Option
     class Usage
-      def self.create(**properties)
-        new(**properties)
+      def self.create(**properties, &block)
+        new(**properties, &block)
       end
 
       # Create an usage
       #
       # @api public
-      def initialize(**properties)
+      def initialize(**properties, &block)
         @properties = {}
         properties.each do |key, val|
           case key.to_sym
@@ -21,6 +21,8 @@ module TTY
           end
           @properties[key.to_sym] = val
         end
+
+        instance_eval(&block) if block_given?
       end
 
       # Program name for display in help and error messages

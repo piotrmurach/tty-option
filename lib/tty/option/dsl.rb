@@ -21,8 +21,8 @@ module TTY
       # Holds the usage information
       #
       # @api public
-      def usage(**properties)
-        @usage ||= Usage.create(**properties)
+      def usage(**properties, &block)
+        @usage ||= Usage.create(**properties, &block)
       end
 
       # Specify an argument

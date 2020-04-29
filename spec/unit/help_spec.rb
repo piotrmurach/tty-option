@@ -585,6 +585,63 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
 
+    it "displays usage info using block" do
+      cmd = new_command do
+        usage do
+          program "foo"
+          header  "CLI foo app"
+          desc    "Some foo app description"
+          example "Some example", "on multiline"
+          footer  "Run --help to see more info."
+        end
+
+        argument :bar do
+          required
+          desc "Some argument description"
+        end
+
+        keyword :baz do
+          desc "Some keyword description"
+        end
+
+        flag :qux do
+          desc "Some option description"
+        end
+
+        env :fum do
+          desc "Some env description"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      CLI foo app
+
+      Usage: foo [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
+
+      Some foo app description
+
+      Arguments:
+        bar  Some argument description
+
+      Keywords:
+        baz=baz  Some keyword description
+
+      Options:
+        --qux   Some option description
+
+      Environment:
+        FUM  Some env description
+
+      Examples:
+        Some example
+        on multiline
+
+      Run --help to see more info.
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
     it "changes default alphabetical ordering to definition" do
       cmd = new_command do
         program "foo"
