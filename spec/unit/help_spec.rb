@@ -110,8 +110,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec [OPTIONS] FOO FOO [BAR]
 
       Arguments:
-        BAR  Bar arg description (default "fum")
-        FOO  Foo arg description (permitted: 10,11,12)
+        bar  Bar arg description (default "fum")
+        foo  Foo arg description (permitted: 10,11,12)
 
       Options:
         --baz   Some description
@@ -188,8 +188,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo BAR=URI [BAZ=BAZ]
 
       Keywords:
-        BAR  Bar keyword description
-        BAZ  Baz keyword description (default "fum")
+        bar  Bar keyword description
+        baz  Baz keyword description (default "fum")
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -459,10 +459,10 @@ RSpec.describe TTY::Option::Formatter do
       Some foo app description
 
       Arguments:
-        BAR  Some argument description
+        bar  Some argument description
 
       Keywords:
-        BAZ  Some keyword description
+        baz  Some keyword description
 
       Options:
         --qux   Some option description

@@ -187,7 +187,7 @@ module TTY
       # @api private
       def format_section_parameter(param, longest_param, variable)
         line = []
-        param_name = param.public_send(variable).to_s.upcase
+        param_name = param.public_send(variable).to_s
 
         if param.desc?
           line << format("%s%-#{longest_param}s", indentation, param_name)
