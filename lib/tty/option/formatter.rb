@@ -16,6 +16,7 @@ module TTY
       attr_reader :indentation
 
       DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
+      DEFAULT_ORDER = ->(params) { params.sort }
 
       # Create a help formatter
       #
@@ -26,6 +27,7 @@ module TTY
         @parameters = parameters
         @usage = usage
         @param_display = config.fetch(:param_display) { DEFAULT_PARAM_DISPLAY }
+        @order = config.fetch(:order) { DEFAULT_ORDER }
         @indent = 2
         @indentation = " " * 2
         @sections = {
@@ -174,7 +176,7 @@ module TTY
       def format_section(parameters, variable)
         params = @parameters.public_send(parameters)
         longest_param = params.map(&variable).compact.max_by(&:length).length
-        ordered_params = params.sort
+        ordered_params = @order.(params)
 
         ordered_params.reduce([]) do |acc, param|
           next acc if param.hidden?
@@ -228,7 +230,7 @@ module TTY
         longest_option = @parameters.options.map(&:long)
                                     .compact.max_by(&:length).length
         any_short = @parameters.options.map(&:short).compact.any?
-        ordered_options = @parameters.options.sort
+        ordered_options = @order.(@parameters.options)
 
         ordered_options.reduce([]) do |acc, option|
           next acc if option.hidden?

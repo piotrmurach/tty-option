@@ -518,5 +518,53 @@ RSpec.describe TTY::Option::Formatter do
 
       expect(cmd.help).to eq(expected_output)
     end
+
+    it "changes default alphabetical ordering to definition" do
+      cmd = new_command do
+        program "foo"
+
+        argument :z, desc: "Some argument description"
+        argument :d, desc: "Some argument description"
+        argument :f, desc: "Some argument description"
+
+        keyword :zz, desc: "Some keyword description"
+        keyword :dd, desc: "Some keyword description"
+        keyword :ff, desc: "Some keyword description"
+
+        option :zzz
+        option :ddd
+        option :fff
+
+        env :zzzz, desc: "Some env description"
+        env :dddd, desc: "Some env description"
+        env :ffff, desc: "Some env description"
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo [OPTIONS] [ENVIRONMENT] [Z] [D] [F] [ZZ=ZZ] [DD=DD] [FF=FF]
+
+      Arguments:
+        z  Some argument description
+        d  Some argument description
+        f  Some argument description
+
+      Keywords:
+        zz  Some keyword description
+        dd  Some keyword description
+        ff  Some keyword description
+
+      Options:
+        --zzz
+        --ddd
+        --fff
+
+      Environment:
+        ZZZZ  Some env description
+        DDDD  Some env description
+        FFFF  Some env description
+      EOS
+
+      expect(cmd.help(order: ->(params) { params })).to eq(expected_output)
+    end
   end
 end
