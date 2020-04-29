@@ -33,6 +33,8 @@ module TTY
             val = check_permitted(val)
           when :validate
             val = check_validation(val)
+          when :variable, :var
+            key = :var
           end
           @settings[key.to_sym] = val
         end
@@ -146,6 +148,19 @@ module TTY
 
       def permit?
         @settings.key?(:permit) && !@settings[:permit].nil?
+      end
+
+      def variable(value = (not_set = true))
+        if not_set
+          @settings.fetch(:var) { default_variable_name }
+        else
+          @settings[:var] = value
+        end
+      end
+      alias var variable
+
+      def default_variable_name
+        name.to_s.tr("_", "-")
       end
 
       def validate(value = (not_set = true))

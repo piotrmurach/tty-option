@@ -240,4 +240,27 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect(options.sort).to eq([option_bar, option_baz, option_foo])
     end
   end
+
+  context "variable setting" do
+    it "defaults a variable to a parameter name with dashes" do
+      arg = described_class.new(:foo_bar)
+
+      expect(arg.variable).to eq("foo-bar")
+    end
+
+    it "sets a custom variable name via setting" do
+      arg = described_class.new(:foo, variable: "foo-bar")
+
+      expect(arg.variable).to eq("foo-bar")
+    end
+
+    it "sets a custom variable name via method" do
+      arg = described_class.new(:foo)
+
+      arg.variable "foo-bar"
+
+      expect(arg.variable).to eq("foo-bar")
+      expect(arg.var).to eq("foo-bar")
+    end
+  end
 end

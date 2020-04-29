@@ -1,20 +1,30 @@
 # frozen_string_literal: true
 
 RSpec.describe TTY::Option::Parameter::Environment do
-  it "infers env var from the param name" do
-    env = described_class.new(:foo)
+  context "variable" do
+    it "infers env var from the param name" do
+      env = described_class.new(:foo_bar)
 
-    expect(env.arity).to eq(1)
-    expect(env.variable).to eq("FOO")
-    expect(env.var).to eq("FOO")
-  end
+      expect(env.arity).to eq(1)
+      expect(env.variable).to eq("FOO_BAR")
+      expect(env.var).to eq("FOO_BAR")
+    end
 
-  it "specifies custom env var name" do
-    env = described_class.new(:foo, variable: "FOO_BAR")
+    it "specifies custom env var name via a setting" do
+      env = described_class.new(:foo, variable: "FOO_BAR")
 
-    expect(env.arity).to eq(1)
-    expect(env.variable).to eq("FOO_BAR")
-    expect(env.var).to eq("FOO_BAR")
+      expect(env.variable).to eq("FOO_BAR")
+      expect(env.var).to eq("FOO_BAR")
+    end
+
+    it "specifies custom env var name via a method" do
+      env = described_class.new(:foo)
+
+      env.variable "FOO_BAR"
+
+      expect(env.variable).to eq("FOO_BAR")
+      expect(env.var).to eq("FOO_BAR")
+    end
   end
 
   context "comparison" do
