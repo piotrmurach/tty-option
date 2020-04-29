@@ -9,20 +9,23 @@ module TTY
       SPACE = " "
 
       # @api public
-      def self.help(parameters, usage)
-        new(parameters, usage).help
+      def self.help(parameters, usage, **config)
+        new(parameters, usage, **config).help
       end
 
       attr_reader :indentation
+
+      DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
 
       # Create a help formatter
       #
       # @param [Parameters]
       #
       # @api public
-      def initialize(parameters, usage)
+      def initialize(parameters, usage, **config)
         @parameters = parameters
         @usage = usage
+        @param_display = config.fetch(:param_display) { DEFAULT_PARAM_DISPLAY }
         @indent = 2
         @indentation = " " * 2
         @sections = {
@@ -93,8 +96,8 @@ module TTY
         output = []
         output << @sections[:usage] + SPACE
         output << @usage.program
-        output << " [OPTIONS]" if @parameters.options?
-        output << " [ENVIRONMENT]" if @parameters.environments?
+        output << " [#{@param_display.("options")}]" if @parameters.options?
+        output << " [#{@param_display.("environment")}]" if @parameters.environments?
         output << " #{format_arguments_usage}" if @parameters.arguments?
         output << " #{format_keywords_usage}" if @parameters.keywords?
         output.join
@@ -117,7 +120,7 @@ module TTY
       #
       # @api private
       def format_argument_usage(arg)
-        arg_name = arg.name.to_s.upcase
+        arg_name = @param_display.(arg.name)
         args = []
         if 0 < arg.arity
           args << "[" if arg.optional?
@@ -149,12 +152,12 @@ module TTY
       #
       # @api private
       def format_keyword_usage(kwarg)
-        kwarg_name = kwarg.name.to_s.upcase
+        kwarg_name = @param_display.(kwarg.name)
         conv_name = case kwarg.convert
                     when Proc, NilClass
                       kwarg_name
                     else
-                      kwarg.convert.to_s.upcase
+                      @param_display.(kwarg.convert)
                     end
         if kwarg.required?
           "#{kwarg_name}=#{conv_name}"

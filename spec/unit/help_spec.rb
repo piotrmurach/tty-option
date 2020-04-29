@@ -224,6 +224,45 @@ RSpec.describe TTY::Option::Formatter do
 
       expect(cmd.help).to eq(expected_output)
     end
+
+    it "changes banner parameters display with :param_display configuration" do
+      cmd = new_command do
+        program "foo"
+
+        keyword :bar do
+          required
+          convert :uri
+        end
+
+        keyword :baz
+
+        argument :fum do
+          required
+        end
+
+        option :qux do
+          desc "Some description"
+        end
+
+        env :quux do
+          desc "Some description"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo [<options>] [<environment>] <fum> <bar>=<uri> [<baz>=<baz>]
+
+      Options:
+        --qux   Some description
+
+      Environment:
+        QUUX  Some description
+      EOS
+
+      param_display = ->(str) { "<#{str.downcase}>"}
+
+      expect(cmd.help(param_display: param_display)).to eq(expected_output)
+    end
   end
 
   context "Options section" do
