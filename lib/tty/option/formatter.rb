@@ -58,7 +58,7 @@ module TTY
 
         if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
           output << NEWLINE + @sections[:arguments]
-          output << format_section(:arguments, :name)
+          output << format_section(:arguments, :variable)
         end
 
         if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
@@ -122,7 +122,7 @@ module TTY
       #
       # @api private
       def format_argument_usage(arg)
-        arg_name = @param_display.(arg.name)
+        arg_name = @param_display.(arg.variable)
         args = []
         if 0 < arg.arity
           args << "[" if arg.optional?

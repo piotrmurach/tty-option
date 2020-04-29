@@ -152,6 +152,33 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
 
+    it "formats banner with custom argument names" do
+      cmd = new_command do
+        argument :foo do
+          variable "foo-bar"
+          required
+          arity 2
+          desc "Foo arg description"
+        end
+
+        argument :bar do
+          variable "barred"
+          optional
+          desc "Bar arg description"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec FOO-BAR FOO-BAR [BARRED]
+
+      Arguments:
+        barred   Bar arg description
+        foo-bar  Foo arg description
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
     it "uses a custom banner" do
       cmd = new_command do
         banner "Usage: #{program} BAR BAZ"
