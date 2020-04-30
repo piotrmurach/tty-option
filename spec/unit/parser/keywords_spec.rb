@@ -105,6 +105,20 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(errors).to eq({})
   end
 
+  it "collects all remaining parameters" do
+    keywords = []
+    keywords << keyword(:foo)
+    keywords << keyword(:bar)
+
+    argv = %w[-u arg1 foo=a --unknown arg2 FOO_ENV=b bar=c other=d -b f]
+    params, rest, errors = parse(argv, keywords, check_invalid_params: false)
+
+    expect(params[:foo]).to eq("a")
+    expect(params[:bar]).to eq("c")
+    expect(rest).to eq(%w[-u arg1 --unknown arg2 FOO_ENV=b other=d -b f])
+    expect(errors).to eq({})
+  end
+
   context "when multiple times" do
     it "parses last keyword without arity" do
       params, rest = parse(%w[foo=1 foo=2], keyword(:foo))

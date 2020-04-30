@@ -59,14 +59,16 @@ module TTY
 
           loop do
             kwarg, value = next_keyword
-            break if kwarg.nil?
-            @required_check.delete(kwarg)
-            @arities[kwarg.name] += 1
+            if !kwarg.nil?
+              @required_check.delete(kwarg)
+              @arities[kwarg.name] += 1
 
-            if block_given?
-              yield(kwarg, value)
+              if block_given?
+                yield(kwarg, value)
+              end
+              assign_keyword(kwarg, value)
             end
-            assign_keyword(kwarg, value)
+            break if @argv.empty?
           end
 
           @arity_check.(@arities)
