@@ -26,7 +26,7 @@ module TTY
         # @api public
         def initialize(options, **config)
           @options = options
-          @check_invalid_options = config.fetch(:check_invalid_options) { true }
+          @check_invalid_params = config.fetch(:check_invalid_params) { true }
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)
@@ -74,15 +74,17 @@ module TTY
 
           loop do
             opt, value = next_option
-            break if opt.nil?
-            @required_check.delete(opt)
-            @arities[opt.name] += 1
+            if !opt.nil?
+              @required_check.delete(opt)
+              @arities[opt.name] += 1
 
-            if block_given?
-              yield(opt, value)
-            else
-              assign_option(opt, value)
+              if block_given?
+                yield(opt, value)
+              else
+                assign_option(opt, value)
+              end
             end
+            break if @argv.empty?
           end
 
           @arity_check.(@arities)
@@ -157,15 +159,18 @@ module TTY
             # option stuck together with an argument or abbreviated
             matching_options = 0
             @longs.each_key do |key|
-              if key.to_s.start_with?(long) || long.to_s.start_with?(key)
+              if !key.to_s.empty? &&
+                 (key.to_s.start_with?(long) || long.to_s.start_with?(key))
                 opt = @longs[key]
                 matching_options += 1
               end
             end
 
             if matching_options.zero?
-              if @check_invalid_options
+              if @check_invalid_params
                 @error_aggregator.(InvalidOption, "invalid option #{long}")
+              else
+                @remaining << long
               end
             elsif matching_options == 1
               value = long[opt.long_name.size..-1]
@@ -216,8 +221,10 @@ module TTY
               end
               value = true
             end
-          elsif @check_invalid_options
+          elsif @check_invalid_params
             @error_aggregator.(InvalidOption, "invalid option #{short}")
+          else
+            @remaining << short
           end
 
           [opt, value]

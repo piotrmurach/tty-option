@@ -93,12 +93,12 @@ RSpec.describe TTY::Option::Parser::Options do
     }.to raise_error(TTY::Option::InvalidOption, "invalid option -b")
   end
 
-  it "raises if short option isn't defined" do
-    params, rest, errors = parse(%w[-b], option(:foo, short: "-f"),
-                                  check_invalid_options: false)
+  it "collects unrecognized options when :check_invalid_params is false" do
+    params, rest, errors = parse(%w[-b --bar], option(:foo, short: "-f"),
+                                  check_invalid_params: false)
 
     expect(params[:foo]).to eq(false)
-    expect(rest).to eq([])
+    expect(rest).to eq(%w[-b --bar])
     expect(errors).to eq({})
   end
 
@@ -244,11 +244,12 @@ RSpec.describe TTY::Option::Parser::Options do
     options << option(:foo, long: "--foo string")
     options << option(:bar, short: "-b")
 
-    params, rest = parse(%w[arg1 --foo baz arg2 --bar arg3 -b], options)
+    params, rest = parse(%w[arg1 --foo baz arg2 --bar arg3 -b], options,
+                        check_invalid_params: false)
 
     expect(params[:foo]).to eq("baz")
     expect(params[:bar]).to eq(true)
-    expect(rest).to eq(%w[arg1 arg2 arg3])
+    expect(rest).to eq(%w[arg1 arg2 --bar arg3])
   end
 
   it "parses option-like values and ignores arguments looking like options" do
@@ -280,6 +281,20 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(rest).to eq([])
     expect(errors[:foo]).to eq({missing_parameter: "need to provide '--foo' option"})
     expect(errors[:bar]).to eq({missing_parameter: "need to provide '-b' option"})
+  end
+
+  it "collects all remaining parameters" do
+    options = []
+    options << option(:foo, long: "--foo string", required: true)
+    options << option(:bar, short: "-b string", required: true)
+
+    argv = %w[-u arg1 --foo a --unknown arg2 FOO_ENV=b -b c bar=d]
+    params, rest, errors = parse(argv, options, check_invalid_params: false)
+
+    expect(params[:foo]).to eq("a")
+    expect(params[:bar]).to eq("c")
+    expect(rest).to eq(%w[-u arg1 --unknown arg2 FOO_ENV=b bar=d])
+    expect(errors).to eq({})
   end
 
   context "when no arguments" do
