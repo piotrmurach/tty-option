@@ -63,14 +63,16 @@ module TTY
 
           loop do
             env_var, value = next_envvar
-            break if env_var.nil?
-            @required_check.delete(env_var)
-            @arities[env_var.name] += 1
+            if !env_var.nil?
+              @required_check.delete(env_var)
+              @arities[env_var.name] += 1
 
-            if block_given?
-              yield(env_var, value)
+              if block_given?
+                yield(env_var, value)
+              end
+              assign_envvar(env_var, value)
             end
-            assign_envvar(env_var, value)
+            break if @argv.empty?
           end
 
           @environments.each do |env_arg|

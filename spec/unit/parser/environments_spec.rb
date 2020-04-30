@@ -105,6 +105,20 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect(errors).to eq({})
   end
 
+  it "collects all remaining parameters" do
+    envs = []
+    envs << env(:foo)
+    envs << env(:bar)
+
+    argv = %w[-u arg1 FOO=a --unknown arg2 UNKNOWN=b BAR=c -b d]
+    params, rest, errors = parse(argv, {}, envs, check_invalid_params: false)
+
+    expect(params[:foo]).to eq("a")
+    expect(params[:bar]).to eq("c")
+    expect(rest).to eq(%w[-u arg1 --unknown arg2 UNKNOWN=b -b d])
+    expect(errors).to eq({})
+  end
+
   context "when multiple times" do
     it "parses an env var matching param name with exact arity" do
       params, rest = parse(%w[FOO=a FOO=b FOO=c], {}, env(:foo, arity: 2))
