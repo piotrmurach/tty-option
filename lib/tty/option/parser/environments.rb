@@ -22,6 +22,7 @@ module TTY
         # @api public
         def initialize(environments, **config)
           @environments = environments
+          @check_invalid_params = config.fetch(:check_invalid_params) { true }
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)
@@ -93,9 +94,14 @@ module TTY
             @remaining << @argv.shift
           end
 
-          if !@argv.empty?
+          if @argv.empty?
+            return
+          else
             environment = @argv.shift
-            name, val = environment.split("=")
+          end
+
+          if (match = environment.match(/([\p{Lu}_\-\d]+)=([^=]+)/))
+            _, name, val = *match.to_a
 
             if (env_var = @names[name])
               if env_var.multi_argument? &&
@@ -104,6 +110,10 @@ module TTY
               else
                 value = val
               end
+            elsif @check_invalid_params
+              @error_aggregator.(InvalidParameter, "invalid environment #{match}")
+            else
+              @remaining << match.to_s
             end
           end
 

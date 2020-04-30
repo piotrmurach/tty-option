@@ -83,6 +83,28 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect(errors[:baz]).to eq(nil)
   end
 
+  it "parses unrecognized env vars and collects error" do
+    envs = []
+    envs << env(:foo, variable: "FOO_ENV")
+    params, rest, errors = parse(%w[FOO_ENV=a WRONG=d], {}, envs,
+                                 raise_on_parsing_error: false)
+
+    expect(params[:foo]).to eq("a")
+    expect(rest).to eq([])
+    expect(errors[:messages]).to eq([{invalid_parameter: "invalid environment WRONG=d"}])
+  end
+
+  it "parses unrecognized env vars and doesn't check invalid parameter" do
+    envs = []
+    envs << env(:foo, variable: "FOO_ENV")
+    params, rest, errors = parse(%w[FOO_ENV=a WRONG=d], {}, envs,
+                                 check_invalid_params: false)
+
+    expect(params[:foo]).to eq("a")
+    expect(rest).to eq(["WRONG=d"])
+    expect(errors).to eq({})
+  end
+
   context "when multiple times" do
     it "parses an env var matching param name with exact arity" do
       params, rest = parse(%w[FOO=a FOO=b FOO=c], {}, env(:foo, arity: 2))
