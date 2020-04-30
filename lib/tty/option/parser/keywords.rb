@@ -32,7 +32,7 @@ module TTY
           @arities = Hash.new(0)
 
           @keywords.each do |kwarg|
-            @names[kwarg.name.to_s] = kwarg
+            @names[kwarg.var.to_s] = kwarg
             @arity_check << kwarg if kwarg.multiple?
 
             if kwarg.default?
@@ -90,7 +90,7 @@ module TTY
             keyword = @argv.shift
           end
 
-          if (match = keyword.match(/([^=-]+)=([^=]+)/))
+          if (match = keyword.match(/([^=-].*?)=([^=]+)/))
             _, name, val = *match.to_a
 
             if (kwarg = @names[name])

@@ -39,6 +39,18 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(rest).to eq(%w[-b b ENV_VAR=dev --bar])
   end
 
+  it "parses keywords with custom names" do
+    keywords = []
+    keywords << keyword(:foo, variable: "fum-var")
+    keywords << keyword(:bar, variable: "qux-var")
+
+    params, rest = parse(%w[fum-var=a qux-var=b -wrong=c], keywords)
+
+    expect(params[:foo]).to eq("a")
+    expect(params[:bar]).to eq("b")
+    expect(rest).to eq(%w[-wrong=c])
+  end
+
   it "raises if required keyword isn't present" do
     expect {
       parse(%w[], keyword(:foo, required: true))
