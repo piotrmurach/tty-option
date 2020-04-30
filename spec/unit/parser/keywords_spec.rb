@@ -51,6 +51,18 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(rest).to eq(%w[-wrong=c])
   end
 
+  it "converts keyword param names to parsed variables" do
+    keywords = []
+    keywords << keyword(:foo_var)
+    keywords << keyword(:bar_var)
+
+    params, rest = parse(%w[foo-var=a bar-var=b -wrong=c], keywords)
+
+    expect(params[:foo_var]).to eq("a")
+    expect(params[:bar_var]).to eq("b")
+    expect(rest).to eq(%w[-wrong=c])
+  end
+
   it "raises if required keyword isn't present" do
     expect {
       parse(%w[], keyword(:foo, required: true))
