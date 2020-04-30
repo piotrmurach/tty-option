@@ -84,6 +84,27 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(errors[:bar]).to eq({missing_parameter: "need to provide 'bar' keyword"})
   end
 
+  it "parses unrecognized keywords and collects error" do
+    keywords = []
+    keywords << keyword(:foo)
+    params, rest, errors = parse(%w[foo=a unknown=b], keywords,
+                                 raise_on_parsing_error: false)
+
+    expect(params[:foo]).to eq("a")
+    expect(rest).to eq([])
+    expect(errors[:messages]).to eq([{invalid_parameter: "invalid keyword unknown=b"}])
+  end
+
+  it "parses unrecognized keywords and doesn't check invalid parameter" do
+    keywords = []
+    keywords << keyword(:foo)
+    params, rest, errors = parse(%w[foo=a unknown=b], keywords,
+                                 check_invalid_params: false)
+    expect(params[:foo]).to eq("a")
+    expect(rest).to eq(["unknown=b"])
+    expect(errors).to eq({})
+  end
+
   context "when multiple times" do
     it "parses last keyword without arity" do
       params, rest = parse(%w[foo=1 foo=2], keyword(:foo))

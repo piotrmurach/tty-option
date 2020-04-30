@@ -22,6 +22,7 @@ module TTY
         # @api public
         def initialize(keywords, **config)
           @keywords = keywords
+          @check_invalid_params = config.fetch(:check_invalid_params) { true }
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)
@@ -100,6 +101,10 @@ module TTY
               else
                 value = val
               end
+            elsif @check_invalid_params
+              @error_aggregator.(InvalidParameter, "invalid keyword #{match}")
+            else
+              @remaining << match.to_s
             end
           end
 
