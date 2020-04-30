@@ -68,9 +68,6 @@ module TTY
       attr_accessor :param
     end
 
-    # Raised when found unrecognized option
-    InvalidOption = Class.new(Error)
-
     # Raised when found unrecognized parameter
     InvalidParameter = Class.new(Error)
 

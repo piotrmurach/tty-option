@@ -168,7 +168,7 @@ module TTY
 
             if matching_options.zero?
               if @check_invalid_params
-                @error_aggregator.(InvalidOption, "invalid option #{long}")
+                @error_aggregator.(InvalidParameter, "invalid option #{long}")
               else
                 @remaining << long
               end
@@ -222,7 +222,7 @@ module TTY
               value = true
             end
           elsif @check_invalid_params
-            @error_aggregator.(InvalidOption, "invalid option #{short}")
+            @error_aggregator.(InvalidParameter, "invalid option #{short}")
           else
             @remaining << short
           end
