@@ -12,6 +12,8 @@ module TTY
       class Keywords
         include ParamTypes
 
+        KEYWORD_ARG_RE = /([^=-].*?)=([^=]+)/.freeze
+
         # Create a command line keywords parser
         #
         # @param [Array<Keyword>] keywords
@@ -91,7 +93,7 @@ module TTY
             keyword = @argv.shift
           end
 
-          if (match = keyword.match(/([^=-].*?)=([^=]+)/))
+          if (match = keyword.match(KEYWORD_ARG_RE))
             _, name, val = *match.to_a
 
             if (kwarg = @names[name])

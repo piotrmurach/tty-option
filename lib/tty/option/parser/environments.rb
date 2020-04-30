@@ -12,6 +12,8 @@ module TTY
       class Environments
         include ParamTypes
 
+        ENV_VAR_RE = /([\p{Lu}_\-\d]+)=([^=]+)/.freeze
+
         # Create a command line env variables parser
         #
         # @param [Array<Environment>] environments
@@ -100,7 +102,7 @@ module TTY
             environment = @argv.shift
           end
 
-          if (match = environment.match(/([\p{Lu}_\-\d]+)=([^=]+)/))
+          if (match = environment.match(ENV_VAR_RE))
             _, name, val = *match.to_a
 
             if (env_var = @names[name])
