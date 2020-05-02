@@ -233,7 +233,7 @@ module TTY
         end
 
         if param.permit?
-          desc << format(" (permitted: %s)", param.permit.join(","))
+          desc << format(" (permitted: %s)", param.permit.join(", "))
         end
 
         if (default = format_default(param))

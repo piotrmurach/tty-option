@@ -138,7 +138,7 @@ RSpec.describe TTY::Option::Formatter do
 
       Arguments:
         bar  Bar arg description (default "fum")
-        foo  Foo arg description (permitted: 10,11,12)
+        foo  Foo arg description (permitted: 10, 11, 12)
 
       Options:
         --baz   Some description
@@ -183,9 +183,9 @@ RSpec.describe TTY::Option::Formatter do
                                       description with newlines
         qux-long-name                 Some description that
                                       breaks into multiline
-                                      on newlines (permitted:
-                                      one,two,three,four,five,six) (default
-                                      "some long default on many lines")
+                                      on newlines (permitted: one, two, three,
+                                      four, five, six) (default "some long
+                                      default on many lines")
       EOS
 
       expect(cmd.help(width: 75)).to eq(expected_output)
@@ -372,9 +372,9 @@ RSpec.describe TTY::Option::Formatter do
                                           description with newlines
         qux-long-name=int                 Some description that
                                           breaks into multiline
-                                          on newlines (permitted:
-                                          one,two,three,four,five,six) (default "some
-                                          long default on many lines")
+                                          on newlines (permitted: one, two, three,
+                                          four, five, six) (default "some long
+                                          default on many lines")
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -620,7 +620,7 @@ RSpec.describe TTY::Option::Formatter do
       Environment:
         A_VAR        Some description
         BARRRRR_VAR  Some description (default "some")
-        BAZ_VAR      Some description (permitted: a,b,c)
+        BAZ_VAR      Some description (permitted: a, b, c)
         FUM_VAR
       EOS
 
