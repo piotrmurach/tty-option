@@ -11,7 +11,7 @@ module TTY
       # @param [Boolean] indent_first
       #
       # @api public
-      def self.wrap(text, width: 80, indent: 2, indent_first: false)
+      def wrap(text, width: 80, indent: 2, indent_first: false)
         wrap = width - indent
         lines = []
 
@@ -25,6 +25,7 @@ module TTY
 
         lines.join("\n")
       end
+      module_function :wrap
 
       # Extract a line from a string and return remainder
       #
@@ -34,7 +35,7 @@ module TTY
       # @return [Array<String, String>]
       #
       # @api private
-      def self.next_line(text, wrap: nil)
+      def next_line(text, wrap: nil)
         line = text[0, wrap + 1] # account for word boundary
         index = line.index("\n", 1)
 
@@ -50,6 +51,7 @@ module TTY
 
         [text[0...index], text[index..-1]]
       end
+      module_function :next_line
       private_class_method :next_line
     end # StringsHelper
   end # Option
