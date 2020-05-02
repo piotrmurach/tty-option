@@ -410,6 +410,51 @@ RSpec.describe TTY::Option::Formatter do
 
       expect(cmd.help).to eq(expected_output)
     end
+
+    it "wraps long options and descriptions to fit the line" do
+      cmd = new_command do
+        option :foo do
+          short "-f"
+          long "--foo-long-option-name string"
+          desc "Some multiline\n description with newlines"
+        end
+
+        option :bar do
+          short "-b"
+          long "--bar-super-long-option-name string"
+          default "default-is-way-too-long-as-well"
+          desc "Some description that goes on and on and never finishes explaining"
+        end
+
+        option :qux do
+          short "-q"
+          long "--qux-long-name string"
+          desc "Some description that\nbreaks into multiline\n on newlines"
+          default "some long default on many lines"
+          permit %w[one two three four five six]
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec [OPTIONS]
+
+      Options:
+        -b, --bar-super-long-option-name string   Some description that goes on and
+                                                  on and never finishes explaining
+                                                  (default
+                                                  "default-is-way-too-long-as-well")
+        -f, --foo-long-option-name string         Some multiline
+                                                  description with newlines
+        -q, --qux-long-name string                Some description that
+                                                  breaks into multiline
+                                                  on newlines (permitted:
+                                                  one,two,three,four,five,six)
+                                                  (default "some long default on many
+                                                  lines")
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
   end
 
   context "Environment section" do

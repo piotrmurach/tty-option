@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../lib/tty/option/usage_wrapper"
-
 RSpec.describe TTY::Option::UsageWrapper do
   it "doesn't wrap a line that fits the width" do
     text = "There is no stready"

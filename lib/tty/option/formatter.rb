@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "usage_wrapper"
+
 module TTY
   module Option
     class Formatter
@@ -266,14 +268,18 @@ module TTY
       # @api private
       def format_option(option, longest_length, any_short)
         line = []
+        desc = []
+        indent = 0
 
         if any_short
           short_option = option.short? ? option.short_name : SPACE
           line << format("%#{SHORT_OPT_LENGTH}s", short_option)
+          indent += SHORT_OPT_LENGTH
         end
 
         # short & long option separator
         line << ((option.short? && option.long?) ? ", " : "  ")
+        indent += 2
 
         if option.long?
           if option.desc?
@@ -284,18 +290,22 @@ module TTY
         else
           line << format("%-#{longest_length}s", SPACE)
         end
+        indent += longest_length
 
         if option.desc?
-          line << "   #{option.desc}"
+          desc << "   #{option.desc}"
         end
+        indent += 3
 
         if option.permit?
-          line << format(" (permitted: %s)", option.permit.join(","))
+          desc << format(" (permitted: %s)", option.permit.join(","))
         end
 
         if (default = format_default(option))
-          line << default
+          desc << default
         end
+
+        line << UsageWrapper.wrap(desc.join, indent: indent)
 
         line.join
       end
