@@ -34,17 +34,16 @@ module TTY
       #
       # @api private
       def self.next_line(text, wrap: nil)
-        return [text] if text.length < wrap
+        line = text[0, wrap + 1] # account for word boundary
+        index = line.index("\n", 1)
 
-        line = text[0, wrap+1] # account for word boundary
-
-        index = line.rindex("\n")
-
-        if index.nil? || index.zero? # line starting with whitespace
+        # line without newlines and can be broken
+        if (index.nil? || index.zero?) && wrap < line.length
           index = line.rindex(/\s/)
         end
 
-        if index.nil? || index.zero? # line without any whitespace
+        # line without any whitespace
+        if index.nil? || index.zero?
           index = wrap
         end
 
