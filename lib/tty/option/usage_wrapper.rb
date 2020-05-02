@@ -8,14 +8,15 @@ module TTY
       # @param [String] text
       # @param [Integer] width
       # @param [Integer] indent
+      # @param [Boolean] indent_first
       #
       # @api public
-      def self.wrap(text, width: 80, indent: 2)
+      def self.wrap(text, width: 80, indent: 2, indent_first: false)
         wrap = width - indent
         lines = []
 
         line, rest = *next_line(text, wrap: wrap)
-        lines << line # don't indent the first line
+        lines << (indent_first ? " " * indent : "") + line
 
         while !rest.nil?
           line, rest = *next_line(rest, wrap: wrap)
