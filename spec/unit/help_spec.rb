@@ -120,6 +120,50 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
 
+    it "wraps long arguments and descriptions to fit the width" do
+      cmd = new_command do
+        argument :foo do
+          required
+          var "foo-long-argument-name"
+          arity 2
+          desc "Some multiline\n description with newlines"
+        end
+
+        argument :bar do
+          optional
+          var "bar-super-long-argument-name"
+          default "default-is-way-too-long-as-well"
+          desc "Some description that goes on and on and never finishes explaining"
+        end
+
+        argument :qux do
+          var "qux-long-name"
+          desc "Some description that\nbreaks into multiline\n on newlines"
+          default "some long default on many lines"
+          permit %w[one two three four five six]
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec FOO-LONG-ARGUMENT-NAME FOO-LONG-ARGUMENT-NAME
+             [BAR-SUPER-LONG-ARGUMENT-NAME] [QUX-LONG-NAME]
+
+      Arguments:
+        bar-super-long-argument-name  Some description that goes on and on and never
+                                      finishes explaining (default
+                                      "default-is-way-too-long-as-well")
+        foo-long-argument-name        Some multiline
+                                      description with newlines
+        qux-long-name                 Some description that
+                                      breaks into multiline
+                                      on newlines (permitted:
+                                      one,two,three,four,five,six) (default "some
+                                      long default on many lines")
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
     it "formats banner with any arguments and options" do
       cmd = new_command do
         program "foo"
@@ -250,7 +294,8 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo FOO-BAR=INT FOO-BAR=INT [BARRED=BARRED BARRED=BARRED] BAZZED=LIST [BAZZED=LIST...]
+      Usage: foo FOO-BAR=INT FOO-BAR=INT [BARRED=BARRED BARRED=BARRED] BAZZED=LIST
+             [BAZZED=LIST...]
 
       Keywords:
         barred=barred  Some keyword description

@@ -100,14 +100,14 @@ module TTY
       #
       # @api private
       def format_usage
+        usage = @sections[:usage] + SPACE
         output = []
-        output << @sections[:usage] + SPACE
         output << @usage.program
         output << " [#{@param_display.("options")}]" if @parameters.options?
         output << " [#{@param_display.("environment")}]" if @parameters.environments?
         output << " #{format_arguments_usage}" if @parameters.arguments?
         output << " #{format_keywords_usage}" if @parameters.keywords?
-        output.join
+        usage + UsageWrapper.wrap(output.join, indent: usage.length)
       end
 
       # Format arguments
@@ -170,7 +170,6 @@ module TTY
         format_parameter_usage(kwarg, param_name)
       end
 
-
       # Provide a keyword argument display format
       #
       # @api private
@@ -185,7 +184,6 @@ module TTY
 
         "#{kwarg_name}=#{conv_name}"
       end
-
 
       # Format a parameter section in the help display
       #
@@ -217,23 +215,26 @@ module TTY
       # @api private
       def format_section_parameter(param, longest_param, name_selector)
         line = []
+        desc = []
+        indent = @indent + longest_param + 2
         param_name = name_selector.(param)
 
         if param.desc?
           line << format("%s%-#{longest_param}s", indentation, param_name)
-          line << "  #{param.desc}"
+          desc << "  #{param.desc}"
         else
           line << format("%s%s", indentation, param_name)
         end
 
         if param.permit?
-          line << format(" (permitted: %s)", param.permit.join(","))
+          desc << format(" (permitted: %s)", param.permit.join(","))
         end
 
         if (default = format_default(param))
-          line << default
+          desc << default
         end
 
+        line << UsageWrapper.wrap(desc.join, indent: indent)
         line.join
       end
 
