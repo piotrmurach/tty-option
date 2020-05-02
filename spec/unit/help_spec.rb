@@ -306,6 +306,53 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
 
+    it "wraps long keyword arguments and descriptions to fit the width" do
+      cmd = new_command do
+        keyword :foo do
+          required
+          var "foo-long-name"
+          convert :float
+          arity 2
+          desc "Some multiline\n description with newlines"
+        end
+
+        keyword :bar do
+          optional
+          var "bar-super-long-keyword-name"
+          convert :list
+          default "default-is-way-too-long-as-well"
+          desc "Some description that goes on and on and never finishes explaining"
+        end
+
+        keyword :qux do
+          var "qux-long-name"
+          convert :int
+          desc "Some description that\nbreaks into multiline\n on newlines"
+          default "some long default on many lines"
+          permit %w[one two three four five six]
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec FOO-LONG-NAME=FLOAT FOO-LONG-NAME=FLOAT
+             [BAR-SUPER-LONG-KEYWORD-NAME=LIST] [QUX-LONG-NAME=INT]
+
+      Keywords:
+        bar-super-long-keyword-name=list  Some description that goes on and on and
+                                          never finishes explaining (default
+                                          "default-is-way-too-long-as-well")
+        foo-long-name=float               Some multiline
+                                          description with newlines
+        qux-long-name=int                 Some description that
+                                          breaks into multiline
+                                          on newlines (permitted:
+                                          one,two,three,four,five,six) (default "some
+                                          long default on many lines")
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
     it "formats banner with keyword and positional arguments and options" do
       cmd = new_command do
         program "foo"
