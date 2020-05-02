@@ -176,19 +176,19 @@ RSpec.describe TTY::Option::Formatter do
              [BAR-SUPER-LONG-ARGUMENT-NAME] [QUX-LONG-NAME]
 
       Arguments:
-        bar-super-long-argument-name  Some description that goes on and on and never
-                                      finishes explaining (default
+        bar-super-long-argument-name  Some description that goes on and on and
+                                      never finishes explaining (default
                                       "default-is-way-too-long-as-well")
         foo-long-argument-name        Some multiline
                                       description with newlines
         qux-long-name                 Some description that
                                       breaks into multiline
                                       on newlines (permitted:
-                                      one,two,three,four,five,six) (default "some
-                                      long default on many lines")
+                                      one,two,three,four,five,six) (default
+                                      "some long default on many lines")
       EOS
 
-      expect(cmd.help).to eq(expected_output)
+      expect(cmd.help(width: 75)).to eq(expected_output)
     end
 
     it "formats banner with any arguments and options" do

@@ -5,6 +5,8 @@ require_relative "usage_wrapper"
 module TTY
   module Option
     class Formatter
+      include UsageWrapper
+
       SHORT_OPT_LENGTH = 4
       DEFAULT_WIDTH = 80
       NEWLINE = "\n"
@@ -111,7 +113,7 @@ module TTY
         output << " [#{@param_display.("environment")}]" if @parameters.environments?
         output << " #{format_arguments_usage}" if @parameters.arguments?
         output << " #{format_keywords_usage}" if @parameters.keywords?
-        usage + UsageWrapper.wrap(output.join, indent: usage.length)
+        usage + wrap(output.join, indent: usage.length, width: width)
       end
 
       # Format arguments
@@ -238,7 +240,7 @@ module TTY
           desc << default
         end
 
-        line << UsageWrapper.wrap(desc.join, indent: indent)
+        line << wrap(desc.join, indent: indent, width: width)
         line.join
       end
 
@@ -310,7 +312,7 @@ module TTY
           desc << default
         end
 
-        line << UsageWrapper.wrap(desc.join, indent: indent)
+        line << wrap(desc.join, indent: indent, width: width)
 
         line.join
       end
@@ -343,7 +345,7 @@ module TTY
         lines.map.with_index do |line, i|
           line.map do |part|
             part.split(NEWLINE).map do |p|
-              UsageWrapper.wrap(p, indent: indent, width: width, indent_first: true)
+              wrap(p, indent: indent, width: width, indent_first: true)
             end.join(NEWLINE)
           end.join(NEWLINE) + (last_index != i ? NEWLINE : "")
         end.join(NEWLINE)
