@@ -65,6 +65,33 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help).to eq(expected_output)
     end
 
+    it "wraps banner description" do
+      cmd = new_command do
+        program "wrapped"
+
+        desc "Some long description that explains all the details",
+             "of how to use the tool and it goes on and on",
+             "and doesn't seem to end at all."
+
+        desc "Another regular line"
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: wrapped
+
+      Some long description that
+      explains all the details
+      of how to use the tool and it
+      goes on and on
+      and doesn't seem to end at
+      all.
+
+      Another regular line
+      EOS
+
+      expect(cmd.help(width: 30)).to eq(expected_output)
+    end
+
     it "formats banner with no arguments and some options" do
       cmd = new_command do
         desc "Main description"

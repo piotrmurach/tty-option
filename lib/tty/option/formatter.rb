@@ -6,6 +6,7 @@ module TTY
   module Option
     class Formatter
       SHORT_OPT_LENGTH = 4
+      DEFAULT_WIDTH = 80
       NEWLINE = "\n"
       ELLIPSIS = "..."
       SPACE = " "
@@ -22,6 +23,8 @@ module TTY
 
       attr_reader :indentation
 
+      attr_reader :width
+
       # Create a help formatter
       #
       # @param [Parameters]
@@ -32,6 +35,7 @@ module TTY
         @usage = usage
         @param_display = config.fetch(:param_display) { DEFAULT_PARAM_DISPLAY }
         @order = config.fetch(:order) { DEFAULT_ORDER }
+        @width = config.fetch(:width) { DEFAULT_WIDTH }
         @indent = 2
         @indentation = " " * 2
         @sections = {
@@ -242,7 +246,7 @@ module TTY
       #
       # @api private
       def format_description
-        format_multiline(@usage.desc, "")
+        format_multiline(@usage.desc, 0)
       end
 
       # Returns all the options formatted to fit 80 columns
@@ -328,7 +332,7 @@ module TTY
       #
       # @api private
       def format_examples
-        format_multiline(@usage.example, indentation)
+        format_multiline(@usage.example, @indent)
       end
 
       # Format multiline content
@@ -338,7 +342,9 @@ module TTY
         last_index = lines.size - 1
         lines.map.with_index do |line, i|
           line.map do |part|
-            part.split(NEWLINE).map { |p| indent + p }.join(NEWLINE)
+            part.split(NEWLINE).map do |p|
+              UsageWrapper.wrap(p, indent: indent, width: width, indent_first: true)
+            end.join(NEWLINE)
           end.join(NEWLINE) + (last_index != i ? NEWLINE : "")
         end.join(NEWLINE)
       end
