@@ -3,8 +3,6 @@
 require "bigdecimal"
 require "set"
 
-require_relative "../../lib/tty/option/deep_dup"
-
 RSpec.describe TTY::Option::DeepDup do
   [
     "foo",

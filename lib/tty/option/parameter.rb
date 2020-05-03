@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "deep_dup"
 require_relative "dsl/arity"
 
 module TTY
@@ -188,6 +189,16 @@ module TTY
       # @api public
       def <=>(other)
         name <=> other.name
+      end
+
+      # Make a duplicate of this parameter
+      #
+      # @api public
+      def dup
+        super.tap do |param|
+          param.instance_variable_set(:@name, DeepDup.deep_dup(@name))
+          param.instance_variable_set(:@settings, DeepDup.deep_dup(@settings))
+        end
       end
 
       private

@@ -263,4 +263,71 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect(arg.var).to eq("foo-bar")
     end
   end
+
+  context "dup argument instance" do
+    it "duplicates argument settings provided as keywords" do
+      arg = described_class.new(:foo, arity: 2, default: "bar", desc: "Some desc",
+                                convert: :int, permit: %w[a b c], required: true)
+      dupped_arg = arg.dup
+
+      expect(dupped_arg).to eq(arg)
+      expect(dupped_arg).to_not equal(arg)
+
+      dupped_arg.arity(-3)
+      expect(arg.arity).to eq(2)
+      expect(dupped_arg.arity).to eq(-3)
+
+      dupped_arg.default "baz"
+      expect(arg.default).to eq("bar")
+      expect(dupped_arg.default).to eq("baz")
+
+      arg.desc "Some other"
+      expect(arg.desc).to eq("Some other")
+      expect(dupped_arg.desc).to eq("Some desc")
+
+      arg.convert :list
+      expect(arg.convert).to eq(:list)
+      expect(dupped_arg.convert).to eq(:int)
+
+      dupped_arg.permit << "d"
+      expect(arg.permit).to eq(%w[a b c])
+      expect(dupped_arg.permit).to eq(%w[a b c d])
+    end
+
+    it "duplicates argument settings provided via method calls" do
+      arg = described_class.new(:foo) do
+        required
+        arity 2
+        default "bar"
+        desc "Some desc"
+        convert :int
+        permit %w[a b c]
+      end
+
+      dupped_arg = arg.dup
+
+      expect(dupped_arg).to eq(arg)
+      expect(dupped_arg).to_not equal(arg)
+
+      dupped_arg.arity(-3)
+      expect(arg.arity).to eq(2)
+      expect(dupped_arg.arity).to eq(-3)
+
+      dupped_arg.default "baz"
+      expect(arg.default).to eq("bar")
+      expect(dupped_arg.default).to eq("baz")
+
+      arg.desc "Some other"
+      expect(arg.desc).to eq("Some other")
+      expect(dupped_arg.desc).to eq("Some desc")
+
+      arg.convert :list
+      expect(arg.convert).to eq(:list)
+      expect(dupped_arg.convert).to eq(:int)
+
+      dupped_arg.permit << "d"
+      expect(arg.permit).to eq(%w[a b c])
+      expect(dupped_arg.permit).to eq(%w[a b c d])
+    end
+  end
 end
