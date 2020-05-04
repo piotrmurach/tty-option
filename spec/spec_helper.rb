@@ -22,6 +22,11 @@ module Helpers
   def unindent(s)
     s.gsub(/^#{s.scan(/^[ \t]+(?=\S)/).min}/, "")
   end
+
+  def new_parameter(type, name, **settings)
+    param_class = Object.const_get("TTY::Option::Parameter::#{type.capitalize}")
+    param_class.new(name, **settings)
+  end
 end
 
 RSpec.configure do |config|
