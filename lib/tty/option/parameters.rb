@@ -6,6 +6,8 @@ module TTY
   module Option
     # A collection to hold all parameters
     class Parameters
+      include Enumerable
+
       # A list of arguments
       attr_reader :arguments
 
@@ -19,7 +21,7 @@ module TTY
       attr_reader :options
 
       # A list of all parameters
-      attr_reader :all
+      attr_reader :list
 
       # A parameters list
       #
@@ -29,7 +31,7 @@ module TTY
         @environments = []
         @keywords = []
         @options = []
-        @all = []
+        @list = []
 
         @registered_names = Set.new
         @registered_shorts = Set.new
@@ -37,6 +39,8 @@ module TTY
       end
 
       # Add parameter
+      #
+      # @param [TTY::Option::Parameter]
       #
       # @api public
       def <<(parameter)
@@ -47,11 +51,23 @@ module TTY
           check_long_option_uniqueness!(parameter.long_name)
         end
 
-        @all << parameter
+        @list << parameter
         arr = instance_variable_get("@#{parameter.to_sym}s")
         arr.send :<<, parameter
+        self
       end
       alias add <<
+
+      # Enumerate all parameters
+      #
+      # @api public
+      def each(&block)
+        if block_given?
+          @list.each(&block)
+        else
+          to_enum(:each)
+        end
+      end
 
       # Add query methods
       [:arguments, :environments, :keywords, :options].each do |name|
