@@ -8,6 +8,15 @@ module TTY
     class Parameters
       include Enumerable
 
+      # Define a query for parameter types
+      #
+      # @api private
+      def self.define_query(name)
+        define_method(:"#{name}?") do
+          !self.public_send(name).empty?
+        end
+      end
+
       # A list of arguments
       attr_reader :arguments
 
@@ -22,6 +31,11 @@ module TTY
 
       # A list of all parameters
       attr_reader :list
+
+      define_query :arguments
+      define_query :keywords
+      define_query :options
+      define_query :environments
 
       # A parameters list
       #
@@ -66,13 +80,6 @@ module TTY
           @list.each(&block)
         else
           to_enum(:each)
-        end
-      end
-
-      # Add query methods
-      [:arguments, :environments, :keywords, :options].each do |name|
-        define_method(:"#{name}?") do
-          !self.public_send(name).empty?
         end
       end
 
