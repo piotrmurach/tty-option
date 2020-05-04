@@ -84,10 +84,10 @@ module TTY
       def delete(*names)
         deleted = []
         @list.delete_if { |p| names.include?(p.name) && (deleted << p) }
-        @arguments = @arguments.difference(deleted)
-        @environments = @environments.difference(deleted)
-        @keywords = @keywords.difference(deleted)
-        @options = @options.difference(deleted)
+        @arguments = @arguments - deleted
+        @environments = @environments - deleted
+        @keywords = @keywords - deleted
+        @options = @options - deleted
         @registered_names.subtract(names)
         @registered_shorts.replace(@options.map(&:short))
         @registered_longs.replace(@options.map(&:long))
