@@ -36,8 +36,8 @@ module Helpers
     klass
   end
 
-  def new_command(&block)
-    command(&block).new
+  def new_command(*args, &block)
+    command(*args, &block).new
   end
 end
 
