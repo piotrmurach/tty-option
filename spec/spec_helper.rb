@@ -27,6 +27,18 @@ module Helpers
     param_class = Object.const_get("TTY::Option::Parameter::#{type.capitalize}")
     param_class.new(name, **settings)
   end
+
+  def command(name = "Command", parent = nil, &block)
+    stub_const(name, parent ? Class.new(parent) : Class.new)
+    klass = Object.const_get(name)
+    klass.send :include, TTY::Option
+    klass.class_eval(&block) if block
+    klass
+  end
+
+  def new_command(&block)
+    command(&block).new
+  end
 end
 
 RSpec.configure do |config|

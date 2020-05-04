@@ -1,17 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe TTY::Option::Formatter do
-  def command(&block)
-    stub_const("Command", Class.new)
-    Command.send :include, TTY::Option
-    Command.class_eval(&block)
-    Command
-  end
-
-  def new_command(&block)
-    command(&block).new
-  end
-
   context "Usage header & footer" do
     it "includes header and footer in help display" do
       cmd = new_command do
