@@ -54,7 +54,7 @@ module TTY
 
       # Add parameter
       #
-      # @param [TTY::Option::Parameter]
+      # @param [TTY::Option::Parameter] parameter
       #
       # @api public
       def <<(parameter)
@@ -71,6 +71,28 @@ module TTY
         self
       end
       alias add <<
+
+      # Delete a parameter from the list
+      #
+      # @example
+      #   delete(:foo, :bar, :baz)
+      #
+      # @param [Array<Symbol>] names
+      #   the names to delete
+      #
+      # @api public
+      def delete(*names)
+        deleted = []
+        @list.delete_if { |p| names.include?(p.name) && (deleted << p) }
+        @arguments = @arguments.difference(deleted)
+        @environments = @environments.difference(deleted)
+        @keywords = @keywords.difference(deleted)
+        @options = @options.difference(deleted)
+        @registered_names.subtract(names)
+        @registered_shorts.replace(@options.map(&:short))
+        @registered_longs.replace(@options.map(&:long))
+        deleted
+      end
 
       # Enumerate all parameters
       #

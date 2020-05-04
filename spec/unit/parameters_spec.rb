@@ -85,6 +85,35 @@ RSpec.describe TTY::Option::Parameters do
     end
   end
 
+  context "delete" do
+    it "deletes parameters from the list by name" do
+      param_list = described_class.new
+
+      argument_foo = new_parameter("argument", :foo)
+      keyword_bar  = new_parameter("keyword", :bar)
+      env_baz      = new_parameter("environment", :baz)
+      option_qux   = new_parameter("option", :qux, short: "-q", long: "--qux")
+
+      param_list << argument_foo << keyword_bar << env_baz << option_qux
+
+      deleted_params = param_list.delete(:foo, :bar, :baz, :qux)
+
+      expect(deleted_params).to eq([argument_foo, keyword_bar, env_baz, option_qux])
+      expect(param_list.to_a).to eq([])
+      expect(param_list.arguments).to eq([])
+      expect(param_list.keywords).to eq([])
+      expect(param_list.environments).to eq([])
+      expect(param_list.options).to eq([])
+
+      param_list << argument_foo << keyword_bar << env_baz << option_qux
+      expect(param_list.to_a).to eq([argument_foo, keyword_bar, env_baz, option_qux])
+      expect(param_list.arguments).to eq([argument_foo])
+      expect(param_list.keywords).to eq([keyword_bar])
+      expect(param_list.environments).to eq([env_baz])
+      expect(param_list.options).to eq([option_qux])
+    end
+  end
+
   context "dup parameters" do
     it "duplicates parameters instance with all the collections" do
       param_list = described_class.new
