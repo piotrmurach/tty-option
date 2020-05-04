@@ -16,6 +16,17 @@ module TTY
       base.module_eval do
         include Interface
         extend DSL
+        extend Inheritance
+      end
+    end
+
+    module Inheritance
+      # When class is inherited copy over parameter definitions
+      # This allows for definition of global parameters without
+      # affecting child class parameters and vice versa.
+      def inherited(subclass)
+        subclass.instance_variable_set(:@parameters, @parameters.dup)
+        super
       end
     end
 
