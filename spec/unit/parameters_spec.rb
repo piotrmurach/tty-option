@@ -84,4 +84,39 @@ RSpec.describe TTY::Option::Parameters do
       expect(param_enum.map(&:name)).to eq([:foo])
     end
   end
+
+  context "dup parameters" do
+    it "duplicates parameters instance with all the collections" do
+      param_list = described_class.new
+
+      argument = new_parameter("argument", :foo)
+      keyword = new_parameter("keyword", :bar)
+      option = new_parameter("option", :baz)
+      env = new_parameter("environment", :qux)
+
+      param_list << argument
+      param_list << keyword
+      param_list << option
+      param_list << env
+
+      dupped_list = param_list.dup
+      expect(dupped_list).to_not equal(param_list)
+      expect(dupped_list.map(&:name)).to eq(param_list.map(&:name))
+
+      argument2 = new_parameter("argument", :foo2)
+      keyword2 = new_parameter("keyword", :bar2)
+      option2 = new_parameter("option", :baz2)
+      env2 = new_parameter("environment", :qux2)
+
+      dupped_list << argument2
+      dupped_list << keyword2
+      dupped_list << option2
+      dupped_list << env2
+
+      expect(param_list.map(&:name)).to eq([:foo, :bar, :baz, :qux])
+      expect(dupped_list.map(&:name)).to eq([:foo, :bar, :baz, :qux,
+                                             :foo2, :bar2, :baz2, :qux2])
+
+    end
+  end
 end

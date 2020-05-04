@@ -76,6 +76,18 @@ module TTY
         end
       end
 
+      # Make a deep copy of the list of parameters
+      #
+      # @api public
+      def dup
+        super.tap do |params|
+          params.instance_variables.each do |var|
+            dupped = DeepDup.deep_dup(params.instance_variable_get(var))
+            params.instance_variable_set(var, dupped)
+          end
+        end
+      end
+
       private
 
       # @api private
