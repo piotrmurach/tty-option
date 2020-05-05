@@ -10,21 +10,6 @@ require_relative "pipeline"
 module TTY
   module Option
     class Parser
-      %w[
-        arguments
-        environments
-        keywords
-        options
-      ].each do |name|
-        define_method(name) do
-          parameters.send(name)
-        end
-      end
-
-      attr_reader :parameters
-
-      attr_reader :config
-
       PARAMETER_PARSERS = {
         options: TTY::Option::Parser::Options,
         keywords: TTY::Option::Parser::Keywords,
@@ -33,6 +18,10 @@ module TTY
       }
 
       ARGUMENT_SEPARATOR = /^-{2,}$/.freeze
+
+      attr_reader :parameters
+
+      attr_reader :config
 
       def initialize(parameters, **config)
         @parameters = parameters
