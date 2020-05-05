@@ -77,6 +77,14 @@ module TTY
       end
       alias opt option
 
+      # Remove parameter from the parameters definitions list
+      #
+      # @api public
+      def ignore(*names)
+        parameters.delete(*names)
+      end
+      alias skip ignore
+
       # Holds all parameters
       #
       # @api public
