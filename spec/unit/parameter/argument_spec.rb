@@ -242,6 +242,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
   end
 
   context "equality" do
+    it "compares different types" do
+      option_foo = described_class.new(:foo)
+      object = Object.new
+
+      expect(option_foo).to_not eq(object)
+      expect(option_foo).to_not equal(object)
+    end
+
     it "compares different instances with the same name" do
       option_foo = described_class.new(:foo)
       option_foo_dupped = described_class.new(:foo).dup
