@@ -151,4 +151,44 @@ RSpec.describe TTY::Option::Usage do
       expect(usage.footer?).to eq(true)
     end
   end
+
+  context "to_h" do
+    it "returns all properties as hash" do
+      usage = described_class.new do
+        header "Header"
+        program "Program"
+        desc "Description"
+        example "Example"
+        footer "Footer"
+      end
+
+      expect(usage.to_h).to eq({
+        desc: [["Description"]],
+        example: [["Example"]],
+        footer: "Footer",
+        header: "Header",
+        program: "Program"
+      })
+    end
+
+    it "transforms hash via a block" do
+      usage = described_class.new do
+        header "Header"
+        program "Program"
+        desc "Description"
+        example "Example"
+        footer "Footer"
+      end
+
+      transformed = usage.to_h { |k, v| [k.to_s, v] }
+
+      expect(transformed).to eq({
+        "desc" => [["Description"]],
+        "example" => [["Example"]],
+        "footer" => "Footer",
+        "header" => "Header",
+        "program" => "Program"
+      })
+    end
+  end
 end

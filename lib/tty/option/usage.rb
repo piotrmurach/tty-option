@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "deep_dup"
+
 module TTY
   module Option
     class Usage
@@ -113,6 +115,19 @@ module TTY
 
       def footer?
         @properties.key?(:footer) && !@properties[:footer].nil?
+      end
+
+      # Return a hash of this usage properties
+      #
+      # @return [Hash] the names and values of this usage
+      #
+      # @api public
+      def to_h(&block)
+        if block_given?
+          @properties.to_h(&block)
+        else
+          DeepDup.deep_dup(@properties)
+        end
       end
     end # Usage
   end # Option
