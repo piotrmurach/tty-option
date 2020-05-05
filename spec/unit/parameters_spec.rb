@@ -112,6 +112,23 @@ RSpec.describe TTY::Option::Parameters do
       expect(param_list.environments).to eq([env_baz])
       expect(param_list.options).to eq([option_qux])
     end
+
+    it "deletes option from a cloned list" do
+      param_list = described_class.new
+
+      option_foo = new_parameter("option", :foo, long: "--foo")
+      option_bar = new_parameter("option", :bar, long: "--bar")
+      option_baz = new_parameter("option", :baz, long: "--baz")
+
+      param_list << option_foo << option_bar
+
+      new_list = param_list.dup
+      new_list.delete(:bar)
+      new_list << option_baz
+
+      expect(new_list.to_a).to eq([option_foo, option_baz])
+      expect(new_list.options).to eq([option_foo, option_baz])
+    end
   end
 
   context "dup parameters" do
