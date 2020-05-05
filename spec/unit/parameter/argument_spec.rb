@@ -241,6 +241,24 @@ RSpec.describe TTY::Option::Parameter::Argument do
     end
   end
 
+  context "equality" do
+    it "compares different instances with the same name" do
+      option_foo = described_class.new(:foo)
+      option_foo_dupped = described_class.new(:foo).dup
+
+      expect(option_foo).to eq(option_foo_dupped)
+      expect(option_foo).to_not equal(option_foo_dupped)
+    end
+
+    it "compares different instances with different name" do
+      option_foo = described_class.new(:foo)
+      option_bar = described_class.new(:bar)
+
+      expect(option_foo).to_not eq(option_bar)
+      expect(option_foo).to_not equal(option_bar)
+    end
+  end
+
   context "variable setting" do
     it "defaults a variable to a parameter name with dashes" do
       arg = described_class.new(:foo_bar)

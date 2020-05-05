@@ -191,6 +191,14 @@ module TTY
         name <=> other.name
       end
 
+      # Compare parameters for equality based on type and name
+      #
+      # @api public
+      def ==(other)
+        instance_of?(other.class) && name.eql?(other.name)
+      end
+      alias eql? ==
+
       # Make a duplicate of this parameter
       #
       # @api public
