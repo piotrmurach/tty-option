@@ -84,10 +84,10 @@ module TTY
       def delete(*names)
         deleted = []
         @list.delete_if { |p| names.include?(p.name) && (deleted << p) }
-        @arguments = @arguments - deleted
-        @environments = @environments - deleted
-        @keywords = @keywords - deleted
-        @options = @options - deleted
+        deleted.each do |param|
+          params_list = instance_variable_get("@#{param.to_sym}s")
+          params_list.delete(param)
+        end
         @registered_names.subtract(names)
         @registered_shorts.replace(@options.map(&:short))
         @registered_longs.replace(@options.map(&:long))
