@@ -124,7 +124,10 @@ module TTY
       # @api public
       def to_h(&block)
         if block_given?
-          @properties.to_h(&block)
+          @properties.each_with_object({}) do |(key, val), acc|
+            k, v = *block.(key, val)
+            acc[k] = v
+          end
         else
           DeepDup.deep_dup(@properties)
         end
