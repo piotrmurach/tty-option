@@ -18,8 +18,6 @@ module TTY
 
       attr_reader :name
 
-      attr_reader :settings
-
       # Create a parameter
       #
       # @api private
@@ -180,10 +178,6 @@ module TTY
         self.class.name.to_s.split(/::/).last.downcase.to_sym
       end
 
-      def to_h
-        @settings.dup
-      end
-
       # Compare this parameter name with the other
       #
       # @api public
@@ -196,7 +190,7 @@ module TTY
       # @api public
       def ==(other)
         return false unless instance_of?(other.class)
-        name == other.name && settings == other.settings
+        name == other.name && to_h == other.to_h
       end
 
       # Compare parameters for equality based on type and name
@@ -204,7 +198,23 @@ module TTY
       # @api public
       def eql?(other)
         return false unless instance_of?(other.class)
-        name.eql?(other.name) && settings.eql?(other.settings)
+        name.eql?(other.name) && to_h.eql?(other.to_h)
+      end
+
+      # Return a hash of this parameter settings
+      #
+      # @return [Hash] the names and values of this parameter
+      #
+      # @api public
+      def to_h(&block)
+        if block_given?
+          @settings.each_with_object({}) do |(key, val), acc|
+            k, v = *block.(key, val)
+            acc[k] = v
+          end
+        else
+          DeepDup.deep_dup(@settings)
+        end
       end
 
       # Make a duplicate of this parameter

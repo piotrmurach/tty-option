@@ -356,4 +356,60 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect(dupped_arg.permit).to eq(%w[a b c d])
     end
   end
+
+  context "to_h" do
+    it "returns all settings as hash" do
+      param = described_class.new(:foo) do
+        variable "Variable"
+        required
+        arity 2
+        convert :int
+        default 11
+        desc "Description"
+        hidden
+        permit [11, 12, 13]
+        validate "\d+"
+      end
+
+      expect(param.to_h).to eq({
+        arity: 2,
+        convert: :int,
+        default: 11,
+        desc: "Description",
+        hidden: true,
+        permit: [11, 12, 13],
+        required: true,
+        validate: Regexp.new("\d+"),
+        var: "Variable"
+      })
+    end
+
+    it "transforms hash via a block" do
+      param = described_class.new(:foo) do
+        variable "Variable"
+        required
+        arity 2
+        convert :int
+        default 11
+        desc "Description"
+        hidden
+        permit [11, 12, 13]
+        validate "\d+"
+      end
+
+      transformed = param.to_h { |k, v| [k.to_s, v] }
+
+      expect(transformed).to eq({
+        "arity" => 2,
+        "convert" => :int,
+        "default" => 11,
+        "desc" => "Description",
+        "hidden" => true,
+        "permit" => [11, 12, 13],
+        "required" => true,
+        "validate" => Regexp.new("\d+"),
+        "var" => "Variable"
+      })
+    end
+  end
 end
