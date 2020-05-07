@@ -19,6 +19,43 @@ RSpec.describe TTY::Option::Usage do
     end
   end
 
+  context "action" do
+    it "changes action via property" do
+      usage = described_class.new(action: "foo")
+      expect(usage.action).to eq("foo")
+    end
+
+    it "changes action via method" do
+      usage = described_class.new
+      expect(usage.action?).to eq(false)
+
+      usage.action "foo"
+
+      expect(usage.action).to eq(["foo"])
+      expect(usage.action?).to eq(true)
+    end
+
+    it "configures many actions via method" do
+      usage = described_class.new
+      expect(usage.action?).to eq(false)
+
+      usage.actions "foo", "bar", "baz"
+
+      expect(usage.action).to eq(%w[foo bar baz])
+      expect(usage.action?).to eq(true)
+    end
+
+    it "configures no action via method" do
+      usage = described_class.new(action: "foo")
+      expect(usage.action?).to eq(true)
+
+      usage.no_action
+
+      expect(usage.action).to eq([])
+      expect(usage.action?).to eq(false)
+    end
+  end
+
   context "header" do
     it "changes header via property" do
       usage = described_class.new(header: "foo")

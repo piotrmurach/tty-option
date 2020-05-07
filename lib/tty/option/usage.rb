@@ -5,6 +5,9 @@ require_relative "deep_dup"
 module TTY
   module Option
     class Usage
+      # Create an usage
+      #
+      # @api public
       def self.create(**properties, &block)
         new(**properties, &block)
       end
@@ -36,6 +39,30 @@ module TTY
         else
           @properties[:program] = name
         end
+      end
+
+      # Action name for display in help and error messages
+      #
+      # @api public
+      def action(*values)
+        if values.empty?
+          @properties.fetch(:action) { [] }
+        else
+          @properties[:action] = []
+          values.each { |val| @properties[:action] << val }
+        end
+      end
+      alias actions action
+
+      # Remove default actions
+      #
+      # @api public
+      def no_action
+        @properties[:action] = []
+      end
+
+      def action?
+        @properties.key?(:action) && !@properties[:action].empty?
       end
 
       # Display info before anything else in the usage help
