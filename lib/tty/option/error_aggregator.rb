@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require_relative "inflection"
+
 module TTY
   module Option
     class ErrorAggregator
+      include Inflection
+
       # Collected errors
       attr_reader :errors
 
@@ -29,9 +33,7 @@ module TTY
         end
 
         type_name = is_class ? error.name : error.class.name
-        type_key = type_name.to_s.split("::").last
-                            .gsub(/([a-z]+)([A-Z])/, "\\1_\\2")
-                            .downcase.to_sym
+        type_key = underscore(demodulize(type_name)).to_sym
 
         msg = message ? message : error.message
 

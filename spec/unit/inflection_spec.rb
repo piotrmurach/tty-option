@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../lib/tty/option/inflection"
-
 RSpec.describe TTY::Option::Inflection do
   context "demodulize" do
     {
