@@ -12,7 +12,7 @@ RSpec.describe TTY::Option::Formatter do
       expected_output = unindent(<<-EOS)
       CLI app
 
-      Usage: rspec
+      Usage: rspec command
 
       Run --help to see more info.
       EOS
@@ -42,7 +42,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec FOO
+      Usage: rspec command FOO
 
       Some description
       on multiline
@@ -56,7 +56,11 @@ RSpec.describe TTY::Option::Formatter do
 
     it "wraps banner description" do
       cmd = new_command do
-        program "wrapped"
+        usage do
+          program "text"
+
+          action "wrap"
+        end
 
         desc "Some long description that explains all the details",
              "of how to use the tool and it goes on and on",
@@ -66,7 +70,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: wrapped
+      Usage: text wrap
 
       Some long description that
       explains all the details
@@ -83,7 +87,9 @@ RSpec.describe TTY::Option::Formatter do
 
     it "formats banner with no arguments and some options" do
       cmd = new_command do
-        desc "Main description"
+          no_action
+
+          desc "Main description"
 
         option :foo do
           desc "Some description"
@@ -123,7 +129,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec [OPTIONS] FOO FOO [BAR]
+      Usage: rspec command [OPTIONS] FOO FOO [BAR]
 
       Arguments:
         bar  Bar arg description (default "fum")
@@ -161,7 +167,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec FOO-LONG-ARGUMENT-NAME FOO-LONG-ARGUMENT-NAME
+      Usage: rspec command FOO-LONG-ARGUMENT-NAME FOO-LONG-ARGUMENT-NAME
              [BAR-SUPER-LONG-ARGUMENT-NAME] [QUX-LONG-NAME]
 
       Arguments:
@@ -190,7 +196,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo [BAR...]
+      Usage: foo command [BAR...]
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -206,7 +212,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo BAR [BAR...]
+      Usage: foo command BAR [BAR...]
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -229,7 +235,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec FOO-BAR FOO-BAR [BARRED]
+      Usage: rspec command FOO-BAR FOO-BAR [BARRED]
 
       Arguments:
         barred   Bar arg description
@@ -272,7 +278,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo BAR=URI [BAZ=BAZ]
+      Usage: foo command BAR=URI [BAZ=BAZ]
 
       Keywords:
         bar=uri  Bar keyword description
@@ -310,8 +316,8 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo FOO-BAR=INT FOO-BAR=INT [BARRED=BARRED BARRED=BARRED] BAZZED=LIST
-             [BAZZED=LIST...]
+      Usage: foo command FOO-BAR=INT FOO-BAR=INT [BARRED=BARRED BARRED=BARRED]
+             BAZZED=LIST [BAZZED=LIST...]
 
       Keywords:
         barred=barred  Some keyword description
@@ -350,7 +356,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec FOO-LONG-NAME=FLOAT FOO-LONG-NAME=FLOAT
+      Usage: rspec command FOO-LONG-NAME=FLOAT FOO-LONG-NAME=FLOAT
              [BAR-SUPER-LONG-KEYWORD-NAME=LIST] [QUX-LONG-NAME=INT]
 
       Keywords:
@@ -390,7 +396,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo [OPTIONS] FUM BAR=URI [BAZ=BAZ]
+      Usage: foo command [OPTIONS] FUM BAR=URI [BAZ=BAZ]
 
       Options:
         --qux   Some description
@@ -424,7 +430,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo [<options>] [<environment>] <fum> <bar>=<uri> [<baz>=<baz>]
+      Usage: foo command [<options>] [<environment>] <fum> <bar>=<uri> [<baz>=<baz>]
 
       Options:
         --qux   Some description
@@ -480,7 +486,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec [OPTIONS]
+      Usage: rspec command [OPTIONS]
 
       Options:
         -b, --bar string      Some description (default "baz")
@@ -509,7 +515,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec [OPTIONS]
+      Usage: rspec command [OPTIONS]
 
       Options:
         --bar string   Some description (default "baz")
@@ -544,7 +550,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec [OPTIONS]
+      Usage: rspec command [OPTIONS]
 
       Options:
         -b, --bar-super-long-option-name string   Some description that goes on and
@@ -601,7 +607,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec [OPTIONS] [ENVIRONMENT]
+      Usage: rspec command [OPTIONS] [ENVIRONMENT]
 
       Options:
         -f, --foo string   Some description
@@ -632,7 +638,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo
+      Usage: foo command
 
       Examples:
         The following does something:
@@ -663,7 +669,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo [OPTIONS] [ENVIRONMENT]
+      Usage: foo command [OPTIONS] [ENVIRONMENT]
 
       Options:
         --bar   Some description
@@ -712,7 +718,7 @@ RSpec.describe TTY::Option::Formatter do
       expected_output = unindent(<<-EOS)
       CLI foo app
 
-      Usage: foo [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
+      Usage: foo command [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
 
       Some foo app description
 
@@ -769,7 +775,7 @@ RSpec.describe TTY::Option::Formatter do
       expected_output = unindent(<<-EOS)
       CLI foo app
 
-      Usage: foo [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
+      Usage: foo command [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
 
       Some foo app description
 
@@ -817,7 +823,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo [OPTIONS] [ENVIRONMENT] [Z] [D] [F] [ZZ=ZZ] [DD=DD] [FF=FF]
+      Usage: foo command [OPTIONS] [ENVIRONMENT] [Z] [D] [F] [ZZ=ZZ] [DD=DD] [FF=FF]
 
       Arguments:
         z  Some argument description

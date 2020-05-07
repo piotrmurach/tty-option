@@ -3,6 +3,7 @@
 require "forwardable"
 
 require_relative "dsl/arity"
+require_relative "inflection"
 require_relative "parameter/argument"
 require_relative "parameter/environment"
 require_relative "parameter/keyword"
@@ -14,15 +15,21 @@ module TTY
   module Option
     module DSL
       include Arity
+      include Inflection
       extend Forwardable
 
-      def_delegators :usage, :banner, :desc, :program, :header, :footer, :example
+      def_delegators :usage, :action, :banner, :desc, :program,
+                             :header, :footer, :example, :no_action
 
       # Holds the usage information
       #
       # @api public
       def usage(**properties, &block)
-        @usage ||= Usage.create(**properties, &block)
+        @usage ||= Usage.create(**properties, &block).tap do |usage|
+                    if usage.action.empty?
+                      usage.action(dasherize(demodulize(self.name)))
+                    end
+                  end
       end
 
       # Specify an argument

@@ -109,6 +109,7 @@ module TTY
         usage = @sections[:usage] + SPACE
         output = []
         output << @usage.program
+        output << " #{@usage.actions.join(" ")}" if @usage.action?
         output << " [#{@param_display.("options")}]" if @parameters.options?
         output << " [#{@param_display.("environment")}]" if @parameters.environments?
         output << " #{format_arguments_usage}" if @parameters.arguments?
