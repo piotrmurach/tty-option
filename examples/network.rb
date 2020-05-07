@@ -9,7 +9,7 @@ module Network
     usage do
       header "CLI app v1.2.3"
 
-      banner "Usage: #{program} create [OPTIONS] NETWORK"
+      action "create"
 
       desc "Create a network"
 
