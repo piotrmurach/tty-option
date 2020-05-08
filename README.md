@@ -508,7 +508,7 @@ Will produce:
 params[:foo] # => ["1", "2", "3"]
 ```
 
-To match any number of times use `:any`, `-1`, or `zero_or_more`:
+To match any number of times use `:any`, `:*`, `-1`, `any` or `zero_or_more`:
 
 ```ruby
 argument :foo do
@@ -516,7 +516,7 @@ argument :foo do
 end
 ```
 
-To match at at least one time use `one_or_more` or `two_or_more` for many times:
+To match at at least one time use `:+` or `one_or_more`:
 
 ```ruby
 option :foo do
@@ -584,11 +584,11 @@ end
 
 And then parsing the following:
 
-```ruby
+```bash
 --foo t,f,t --bar a:1 b:2 c:3
 ```
 
-Will give:
+Will give the following:
 
 ```ruby
 params[:foo]
