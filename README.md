@@ -60,6 +60,13 @@ Or install it yourself as:
     * [2.5.4 permit](#254-permit)
     * [2.5.5 validate](#255-validate)
   * [2.6 parse](#26-parse)
+  * [2.7 usage](#27-usage)
+    * [2.7.1 command](#271-command)
+    * [2.7.2 description](#272-description)
+    * [2.7.3 example](#273-description)
+    * [2.7.4 footer](#274-description)
+    * [2.7.5 header](#275-description)
+    * [2.7.6 program](#276-program)
   * [2.7 help](#27-help)
 
 ## 1. Usage
@@ -724,6 +731,122 @@ Then parsing:
 foo=11 foo=13
 # raises TTY::Option::InvalidArgument
 ```
+
+## 2.7 usage
+
+### 2.7.1 command
+
+By default the command name is inferred from the class name.
+
+For example, based on the following:
+
+```ruby
+class NetworkCreate
+  include TTY::Option
+end
+```
+
+The command name will become `network-create`. To change this use the `command` and `commands` helpers:
+
+```ruby
+class NetworkCreate
+  include TTY::Option
+
+  usage do
+    commands "network", "create"
+  end
+end
+````
+
+This will result in the following usage information:
+
+```
+Usage: program network create
+```
+
+If you don't wish to infer the command name use the `no_command` method:
+
+```ruby
+class NetworkCreate
+  include TTY::Option
+
+  usage do
+    no_command
+  end
+end
+````
+
+### 2.7.2 description
+
+### 2.7.3 example
+
+To add usage examples section to the help information use the `example` or `examples` methods.
+
+The `example` helper accepts multiple strings that will be displayed on separate lines. For instance, the following class will add a single example:
+
+```ruby
+class Command
+  include TTY::Option
+
+  usage do
+    example "Some example how to use foo",
+            " $ foo bar"
+  end
+end
+```
+
+This will result in the following help output:
+
+```ruby
+# Examples:
+#   Some example how to use foo
+#     $ foo bar
+```
+
+The `example` helper can be called multiple times to build an examples section:
+
+```ruby
+usage do
+  example "Some example how to use foo",
+          " $ foo bar"
+
+  example <<~EOS
+  Another example how to use foo"
+    $ foo baz
+  EOS
+end
+```
+
+The usage help will contain the following:
+
+```ruby
+# Examples:
+#   Some example how to use foo
+#     $ foo bar
+#
+#   Another example how to use foo
+#     $ foo baz
+```
+
+### 2.7.4 footer
+
+### 2.7.5 header
+
+### 2.7.6 program
+
+By default the program name is inferred for you from the executable file name.
+
+You can override the default name using the `program` helper.
+
+```ruby
+class NetworkCreate
+  include TTY::Option
+
+  usage do
+    program "custom-name"
+  end
+end
+````
 
 ## Development
 
