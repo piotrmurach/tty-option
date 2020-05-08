@@ -3,6 +3,7 @@
 require "forwardable"
 
 require_relative "dsl/arity"
+require_relative "dsl/conversion"
 require_relative "inflection"
 require_relative "parameter/argument"
 require_relative "parameter/environment"
@@ -15,6 +16,7 @@ module TTY
   module Option
     module DSL
       include Arity
+      include Conversion
       include Inflection
       extend Forwardable
 

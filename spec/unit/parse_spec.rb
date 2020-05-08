@@ -337,7 +337,7 @@ RSpec.describe TTY::Option do
       cmd = new_command do
         env :foo, convert: :int
 
-        env :bar, convert: :bools
+        env :bar, convert: list_of(:bool)
 
         env :baz, variable: "FOOBAR", convert: :sym
       end
@@ -540,7 +540,7 @@ RSpec.describe TTY::Option do
 
           option :bar do
             long "--bar=VAL"
-            convert :int_map
+            convert map_of(Integer)
           end
         end
 

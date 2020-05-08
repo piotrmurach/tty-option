@@ -2,12 +2,14 @@
 
 require_relative "deep_dup"
 require_relative "dsl/arity"
+require_relative "dsl/conversion"
 
 module TTY
   module Option
     class Parameter
       include Comparable
       include DSL::Arity
+      include DSL::Conversion
 
       # A parameter factory
       #
