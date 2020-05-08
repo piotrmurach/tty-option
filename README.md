@@ -215,7 +215,7 @@ Then parsing command line input:
 
 Would result only in one argument parsed and the remaining ignored:
 
-```
+```ruby
 params[:foo] # => "11"
 ```
 
@@ -256,7 +256,7 @@ argument :foo,
   desc: "Some foo desc"
 ```
 
-To read more about available setting see [parameter settings](#25-parameter-settings)
+To read more about available settings see [parameter settings](#25-parameter-settings).
 
 ### 2.2 keyword
 
@@ -337,10 +337,100 @@ keyword :foo,
   desc: "Some foo desc"
 ```
 
-To read more about available setting see [parameter settings](#25-parameter-settings)
+To read more about available settings see [parameter settings](#25-parameter-settings).
 
 ### 2.3 option
 
+To parse options and flags use the `option` or `flag` methods.
+
+To declare an option you need to provide a name for the key used to access value in the `params`:
+
+```ruby
+option :foo
+```
+
+By default the option parameter name will be used to generate a long option name:
+
+```
+--foo=11
+```
+
+Parsing the above will result in:
+
+```ruby
+params[:foo] # => "11"
+```
+
+To specify a different name for the parsed option use the `short` and `long` helpers:
+
+```ruby
+option :foo do
+  short "-f"     # declares a short flag
+  long  "--foo"  # declares a long flag
+end
+```
+
+If you wish for an option to accept an argument, you need to provide an extra label.
+
+For example, for both short and long flag to require argument do:
+
+```ruby
+option :foo do
+  short "-f"
+  long  "--foo string"  # use any name after the flag name to specify required argument
+  # or
+  long  "--foo=string"  # you can also separate required argument with =
+end
+```
+
+To make a long option with an optional argument do:
+
+```ruby
+option :foo do
+  long "--foo [string]" # use any name within square brackets to make argument optional
+end
+```
+
+A more involved example that parses a list of integer may look like this:
+
+```ruby
+option :foo do
+  required                   # by default option is not required
+  arity one_or_more          # how many times option can occur
+  short "-f"                 # declares a short flag name
+  long  "--foo list"         # declares a long flag with a required argument
+  convert :int_list          # input can be a list of intengers
+  validate -> { |v| v < 14 } # validation rule
+  desc "Some foo desc"       # description for the usage display
+end
+```
+
+Given command line input:
+
+```bash
+--foo=10,11 -f 12 13
+```
+
+The resulting value will be:
+
+```ruby
+params[:foo] # => [10,11,12,13]
+```
+
+An option  definition can be declared as a hash as well. This is especially useful if you intend to specify options programmatically:
+
+```ruby
+option :foo,
+  required: true,
+  arity: :+,
+  short: "-f",
+  long: "--foo list",
+  convert: :int_list,
+  validate: -> { |v| v < 14 },
+  desc: "Some foo desc"
+```
+
+To read more about available settings see [parameter settings](#25-parameter-settings).
 
 ### 2.4 environment
 
