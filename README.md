@@ -22,10 +22,12 @@
 
 ## Features
 
-* Supports parsing of arguments, keywords, flags, options and environment variables
-* Exposes a powerful DSL or hash-like way to specify various settings
-* Flexible parsing of arguments that can handle lists and maps separated by comma or space characters
-* Has a variety of conversions for basic types like integer and more complex like lists and maps
+* Support for parsing of arguments, keywords, flags, options and environment variables
+* A convenient parsed parameter specification with a fallback to hash-like syntax
+* An easy way to describing usage information sections like banner, examples and more
+* Flexible parsing of arguments that can handle complex inputs like lists and maps
+* Many conversions types from basic integer to more complex hash structures
+* Parsing doesn't raise errors by default and collects issues to provide better user experience
 
 ## Installation
 
