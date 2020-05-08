@@ -50,15 +50,17 @@ Or install it yourself as:
 * [1. Usage](#1-usage)
 * [2. API](#2-api)
   * [2.1 argument](#21-argument)
-  * [2.2 environment](#22-environment)
-  * [2.3 keyword](#23-keyword)
-  * [2.4 option](#24-option)
-  * [2.5 settings](#25-settings)
+  * [2.2 keyword](#22-keyword)
+  * [2.3 option](#23-option)
+  * [2.4 environment](#24-environment)
+  * [2.5 parameter settings](#25-settings)
     * [2.5.1 arity](#251-arity)
     * [2.5.2 convert](#252-convert)
     * [2.5.3 default](#253-default)
     * [2.5.4 permit](#254-permit)
     * [2.5.5 validate](#255-validate)
+  * [2.6 parse](#26-parse)
+  * [2.7 help](#27-help)
 
 ## 1. Usage
 
@@ -205,7 +207,7 @@ You can parse positional arguments with the `argument` method. To declare an arg
 argument :foo
 ```
 
-Then parsing command line:
+Then parsing command line input:
 
 ```
 11 12 13
@@ -232,13 +234,13 @@ end
 
 Parsing the previous input:
 
-```ruby
+```bash
 11 12 13
 ```
 
 Would result in all values being collected and converted to integers:
 
-```
+```ruby
 params[:foo] # => [11,12,13]
 ```
 
@@ -254,10 +256,88 @@ argument :foo,
   desc: "Some foo desc"
 ```
 
+To read more about available setting see [parameter settings](#25-parameter-settings)
+
 ### 2.2 keyword
 
-To parse keyword arguments use the `keyword` method.
+To parse keyword arguments use the `keyword` method. To declare a keyword argument you need to provide a name for the key in the `params` like so:
 
+```ruby
+keyword :foo
+```
+
+By default the keyword parameter name will be used as the keyword name on the command line:
+
+```bash
+foo=11
+```
+
+Parsing the above would result in:
+
+```ruby
+params[:foo] # => "11"
+```
+
+A more involved example to parse multiple keyword arguments requires use of helper methods:
+
+```ruby
+keyword :foo do
+  required                   # by default keywrod is not required
+  arity one_or_more          # how many times to occur
+  convert :int               # values converted to intenger
+  validate -> { |v| v < 14 } # validation rule
+  desc "Some foo desc"       # description for the usage display
+end
+```
+
+Then provided the following command line input:
+
+```bash
+foo=11 foo=12 foo=13
+```
+
+The result would be:
+
+```ruby
+params[:foo] # => [11,12,13]
+```
+
+You can also specify for the keyword argument to accept a list type:
+
+```ruby
+keyword :foo do
+  required                   # by default keyword is not required
+  arity one_or_more          # how many times to occur
+  convert :int_list          # input can be a list of intengers
+  validate -> { |v| v < 14 } # validation rule
+  desc "Some foo desc"       # description for the usage display
+end
+```
+
+Then command line input can contain a list as well:
+
+```bash
+foo=11 12 foo=13
+```
+
+Which will result in the same value:
+
+```ruby
+params[:foo] # => [11,12,13]
+```
+
+A keyword definition can be also a hash. This is especially useful if you intend to specify keyword arguments programmatically:
+
+```ruby
+keyword :foo,
+  required: true,
+  arity: :+,
+  convert: :int_list,
+  validate: -> { |v| v < 14 },
+  desc: "Some foo desc"
+```
+
+To read more about available setting see [parameter settings](#25-parameter-settings)
 
 ### 2.3 option
 
@@ -292,7 +372,7 @@ params[:ssl]
 # => "true"
 ```
 
-### 2.5 settings
+### 2.5 parameter settings
 
 #### 2.5.1 arity
 
