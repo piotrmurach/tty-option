@@ -199,7 +199,70 @@ puts cmd.help
 
 ### 2.1 argument
 
-### 2.2 environment
+You can parse positional arguments with the `argument` method. To declare an argument you need to provide a name for the access key in the `params` like so:
+
+```ruby
+argument :foo
+```
+
+Then parsing command line:
+
+```
+11 12 13
+```
+
+Would result only in one argument parsed and the remaining ignored:
+
+```
+params[:foo] # => "11"
+```
+
+A more involved example to parse multiple positional arguments requires use of helper methods:
+
+```ruby
+argument :foo do
+  required                   # a default
+  variable "foo(int)"        # name for the usage display
+  arity one_or_more          # how many times to occur
+  convert :int               # values converted to intenger
+  validate -> { |v| v < 14 } # validation rule
+  desc "Some foo desc"       # description for the usage display
+end
+```
+
+Parsing the previous input:
+
+```ruby
+11 12 13
+```
+
+Would result in all values being collected and converted to integers:
+
+```
+params[:foo] # => [11,12,13]
+```
+
+The previous argument definition can also be written using hash syntax. This is especially useful if you want to specify arguments programmatically:
+
+```ruby
+argument :foo,
+  required: true,
+  variable: "foo(int)",
+  arity: "+",
+  convert: :int,
+  validate: -> { |v| v < 14 },
+  desc: "Some foo desc"
+```
+
+### 2.2 keyword
+
+To parse keyword arguments use the `keyword` method.
+
+
+### 2.3 option
+
+
+### 2.4 environment
 
 To parse environment variables use `environment` or `env` methods. By default, a parameter name will match a variable with the same name. For example, specifying a variable port:
 
@@ -228,10 +291,6 @@ And then given a `FORCE_SSL=true` on the command line would result in:
 params[:ssl]
 # => "true"
 ```
-
-### 2.3 keyword
-
-### 2.4 option
 
 ### 2.5 settings
 
