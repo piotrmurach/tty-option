@@ -59,7 +59,7 @@ RSpec.describe TTY::Option::Formatter do
         usage do
           program "text"
 
-          action "wrap"
+          command "wrap"
         end
 
         desc "Some long description that explains all the details",
@@ -87,7 +87,7 @@ RSpec.describe TTY::Option::Formatter do
 
     it "formats banner with no arguments and some options" do
       cmd = new_command do
-          no_action
+          no_command
 
           desc "Main description"
 

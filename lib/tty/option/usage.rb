@@ -44,25 +44,25 @@ module TTY
       # Action name for display in help and error messages
       #
       # @api public
-      def action(*values)
+      def command(*values)
         if values.empty?
-          @properties.fetch(:action) { [] }
+          @properties.fetch(:command) { [] }
         else
-          @properties[:action] = []
-          values.each { |val| @properties[:action] << val }
+          @properties[:command] = []
+          values.each { |val| @properties[:command] << val }
         end
       end
-      alias actions action
+      alias commands command
 
-      # Remove default actions
+      # Remove default commands
       #
       # @api public
-      def no_action
-        @properties[:action] = []
+      def no_command
+        @properties[:command] = []
       end
 
-      def action?
-        @properties.key?(:action) && !@properties[:action].empty?
+      def command?
+        @properties.key?(:command) && !@properties[:command].empty?
       end
 
       # Display info before anything else in the usage help

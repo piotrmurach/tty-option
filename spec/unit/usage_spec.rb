@@ -19,40 +19,40 @@ RSpec.describe TTY::Option::Usage do
     end
   end
 
-  context "action" do
-    it "changes action via property" do
-      usage = described_class.new(action: "foo")
-      expect(usage.action).to eq("foo")
+  context "command" do
+    it "changes command via property" do
+      usage = described_class.new(command: "foo")
+      expect(usage.command).to eq("foo")
     end
 
-    it "changes action via method" do
+    it "changes command via method" do
       usage = described_class.new
-      expect(usage.action?).to eq(false)
+      expect(usage.command?).to eq(false)
 
-      usage.action "foo"
+      usage.command "foo"
 
-      expect(usage.action).to eq(["foo"])
-      expect(usage.action?).to eq(true)
+      expect(usage.command).to eq(["foo"])
+      expect(usage.command?).to eq(true)
     end
 
-    it "configures many actions via method" do
+    it "configures many commands via method" do
       usage = described_class.new
-      expect(usage.action?).to eq(false)
+      expect(usage.command?).to eq(false)
 
-      usage.actions "foo", "bar", "baz"
+      usage.commands "foo", "bar", "baz"
 
-      expect(usage.action).to eq(%w[foo bar baz])
-      expect(usage.action?).to eq(true)
+      expect(usage.command).to eq(%w[foo bar baz])
+      expect(usage.command?).to eq(true)
     end
 
-    it "configures no action via method" do
-      usage = described_class.new(action: "foo")
-      expect(usage.action?).to eq(true)
+    it "configures no command via method" do
+      usage = described_class.new(command: "foo")
+      expect(usage.command?).to eq(true)
 
-      usage.no_action
+      usage.no_command
 
-      expect(usage.action).to eq([])
-      expect(usage.action?).to eq(false)
+      expect(usage.command).to eq([])
+      expect(usage.command?).to eq(false)
     end
   end
 
