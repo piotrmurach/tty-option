@@ -434,33 +434,66 @@ To read more about available settings see [parameter settings](#25-parameter-set
 
 ### 2.4 environment
 
-To parse environment variables use `environment` or `env` methods. By default, a parameter name will match a variable with the same name. For example, specifying a variable port:
+To parse environment variables use `environment` or `env` methods.
+
+By default, a parameter name will match a environment variable with the same name. For example, specifying a variable `:foo`:
 
 ```ruby
-env :port
+env :foo
 ```
 
-And then given a `PORT=333` on the command line, the resulting parameter would be:
+And then given the following command line input:
 
 ```
-params[:port]
-# => "333"
+FOO=bar
+```
+
+The resulting parameter would be:
+
+```
+params[:foo] # => "bar"
 ````
 
 To change the variable name to something else use `var` or `variable` helper:
 
 ```ruby
-env :ssl do
-  var "FORCE_SSL"
+env :foo do
+  var "FOO_ENV"
 end
 ```
 
-And then given a `FORCE_SSL=true` on the command line would result in:
+And then given a `FOO_ENV=bar` on the command line would result in:
 
 ```ruby
-params[:ssl]
-# => "true"
+params[:foo] # => "bar"
 ```
+
+A more involved example that parses a list of integer may look like this:
+
+```ruby
+environment :foo do
+  required                   # by default environment is not required
+  arity one_or_more          # how many times env var can occur
+  variable "FOO_ENV"         # the command line input name
+  convert map_of(:int)       # input can be a map of integers
+  validate -> { |v| v < 14 } # validation rule
+  desc "Some foo desc"       # description for the usage display
+end
+```
+
+Given command line input:
+
+```bash
+FOO_ENV=a:1&b:2 FOO_ENV=c=3 d=4
+```
+
+The resulting `params` would be:
+
+```ruby
+params[:foo] # => {a:1,b:2,c:3,d:4}
+```
+
+To read more about available settings see [parameter settings](#25-parameter-settings).
 
 ### 2.5 parameter settings
 
