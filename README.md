@@ -70,41 +70,55 @@ For example, a quick demo to create a command that mixes all parameters usage:
 class Command
   include TTY::Option
 
-  argument :action
+  usage do
+    program "dock"
 
-  argument :image
+    action "run"
+
+    desc "Run a command in a new container"
+
+    example "Set working directory (-w)",
+            "  $ dock run -w /path/to/dir/ ubuntu pwd"
+
+    example <<~EOS
+    Mount volume
+      $ dock run -v `pwd`:`pwd` -w `pwd` ubuntu pwd
+    EOS
+  end
+
+  argument :image do
+    required
+    desc "The name of the image to use"
+  end
 
   keyword :restart do
     default "no"
     permit %w[no on-failure always unless-stopped]
+    desc "Restart policy to apply when a container exits"
   end
 
   flag :detach do
     short "-d"
     long "--detach"
+    desc "Run container in background and print container ID"
   end
 
   option :name do
     required
     long "--name string"
+    desc "Assign a name to the container"
   end
 
   option :port do
+    arity one_or_more
     short "-p"
     long "--publish list"
     convert :list
+    desc "Publish a container's port(s) to the host"
   end
 
-  env :rails_env
-
   def run
-    puts params[:action]
-    puts params[:image]
-    puts params[:detach]
-    puts params[:port]
-    puts params[:restart]
-    puts params[:name]
-    puts params[:rails_env]
+    pp params.to_h
   end
 end
 ```
@@ -118,7 +132,7 @@ cmd = Command.new
 And provided input from the command line:
 
 ```
-RAILS_ENV=production run restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4
+restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4 bash
 ```
 
 Start parsing from `ARGV` or provide a custom array of inputs:
@@ -126,7 +140,7 @@ Start parsing from `ARGV` or provide a custom array of inputs:
 ```ruby
 cmd.parse
 # or
-cmd.parse(["RAILS_ENV=production", "run", "restart=always", "-d", ...])
+cmd.parse(%w[restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4 bash])
 ```
 
 And run the command to see the values:
@@ -134,19 +148,49 @@ And run the command to see the values:
 ```ruby
 cmd.run
 # =>
-#  "run"
-#  "ubuntu:16.4"
-#  true
-#  ["5000:3000", "5001:8080"]
-#  "always"
-#  "web"
-#  "production"
+# {:detach=>true,
+#  :port=>["5000:3000", "5001:8080"],
+#  :name=>"web",
+#  :restart=>"always",
+#  :image=>"ubuntu:16.4",
+#  :command=>"bash"}
 ````
 
-The `cmd` object also has a direct access to all the parameters via `params`:
+The `cmd` object also has a direct access to all the parameters via the `params`:
 
 ```ruby
-cmd.params[:name] # => "web"
+cmd.params[:name]     # => "web"
+cmd.params["command"] # => "bash
+````
+
+To print help information to the terminal use `help` method:
+
+```
+puts cmd.help
+# =>
+# Usage: dock run [OPTIONS] IMAGE [COMMAND] [RESTART=RESTART]
+#
+# Run a command in a new container
+#
+# Arguments:
+#   command  The command to run inside the image
+#   image    The name of the image to use
+#
+# Keywords:
+#   restart=restart  Restart policy to apply when a container exits (permitted:
+#                    no, on-failure, always, unless-stopped) (default "no")
+#
+# Options:
+#   -d, --detach         Run container in background and print container ID
+#       --name string    Assign a name to the container
+#   -p, --publish list   Publish a container's port(s) to the host
+#
+# Examples:
+#   Set working directory (-w)
+#     $ dock run -w /path/to/dir/ ubuntu pwd
+#
+#   Mount volume
+#     $ dock run -v `pwd`:`pwd` -w `pwd` ubuntu pwd
 ````
 
 ## 2. API
