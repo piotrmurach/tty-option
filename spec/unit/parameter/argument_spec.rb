@@ -49,8 +49,26 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect(arg.multiple?).to eq(true)
     end
 
+    it "accepts zero or more arity" do
+      arg = described_class.new(:foo) do
+        arity zero_or_more
+      end
+      expect(arg.arity).to eq(-1)
+      expect(arg.min_arity).to eq(0)
+      expect(arg.multiple?).to eq(true)
+    end
+
+    it "accepts + as one or more arity" do
+      arg = described_class.new(:foo, arity: "+")
+      expect(arg.arity).to eq(-2)
+      expect(arg.min_arity).to eq(1)
+      expect(arg.multiple?).to eq(true)
+    end
+
     it "accepts one or more arity" do
-      arg = described_class.new(:foo, arity: -2)
+      arg = described_class.new(:foo) do
+        arity one_or_more
+      end
       expect(arg.arity).to eq(-2)
       expect(arg.min_arity).to eq(1)
       expect(arg.multiple?).to eq(true)

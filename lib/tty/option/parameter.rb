@@ -236,10 +236,11 @@ module TTY
                 "#{to_sym} #{name.inspect} expects an integer value for arity"
         end
 
-        if value.to_s =~ %r{\*|any}
-          value = -1
+        case value.to_s
+        when %r{\*|any} then value = -1
+        when %r{\+}     then value = -2
+        else value = value.to_i
         end
-        value = value.to_i
 
         if value.zero?
           raise InvalidArity, "#{to_sym} #{name.inspect} arity cannot be zero"
