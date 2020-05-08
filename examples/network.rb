@@ -9,7 +9,7 @@ module Network
     usage do
       header "CLI app v1.2.3"
 
-      action "create"
+      command "create"
 
       desc "Create a network"
 
