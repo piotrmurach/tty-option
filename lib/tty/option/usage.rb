@@ -21,7 +21,7 @@ module TTY
           case key.to_sym
           when :desc, :description
             key, val = :desc, [Array(val)]
-          when :header
+          when :header, :footer
             val = [Array(val)]
           when :example, :examples
             key, val = :example, [Array(val)]
@@ -134,16 +134,16 @@ module TTY
       # Display info after everyting else in the usage help
       #
       # @api public
-      def footer(value = (not_set = true))
-        if not_set
-          @properties[:footer]
+      def footer(*values)
+        if values.empty?
+          @properties.fetch(:footer) { [] }
         else
-          @properties[:footer] = value
+          (@properties[:footer] ||= []) << values
         end
       end
 
       def footer?
-        @properties.key?(:footer) && !@properties[:footer].nil?
+        @properties.key?(:footer) && !@properties[:footer].empty?
       end
 
       # Return a hash of this usage properties

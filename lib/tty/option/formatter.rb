@@ -95,7 +95,7 @@ module TTY
         end
 
         if @usage.footer?
-          output << NEWLINE + @usage.footer
+          output << NEWLINE + format_multiline(@usage.footer, 0)
         end
 
         formatted = output.join(NEWLINE)

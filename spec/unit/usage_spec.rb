@@ -185,17 +185,28 @@ RSpec.describe TTY::Option::Usage do
 
   context "footer" do
     it "changes footer via property" do
-      usage = described_class.new(footer: "foo")
-      expect(usage.footer).to eq("foo")
+      usage = described_class.new(footer: "Some footer")
+      expect(usage.footer).to eq([["Some footer"]])
     end
 
-    it "changes footer via method" do
+    it "adds multiline footer via method" do
       usage = described_class.new
       expect(usage.footer?).to eq(false)
 
-      usage.footer("foo")
+      usage.footer "First line", "Second line"
 
-      expect(usage.footer).to eq("foo")
+      expect(usage.footer).to eq([["First line", "Second line"]])
+      expect(usage.footer?).to eq(true)
+    end
+
+    it "adds footer multiple times via method" do
+      usage = described_class.new
+      expect(usage.footer?).to eq(false)
+
+      usage.footer "First footer para"
+      usage.footer "Second footer para"
+
+      expect(usage.footer).to eq([["First footer para"], ["Second footer para"]])
       expect(usage.footer?).to eq(true)
     end
   end
@@ -213,7 +224,7 @@ RSpec.describe TTY::Option::Usage do
       expect(usage.to_h).to eq({
         desc: [["Description"]],
         example: [["Example"]],
-        footer: "Footer",
+        footer: [["Footer"]],
         header: [["Header"]],
         program: "Program"
       })
@@ -233,7 +244,7 @@ RSpec.describe TTY::Option::Usage do
       expect(transformed).to eq({
         "desc" => [["Description"]],
         "example" => [["Example"]],
-        "footer" => "Footer",
+        "footer" => [["Footer"]],
         "header" => [["Header"]],
         "program" => "Program"
       })
