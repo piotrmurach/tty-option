@@ -159,6 +159,7 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         argument :qux do
+          optional
           var "qux-long-name"
           desc "Some description that\nbreaks into multiline\n on newlines"
           default "some long default on many lines"
@@ -823,7 +824,7 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo command [OPTIONS] [ENVIRONMENT] [Z] [D] [F] [ZZ=ZZ] [DD=DD] [FF=FF]
+      Usage: foo command [OPTIONS] [ENVIRONMENT] Z D F [ZZ=ZZ] [DD=DD] [FF=FF]
 
       Arguments:
         z  Some argument description

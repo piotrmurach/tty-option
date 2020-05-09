@@ -57,7 +57,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
   it "accepts optional argument" do
     args = []
     args << arg(:foo, optional: true)
-    args << arg(:bar)
+    args << arg(:bar, optional: true)
     params, rest = parse(%w[], args)
 
     expect(params[:foo]).to eq(nil)

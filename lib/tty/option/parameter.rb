@@ -30,6 +30,8 @@ module TTY
           case key.to_sym
           when :arity
             val = check_arity(val)
+          when :optional
+            key, val = :required, !val
           when :permit
             val = check_permitted(val)
           when :validate
