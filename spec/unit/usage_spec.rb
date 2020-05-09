@@ -57,18 +57,29 @@ RSpec.describe TTY::Option::Usage do
   end
 
   context "header" do
-    it "changes header via property" do
-      usage = described_class.new(header: "foo")
-      expect(usage.header).to eq("foo")
+    it "adds multiline header via property" do
+      usage = described_class.new(header: "Some header")
+      expect(usage.header).to eq([["Some header"]])
     end
 
-    it "changes header via method" do
+    it "adds multiple header lines via method" do
       usage = described_class.new
       expect(usage.header?).to eq(false)
 
-      usage.header("foo")
+      usage.header "First line", "Second line"
 
-      expect(usage.header).to eq("foo")
+      expect(usage.header).to eq([["First line", "Second line"]])
+      expect(usage.header?).to eq(true)
+    end
+
+    it "adds multiple headers via method" do
+      usage = described_class.new
+      expect(usage.header?).to eq(false)
+
+      usage.header "First header para"
+      usage.header "Second header para"
+
+      expect(usage.header).to eq([["First header para"], ["Second header para"]])
       expect(usage.header?).to eq(true)
     end
   end
@@ -203,7 +214,7 @@ RSpec.describe TTY::Option::Usage do
         desc: [["Description"]],
         example: [["Example"]],
         footer: "Footer",
-        header: "Header",
+        header: [["Header"]],
         program: "Program"
       })
     end
@@ -223,7 +234,7 @@ RSpec.describe TTY::Option::Usage do
         "desc" => [["Description"]],
         "example" => [["Example"]],
         "footer" => "Footer",
-        "header" => "Header",
+        "header" => [["Header"]],
         "program" => "Program"
       })
     end

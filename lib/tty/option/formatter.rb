@@ -58,7 +58,9 @@ module TTY
       def help
         output = []
 
-        output << @usage.header + NEWLINE if @usage.header?
+        if @usage.header?
+          output << format_multiline(@usage.header, 0) + NEWLINE
+        end
 
         output << (@usage.banner? ? @usage.banner : format_usage)
 

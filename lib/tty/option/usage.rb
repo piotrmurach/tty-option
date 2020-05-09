@@ -21,6 +21,8 @@ module TTY
           case key.to_sym
           when :desc, :description
             key, val = :desc, [Array(val)]
+          when :header
+            val = [Array(val)]
           when :example, :examples
             key, val = :example, [Array(val)]
           end
@@ -68,16 +70,16 @@ module TTY
       # Display info before anything else in the usage help
       #
       # @api public
-      def header(value = (not_set = true))
-        if not_set
-          @properties[:header]
+      def header(*values)
+        if values.empty?
+          @properties.fetch(:header) { [] }
         else
-          @properties[:header] = value
+          (@properties[:header] ||= []) << values
         end
       end
 
       def header?
-        @properties.key?(:header) && !@properties[:header].nil?
+        @properties.key?(:header) && !@properties[:header].empty?
       end
 
       # Main way to show how all parameters can be used
