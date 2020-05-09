@@ -54,7 +54,7 @@ Or install it yourself as:
   * [2.2 keyword](#22-keyword)
   * [2.3 option](#23-option)
   * [2.4 environment](#24-environment)
-  * [2.5 parameter settings](#25-settings)
+  * [2.5 parameter settings](#25-parameter-settings)
     * [2.5.1 arity](#251-arity)
     * [2.5.2 convert](#252-convert)
     * [2.5.3 default](#253-default)
@@ -62,12 +62,13 @@ Or install it yourself as:
     * [2.5.5 validate](#255-validate)
   * [2.6 parse](#26-parse)
   * [2.7 usage](#27-usage)
-    * [2.7.1 command](#271-command)
-    * [2.7.2 description](#272-description)
-    * [2.7.3 example](#273-description)
-    * [2.7.4 footer](#274-description)
-    * [2.7.5 header](#275-description)
-    * [2.7.6 program](#276-program)
+    * [2.7.1 header](#271-header)
+    * [2.7.2 program](#272-program)
+    * [2.7.3 command](#273-command)
+    * [2.7.4 banner](#274-banner)
+    * [2.7.5 description](#275-description)
+    * [2.7.6 example](#276-example)
+    * [2.7.7 footer](#277-footer)
   * [2.7 help](#27-help)
 
 ## 1. Usage
@@ -735,7 +736,59 @@ foo=11 foo=13
 
 ## 2.7 usage
 
-### 2.7.1 command
+The `usage` and its helper methods allow you to configure the `help` display to your liking. The `header`, `desc(ription)`, `example` and `footer` can be called many times. Each new call will create a new paragraph. If you wish to insert multiple lines inside a given paragraph separate arguments with a comma.
+
+### 2.7.1 header
+
+To provide information above the banner use the `header` helper.
+
+
+```ruby
+class Command
+  include TTY::Option
+
+  usage do
+    header "A command-line interface for foo service"
+  end
+end
+```
+
+Further, you can add more paragraphs as comma-separated arguments to `header` with an empty string to represent a new line:
+
+```ruby
+usage do
+  header "A command-line interface for foo service", "",
+         "Access and retrieve data from foo service"
+end
+```
+
+Alternatively, you can add paragraphs calling `header` multiple times:
+
+```ruby
+usage do
+  header "A command-line interface for foo service"
+
+  header "Access and retrieve data from foo service"
+end
+```
+
+### 2.7.2 program
+
+By default the program name is inferred for you from the executable file name.
+
+You can override the default name using the `program` helper.
+
+```ruby
+class NetworkCreate
+  include TTY::Option
+
+  usage do
+    program "custom-name"
+  end
+end
+````
+
+### 2.7.3 command
 
 By default the command name is inferred from the class name.
 
@@ -777,9 +830,14 @@ class NetworkCreate
 end
 ````
 
-### 2.7.2 description
+### 2.7.4 banner
 
-### 2.7.3 example
+```ruby
+```
+
+### 2.7.5 desc(ription)
+
+### 2.7.6 example(s)
 
 To add usage examples section to the help information use the `example` or `examples` methods.
 
@@ -829,25 +887,8 @@ The usage help will contain the following:
 #     $ foo baz
 ```
 
-### 2.7.4 footer
+### 2.7.7 footer
 
-### 2.7.5 header
-
-### 2.7.6 program
-
-By default the program name is inferred for you from the executable file name.
-
-You can override the default name using the `program` helper.
-
-```ruby
-class NetworkCreate
-  include TTY::Option
-
-  usage do
-    program "custom-name"
-  end
-end
-````
 
 ## Development
 
