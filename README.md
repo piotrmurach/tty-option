@@ -67,7 +67,7 @@ Or install it yourself as:
     * [2.7.3 command](#273-command)
     * [2.7.4 banner](#274-banner)
     * [2.7.5 description](#275-description)
-    * [2.7.6 example](#276-example)
+    * [2.7.6 example](#276-examples)
     * [2.7.7 footer](#277-footer)
   * [2.7 help](#27-help)
 
@@ -740,16 +740,11 @@ The `usage` and its helper methods allow you to configure the `help` display to 
 
 ### 2.7.1 header
 
-To provide information above the banner use the `header` helper.
-
+To provide information above the banner explaining how to execute a program, use the `header` helper.
 
 ```ruby
-class Command
-  include TTY::Option
-
-  usage do
-    header "A command-line interface for foo service"
-  end
+usage do
+  header "A command-line interface for foo service"
 end
 ```
 
@@ -757,7 +752,8 @@ Further, you can add more paragraphs as comma-separated arguments to `header` wi
 
 ```ruby
 usage do
-  header "A command-line interface for foo service", "",
+  header "A command-line interface for foo service",
+         "",
          "Access and retrieve data from foo service"
 end
 ```
@@ -779,14 +775,16 @@ By default the program name is inferred for you from the executable file name.
 You can override the default name using the `program` helper.
 
 ```ruby
-class NetworkCreate
-  include TTY::Option
-
-  usage do
-    program "custom-name"
-  end
+usage do
+  program "custom-name"
 end
 ````
+
+Then the program name will be used in the banner:
+
+```bash
+Usage: custom-name
+```
 
 ### 2.7.3 command
 
@@ -889,6 +887,33 @@ The usage help will contain the following:
 
 ### 2.7.7 footer
 
+To provide information after all information in the usage help, use the `footer` helper.
+
+```ruby
+usage do
+  footer "Run a command followed by --help to see more info"
+end
+```
+
+Further, you can add more paragraphs as comma-separated arguments to `footer` with an empty string to represent a new line:
+
+```ruby
+usage do
+  footer "Run a command followed by --help to see more info",
+         "",
+         "Options marked with (...) can be given more than once"
+end
+```
+
+Alternatively, you can add paragraphs calling `footer` multiple times:
+
+```ruby
+usage do
+  footer "Run a command followed by --help to see more info"
+
+  footer "Options marked with (...) can be given more than once"
+end
+```
 
 ## Development
 
