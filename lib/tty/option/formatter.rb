@@ -338,9 +338,9 @@ module TTY
         indent += longest_length
 
         if option.desc?
-          desc << "   #{option.desc}"
+          desc << "  #{option.desc}"
         end
-        indent += 3
+        indent += 2
 
         if option.permit?
           desc << format(" (permitted: %s)", option.permit.join(","))

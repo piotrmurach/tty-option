@@ -102,7 +102,7 @@ RSpec.describe TTY::Option::Formatter do
       Main description
 
       Options:
-        --foo   Some description
+        --foo  Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -136,7 +136,7 @@ RSpec.describe TTY::Option::Formatter do
         foo  Foo arg description (permitted: 10, 11, 12)
 
       Options:
-        --baz   Some description
+        --baz  Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -400,7 +400,7 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo command [OPTIONS] FUM BAR=URI [BAZ=BAZ]
 
       Options:
-        --qux   Some description
+        --qux  Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -434,7 +434,7 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo command [<options>] [<environment>] <fum> <bar>=<uri> [<baz>=<baz>]
 
       Options:
-        --qux   Some description
+        --qux  Some description
 
       Environment:
         QUUX  Some description
@@ -490,12 +490,12 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        -b, --bar string      Some description (default "baz")
+        -b, --bar string     Some description (default "baz")
             --baz
-        -f, --foo string      Some description (permitted: a,b,c,d)
-            --fum             Some description
-            --qux-long ints   Some description (default [1, 2, 3])
-        -c                    Some description
+        -f, --foo string     Some description (permitted: a,b,c,d)
+            --fum            Some description
+            --qux-long ints  Some description (default [1, 2, 3])
+        -c                   Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -519,8 +519,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        --bar string   Some description (default "baz")
-        --foo string   Some description
+        --bar string  Some description (default "baz")
+        --foo string  Some description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -554,18 +554,18 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        -b, --bar-super-long-option-name string   Some description that goes on and
-                                                  on and never finishes explaining
-                                                  (default
-                                                  "default-is-way-too-long-as-well")
-        -f, --foo-long-option-name string         Some multiline
-                                                  description with newlines
-        -q, --qux-long-name string                Some description that
-                                                  breaks into multiline
-                                                  on newlines (permitted:
-                                                  one,two,three,four,five,six)
-                                                  (default "some long default on many
-                                                  lines")
+        -b, --bar-super-long-option-name string  Some description that goes on and
+                                                 on and never finishes explaining
+                                                 (default
+                                                 "default-is-way-too-long-as-well")
+        -f, --foo-long-option-name string        Some multiline
+                                                 description with newlines
+        -q, --qux-long-name string               Some description that
+                                                 breaks into multiline
+                                                 on newlines (permitted:
+                                                 one,two,three,four,five,six)
+                                                 (default "some long default on many
+                                                 lines")
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -611,7 +611,7 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS] [ENVIRONMENT]
 
       Options:
-        -f, --foo string   Some description
+        -f, --foo string  Some description
 
       Environment:
         A_VAR        Some description
@@ -673,7 +673,7 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo command [OPTIONS] [ENVIRONMENT]
 
       Options:
-        --bar   Some description
+        --bar  Some description
 
       Environment:
         BAZ  Some description
@@ -721,7 +721,7 @@ RSpec.describe TTY::Option::Formatter do
         baz=baz  Some keyword description
 
       Options:
-        --qux   Some option description
+        --qux  Some option description
 
       Environment:
         FUM  Some env description
@@ -778,7 +778,7 @@ RSpec.describe TTY::Option::Formatter do
         baz=baz  Some keyword description
 
       Options:
-        --qux   Some option description
+        --qux  Some option description
 
       Environment:
         FUM  Some env description
@@ -870,7 +870,7 @@ RSpec.describe TTY::Option::Formatter do
         [:description, ["\nSome foo app description"]],
         [:arguments, ["\nArguments:\n  bar  Some argument description"]],
         [:keywords, ["\nKeywords:\n  baz=baz  Some keyword description"]],
-        [:options, ["\nOptions:\n  --qux   Some option description"]],
+        [:options, ["\nOptions:\n  --qux  Some option description"]],
         [:environments, ["\nEnvironment:\n  FUM  Some env description"]],
         [:examples, ["\nExamples:\n  Some example\n  on multiline"]],
         [:footer, ["\nRun --help to see more info."]]
