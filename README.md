@@ -86,7 +86,7 @@ class Command
   usage do
     program "dock"
 
-    action "run"
+    command "run"
 
     desc "Run a command in a new container"
 
@@ -459,7 +459,7 @@ FOO=bar
 
 The resulting parameter would be:
 
-```
+```ruby
 params[:foo] # => "bar"
 ````
 
@@ -505,6 +505,8 @@ params[:foo] # => {a:1,b:2,c:3,d:4}
 To read more about available settings see [parameter settings](#25-parameter-settings).
 
 ### 2.5 parameter settings
+
+These settings are supported by all parameter types with the exception of `short` and `long` which are specific to options only.
 
 #### 2.5.1 arity
 
@@ -819,12 +821,8 @@ Usage: program network create
 If you don't wish to infer the command name use the `no_command` method:
 
 ```ruby
-class NetworkCreate
-  include TTY::Option
-
-  usage do
-    no_command
-  end
+usage do
+  no_command
 end
 ````
 
