@@ -858,23 +858,63 @@ RSpec.describe TTY::Option::Formatter do
         env :fum, desc: "Some env description"
       end
 
-      sections = []
+      sections_help = nil
 
-      cmd.help do |section, content|
-        sections << [section, content]
+      cmd.help do |sections|
+        sections_help = sections
       end
 
-      expect(sections).to eq([
-        [:header, ["CLI foo app\n"]],
-        [:banner, ["Usage: foo command [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]"]],
-        [:description, ["\nSome foo app description"]],
-        [:arguments, ["\nArguments:\n  bar  Some argument description"]],
-        [:keywords, ["\nKeywords:\n  baz=baz  Some keyword description"]],
-        [:options, ["\nOptions:\n  --qux  Some option description"]],
-        [:environments, ["\nEnvironment:\n  FUM  Some env description"]],
-        [:examples, ["\nExamples:\n  Some example\n  on multiline"]],
-        [:footer, ["\nRun --help to see more info."]]
+      expect(sections_help.to_a.map(&:to_a)).to eq([
+        [:header, "CLI foo app\n"],
+        [:banner, "Usage: foo command [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]"],
+        [:description, "\nSome foo app description"],
+        [:arguments, "\nArguments:\n  bar  Some argument description"],
+        [:keywords, "\nKeywords:\n  baz=baz  Some keyword description"],
+        [:options, "\nOptions:\n  --qux  Some option description"],
+        [:environments, "\nEnvironment:\n  FUM  Some env description"],
+        [:examples, "\nExamples:\n  Some example\n  on multiline"],
+        [:footer, "\nRun --help to see more info."]
       ])
+    end
+
+    it "modifies help sections before return" do
+      cmd = new_command do
+        usage program: "foo",
+              header: "CLI foo app",
+              description: "Some foo app description",
+              example: ["Some example", "on multiline"],
+              footer: "Run --help to see more info."
+
+        argument :bar, required: true, desc: "Some argument description"
+      end
+
+      output = cmd.help do |sections|
+        sections.delete :header
+
+        sections.add_after :arguments,
+          :commands, "\nCommands:\n  create  A command description"
+
+        sections.replace :footer, "\nGoodbye"
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo command BAR
+
+      Some foo app description
+
+      Arguments:
+        bar  Some argument description
+
+      Commands:
+        create  A command description
+
+      Examples:
+        Some example
+        on multiline
+
+      Goodbye
+      EOS
+      expect(output).to eq(expected_output)
     end
   end
 end

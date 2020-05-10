@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../lib/tty/option/sections"
-
 RSpec.describe TTY::Option::Sections do
   it "adds a section with content" do
     sections = described_class.new

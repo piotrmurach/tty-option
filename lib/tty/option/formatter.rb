@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "sections"
 require_relative "usage_wrapper"
 
 module TTY
@@ -56,46 +57,36 @@ module TTY
       #
       # @api public
       def help(&block)
-        sections = {
-          header: [],
-          banner: [],
-          description: [],
-          arguments: [],
-          keywords: [],
-          options: [],
-          environments: [],
-          examples: [],
-          footer: []
-        }
+        sections = Sections.new
 
-        sections[:header] << help_header if @usage.header?
-        sections[:banner] << help_banner
-        sections[:description] << help_description if @usage.desc?
+        sections.add(:header, help_header) if @usage.header?
+        sections.add(:banner, help_banner)
+        sections.add(:description, help_description) if @usage.desc?
 
         if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
-          sections[:arguments] << help_arguments
+          sections.add(:arguments, help_arguments)
         end
 
         if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
-          sections[:keywords] << help_keywords
+          sections.add(:keywords, help_keywords)
         end
 
         if @parameters.options?
-          sections[:options] << help_options
+          sections.add(:options, help_options)
         end
 
         if @parameters.environments?
-          sections[:environments] << help_environments
+          sections.add(:environments, help_environments)
         end
 
-        sections[:examples] << help_examples if @usage.example?
-        sections[:footer] << help_footer if @usage.footer?
+        sections.add(:examples, help_examples) if @usage.example?
+        sections.add(:footer, help_footer) if @usage.footer?
 
         if block_given?
-          sections.each(&block)
+          yield(sections)
         end
 
-        formatted = sections.values.reject(&:empty?).join(NEWLINE)
+        formatted = sections.reject(&:empty?).join(NEWLINE)
         formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
       end
 
