@@ -25,9 +25,7 @@ RSpec.describe TTY::Option::Formatter do
     it "formats banner with a single argument, description and no options" do
       func = method(:unindent)
       cmd = new_command do
-        argument :foo do
-          required
-        end
+        argument :foo
 
         argument :bar do
           hidden
@@ -111,7 +109,6 @@ RSpec.describe TTY::Option::Formatter do
     it "formats banner with required & optional arguments and options" do
       cmd = new_command do
         argument :foo do
-          required
           arity 2
           desc "Foo arg description"
           permit [10, 11, 12]
@@ -145,7 +142,6 @@ RSpec.describe TTY::Option::Formatter do
     it "wraps long arguments and descriptions to fit the width" do
       cmd = new_command do
         argument :foo do
-          required
           var "foo-long-argument-name"
           arity 2
           desc "Some multiline\n description with newlines"
@@ -223,7 +219,6 @@ RSpec.describe TTY::Option::Formatter do
       cmd = new_command do
         argument :foo do
           variable "foo-bar"
-          required
           arity 2
           desc "Foo arg description"
         end
@@ -387,9 +382,7 @@ RSpec.describe TTY::Option::Formatter do
 
         keyword :baz
 
-        argument :fum do
-          required
-        end
+        argument :fum
 
         option :qux do
           desc "Some description"
@@ -417,9 +410,7 @@ RSpec.describe TTY::Option::Formatter do
 
         keyword :baz
 
-        argument :fum do
-          required
-        end
+        argument :fum
 
         option :qux do
           desc "Some description"

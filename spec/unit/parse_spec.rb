@@ -23,11 +23,9 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq("bar")
     end
 
-    it "marks argument to be required" do
+    it "marks argument to be required by default" do
       cmd = new_command do
-        argument :foo do
-          required
-        end
+        argument :foo
       end
 
       cmd.parse([], raise_on_parsing_error: false)
@@ -697,7 +695,7 @@ RSpec.describe TTY::Option do
 
     it "collects errors from different parsers" do
       cmd = new_command do
-        argument(:foo) { required }
+        argument(:foo)
 
         keyword(:bar) { required }
 
