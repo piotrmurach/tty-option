@@ -69,7 +69,10 @@ Or install it yourself as:
     * [2.7.5 description](#275-description)
     * [2.7.6 example](#276-examples)
     * [2.7.7 footer](#277-footer)
-  * [2.7 help](#27-help)
+  * [2.8 help](#28-help)
+    * [2.8.1 :order](#281-order)
+    * [2.8.2 :param_display](#282-param-display)
+    * [2.8.3 :width](#283-width)
 
 ## 1. Usage
 
@@ -911,6 +914,65 @@ usage do
 
   footer "Options marked with (...) can be given more than once"
 end
+```
+
+## 2.8 help
+
+### 2.8.1 :order
+
+All parameters are alphabetically ordered in their respective sections. To change this default behaviour use the `:order` keyword when invoking `help`.
+
+The `:order` expects a `Proc` object. For example, to remove any ordering and preserve the parameter declaration order do:
+
+```ruby
+help(order: ->(params) { params })
+````
+
+### 2.8.2 :param_display
+
+By default banner positional and keyword arguments are displayed with all letters uppercased.
+
+For example, given the following parameter declarations:
+
+```ruby
+program "run"
+
+argument :foo
+
+keyword :bar do
+  required
+  convert :uri
+end
+
+option :baz
+```
+
+The banner output would be as follows:
+
+```bash
+Usage: run [OPTIONS] FOO BAR=URI
+```
+
+To change the banner parameter display use `:param_display` keyword.
+
+For example, to lowercase and surround your parameters with `< >` brackets do:
+
+```ruby
+help(param_display: ->(str) { "<#{str.downcase}>" })
+```
+
+```bash
+Usage: run [<options>] <foo> <bar>=<uri>
+```
+
+### 2.8.3 :width
+
+By default the help information is wrapped at `80` columns. If this is not what you want you can change it with `:width` keyword.
+
+For example, to change the help to always take up all the terminal columns consider using [tty-screen](https://github.com/piotrmurach/tty-screen):
+
+```ruby
+help(width: TTY::Screen.width)
 ```
 
 ## Development
