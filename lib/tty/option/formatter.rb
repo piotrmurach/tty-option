@@ -19,8 +19,8 @@ module TTY
       DEFAULT_NAME_SELECTOR = ->(param) { param.variable }
 
       # @api public
-      def self.help(parameters, usage, **config)
-        new(parameters, usage, **config).help
+      def self.help(parameters, usage, **config, &block)
+        new(parameters, usage, **config).help(&block)
       end
 
       attr_reader :indentation
@@ -40,7 +40,7 @@ module TTY
         @width = config.fetch(:width) { DEFAULT_WIDTH }
         @indent = 2
         @indentation = " " * 2
-        @sections = {
+        @section_names = {
           usage: "Usage:",
           arguments: "Arguments:",
           keywords: "Keywords:",
@@ -55,51 +55,86 @@ module TTY
       # @return [String]
       #
       # @api public
-      def help
-        output = []
+      def help(&block)
+        sections = {
+          header: [],
+          banner: [],
+          description: [],
+          arguments: [],
+          keywords: [],
+          options: [],
+          environments: [],
+          examples: [],
+          footer: []
+        }
 
-        if @usage.header?
-          output << format_multiline(@usage.header, 0) + NEWLINE
-        end
-
-        output << (@usage.banner? ? @usage.banner : format_usage)
-
-        if @usage.desc?
-          output << NEWLINE + format_description
-        end
+        sections[:header] << help_header if @usage.header?
+        sections[:banner] << help_banner
+        sections[:description] << help_description if @usage.desc?
 
         if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
-          output << NEWLINE + @sections[:arguments]
-          output << format_section(:arguments)
+          sections[:arguments] << help_arguments
         end
 
         if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
-          output << NEWLINE + @sections[:keywords]
-          output << format_section(:keywords,
-                                   ->(param) { kwarg_param_display(param) })
+          sections[:keywords] << help_keywords
         end
 
         if @parameters.options?
-          output << NEWLINE + @sections[:options]
-          output << format_options
+          sections[:options] << help_options
         end
 
         if @parameters.environments?
-          output << NEWLINE + @sections[:env]
-          output << format_section(:environments)
+          sections[:environments] << help_environments
         end
 
-        if @usage.example?
-          output << NEWLINE + @sections[:examples]
-          output << format_examples
+        sections[:examples] << help_examples if @usage.example?
+        sections[:footer] << help_footer if @usage.footer?
+
+        if block_given?
+          sections.each(&block)
         end
 
-        if @usage.footer?
-          output << NEWLINE + format_multiline(@usage.footer, 0)
-        end
-
-        formatted = output.join(NEWLINE)
+        formatted = sections.values.reject(&:empty?).join(NEWLINE)
         formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
+      end
+
+      def help_header
+        format_multiline(@usage.header, 0) + NEWLINE
+      end
+
+      def help_banner
+        (@usage.banner? ? @usage.banner : format_usage)
+      end
+
+      def help_description
+        NEWLINE + format_description
+      end
+
+      def help_arguments
+        NEWLINE + @section_names[:arguments] +
+          NEWLINE + format_section(:arguments)
+      end
+
+      def help_keywords
+        NEWLINE + @section_names[:keywords] + NEWLINE +
+          format_section(:keywords, ->(param) { kwarg_param_display(param) })
+      end
+
+      def help_options
+        NEWLINE + @section_names[:options] + NEWLINE + format_options
+      end
+
+      def help_environments
+        NEWLINE + @section_names[:env] + NEWLINE + format_section(:environments)
+      end
+
+      def help_examples
+        NEWLINE + @section_names[:examples] + NEWLINE + format_examples
+      end
+
+      def help_footer
+        NEWLINE + format_multiline(@usage.footer, 0)
       end
 
       private
@@ -108,7 +143,7 @@ module TTY
       #
       # @api private
       def format_usage
-        usage = @sections[:usage] + SPACE
+        usage = @section_names[:usage] + SPACE
         output = []
         output << @usage.program
         output << " #{@usage.commands.join(" ")}" if @usage.command?

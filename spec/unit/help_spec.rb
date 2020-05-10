@@ -698,22 +698,13 @@ RSpec.describe TTY::Option::Formatter do
               example: ["Some example", "on multiline"],
               footer: "Run --help to see more info."
 
-        argument :bar do
-          required
-          desc "Some argument description"
-        end
+        argument :bar, required: true, desc: "Some argument description"
 
-        keyword :baz do
-          desc "Some keyword description"
-        end
+        keyword :baz, desc: "Some keyword description"
 
-        flag :qux do
-          desc "Some option description"
-        end
+        flag :qux, desc: "Some option description"
 
-        env :fum do
-          desc "Some env description"
-        end
+        env :fum, desc: "Some env description"
       end
 
       expected_output = unindent(<<-EOS)
@@ -848,6 +839,42 @@ RSpec.describe TTY::Option::Formatter do
       EOS
 
       expect(cmd.help(order: ->(params) { params })).to eq(expected_output)
+    end
+
+    it "enumerates help content and yields to a block" do
+      cmd = new_command do
+        usage program: "foo",
+              header: "CLI foo app",
+              description: "Some foo app description",
+              example: ["Some example", "on multiline"],
+              footer: "Run --help to see more info."
+
+        argument :bar, required: true, desc: "Some argument description"
+
+        keyword :baz, desc: "Some keyword description"
+
+        flag :qux, desc: "Some option description"
+
+        env :fum, desc: "Some env description"
+      end
+
+      sections = []
+
+      cmd.help do |section, content|
+        sections << [section, content]
+      end
+
+      expect(sections).to eq([
+        [:header, ["CLI foo app\n"]],
+        [:banner, ["Usage: foo command [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]"]],
+        [:description, ["\nSome foo app description"]],
+        [:arguments, ["\nArguments:\n  bar  Some argument description"]],
+        [:keywords, ["\nKeywords:\n  baz=baz  Some keyword description"]],
+        [:options, ["\nOptions:\n  --qux   Some option description"]],
+        [:environments, ["\nEnvironment:\n  FUM  Some env description"]],
+        [:examples, ["\nExamples:\n  Some example\n  on multiline"]],
+        [:footer, ["\nRun --help to see more info."]]
+      ])
     end
   end
 end

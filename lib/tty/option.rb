@@ -72,8 +72,8 @@ module TTY
       # @return [String]
       #
       # @api public
-      def help(**config)
-        Formatter.help(self.class.parameters, self.class.usage, **config)
+      def help(**config, &block)
+        Formatter.help(self.class.parameters, self.class.usage, **config, &block)
       end
     end
   end # Option
