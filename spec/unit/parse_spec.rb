@@ -728,6 +728,33 @@ RSpec.describe TTY::Option do
     end
   end
 
+  context "when help" do
+    it "parses help when parsing errors are not raised" do
+      cmd = new_command do
+        argument :foo
+
+        flag :help do
+          short "-h"
+          long "--help"
+        end
+
+        option :bar do
+          required
+          short "-b"
+          long "--bar string"
+        end
+      end
+
+      cmd.parse(%w[a --help], raise_on_parsing_error: false)
+
+      expect(cmd.params[:foo]).to eq("a")
+      expect(cmd.params[:bar]).to eq(nil)
+      expect(cmd.params[:help]).to eq(true)
+      expect(cmd.errors[:bar]).to eq({missing_parameter: "need to provide '--bar' option"})
+      expect(cmd.remaining).to eq(%w[])
+    end
+  end
+
   context "stops parsing on --" do
     it "doesn't include arguments -- split" do
       cmd = new_command { }
