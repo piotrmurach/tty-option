@@ -63,11 +63,11 @@ module TTY
         sections.add(:banner, help_banner)
         sections.add(:description, help_description) if @usage.desc?
 
-        if @parameters.arguments.any? { |arg| arg.desc? && !arg.hidden? }
+        if @parameters.arguments.any?(&:display?)
           sections.add(:arguments, help_arguments)
         end
 
-        if @parameters.keywords.any? { |kwarg| kwarg.desc? && !kwarg.hidden? }
+        if @parameters.keywords.any?(&:display?)
           sections.add(:keywords, help_keywords)
         end
 
@@ -75,7 +75,7 @@ module TTY
           sections.add(:options, help_options)
         end
 
-        if @parameters.environments?
+        if @parameters.environments.any?(&:display?)
           sections.add(:environments, help_environments)
         end
 

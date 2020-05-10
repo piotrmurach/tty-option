@@ -141,6 +141,10 @@ module TTY
         @settings.fetch(:hidden) { false }
       end
 
+      def display?
+        desc? && !hidden?
+      end
+
       def permit(value = (not_set = true))
         if not_set
           @settings[:permit]
