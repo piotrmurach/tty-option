@@ -107,10 +107,21 @@ class Command
     desc "The name of the image to use"
   end
 
+  argument :command do
+    optional
+    desc "The command to run inside the image"
+  end
+
   keyword :restart do
     default "no"
     permit %w[no on-failure always unless-stopped]
     desc "Restart policy to apply when a container exits"
+  end
+
+  flag :help do
+    short "-h"
+    long "--help"
+    desc "Print usage"
   end
 
   flag :detach do
@@ -134,7 +145,12 @@ class Command
   end
 
   def run
-    pp params.to_h
+    if params[:help]
+      print help
+      exit
+    else
+      pp params.to_h
+    end
   end
 end
 ```
@@ -164,7 +180,8 @@ And run the command to see the values:
 ```ruby
 cmd.run
 # =>
-# {:detach=>true,
+# {:help=>false,
+#  :detach=>true,
 #  :port=>["5000:3000", "5001:8080"],
 #  :name=>"web",
 #  :restart=>"always",
@@ -179,35 +196,46 @@ cmd.params[:name]     # => "web"
 cmd.params["command"] # => "bash
 ````
 
+And when `--help` is found on the command line the run will print help:
+
+```ruby
+cmd.run
+```
+
 To print help information to the terminal use `help` method:
 
+```ruby
+print cmd.help
 ```
-puts cmd.help
-# =>
-# Usage: dock run [OPTIONS] IMAGE [COMMAND] [RESTART=RESTART]
-#
-# Run a command in a new container
-#
-# Arguments:
-#   command  The command to run inside the image
-#   image    The name of the image to use
-#
-# Keywords:
-#   restart=restart  Restart policy to apply when a container exits (permitted:
-#                    no, on-failure, always, unless-stopped) (default "no")
-#
-# Options:
-#   -d, --detach         Run container in background and print container ID
-#       --name string    Assign a name to the container
-#   -p, --publish list   Publish a container's port(s) to the host
-#
-# Examples:
-#   Set working directory (-w)
-#     $ dock run -w /path/to/dir/ ubuntu pwd
-#
-#   Mount volume
-#     $ dock run -v `pwd`:`pwd` -w `pwd` ubuntu pwd
-````
+
+This will result in the following output:
+
+```
+Usage: dock run [OPTIONS] IMAGE [COMMAND] [RESTART=RESTART]
+
+Run a command in a new container
+
+Arguments:
+  command  The command to run inside the image
+  image    The name of the image to use
+
+Keywords:
+  restart=restart  Restart policy to apply when a container exits (permitted:
+                   no, on-failure, always, unless-stopped) (default "no")
+
+Options:
+  -d, --detach        Run container in background and print container ID
+  -h, --help          Print usage
+      --name string   Assign a name to the container
+  -p, --publish list  Publish a container's port(s) to the host
+
+Examples:
+  Set working directory (-w)
+    $ dock run -w /path/to/dir/ ubuntu pwd
+
+  Mount volume
+    $ dock run -v `pwd`:`pwd` -w `pwd` ubuntu pwd
+```
 
 ## 2. API
 
