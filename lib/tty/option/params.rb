@@ -7,13 +7,25 @@ module TTY
     class Params
       extend Forwardable
 
+      def self.create(parameters, remaining, errors)
+        new(parameters, remaining: remaining, errors: errors)
+      end
+
       def_delegators :@parameters,
                      :keys, :key?, :has_key?, :member?, :value?, :has_value?,
                      :empty?, :include?, :each_key, :each_value
 
-      def initialize(parameters = {})
-        @parameters = parameters
+      # The remaining unparsed arguments
+      attr_reader :remaining
 
+      # The parameter parsing errors
+      attr_reader :errors
+
+      # Create Params
+      #
+      # @api private
+      def initialize(parameters, remaining: [], errors: {})
+        @parameters = parameters
         @parameters.default_proc = ->(hash, key) do
           return hash[key] if hash.key?(key)
 
@@ -24,6 +36,8 @@ module TTY
             hash[key.to_sym] if hash.key?(key.to_sym)
           end
         end
+        @remaining = remaining
+        @errors = errors
       end
 
       # Access a given value for a key
@@ -56,6 +70,13 @@ module TTY
 
       def merge!(other_params)
         @parameters.merge!(other_params)
+      end
+
+      # Check if params have any errors
+      #
+      # @api public
+      def valid?
+        @errors.empty?
       end
 
       def ==(other)
