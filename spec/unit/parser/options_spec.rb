@@ -48,13 +48,13 @@ RSpec.describe TTY::Option::Parser::Options do
 
   it "raises if short option without argument and defined seprate and required" do
     expect {
-      parse(%w[-f], option(:foo, short: "-f string"))
+      parse(%w[-f], option(:foo, short: "-f string"), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingArgument, "option -f requires an argument")
   end
 
   it "raises if short option without argument but defined together and required" do
     expect {
-      parse(%w[-f], option(:foo, short: "-fstring"))
+      parse(%w[-f], option(:foo, short: "-fstring"), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingArgument, "option -f requires an argument")
   end
 
@@ -89,7 +89,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
   it "raises if short option isn't defined" do
     expect {
-      parse(%w[-b], option(:foo, short: "-f"))
+      parse(%w[-b], option(:foo, short: "-f"), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::InvalidParameter, "invalid option -b")
   end
 
@@ -188,7 +188,8 @@ RSpec.describe TTY::Option::Parser::Options do
 
   it "raises if long option with no argument" do
     expect {
-      parse(%w[--foo], option(:foo, long: "--foo string"))
+      parse(%w[--foo], option(:foo, long: "--foo string"),
+            raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingArgument,
                      "option --foo requires an argument")
   end
@@ -225,7 +226,8 @@ RSpec.describe TTY::Option::Parser::Options do
 
   it "raises if long option isn't defined" do
     expect {
-      parse(%w[--foo --bar], option(:foo, long: "--foo"))
+      parse(%w[--foo --bar], option(:foo, long: "--foo"),
+            raise_on_parse_error: true)
     }.to raise_error(TTY::Option::InvalidParameter, "invalid option --bar")
   end
 
@@ -235,7 +237,7 @@ RSpec.describe TTY::Option::Parser::Options do
     options << option(:foo, long: "--foobaz")
 
     expect {
-      parse(%w[--foob ], options)
+      parse(%w[--foob ], options, raise_on_parse_error: true)
     }.to raise_error(TTY::Option::AmbiguousOption, "option --foob is ambiguous")
   end
 
@@ -264,7 +266,8 @@ RSpec.describe TTY::Option::Parser::Options do
 
   it "raises if option isn't present" do
     expect {
-      parse(%w[], option(:foo, long: "--foo string", required: true))
+      parse(%w[], option(:foo, long: "--foo string", required: true),
+            raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
                      "need to provide '--foo' option")
   end
@@ -395,14 +398,16 @@ RSpec.describe TTY::Option::Parser::Options do
 
     it "fails to match required arity for short flag" do
       expect {
-        parse(%w[-f 1], option(:foo, short: "-f int", arity: 2))
+        parse(%w[-f 1], option(:foo, short: "-f int", arity: 2),
+             raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "expected option :foo to appear 2 times but appeared 1 time")
     end
 
     it "doesn't find enough options to match at least arity for short flag" do
       expect {
-        parse(%w[-f 1], option(:foo, short: "-f int", arity: -3))
+        parse(%w[-f 1], option(:foo, short: "-f int", arity: -3),
+             raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "expected option :foo to appear at least 2 times but " \
                        "appeared 1 time")
@@ -410,7 +415,8 @@ RSpec.describe TTY::Option::Parser::Options do
 
     it "doesn't find any options to match at least arity for short flag" do
       expect {
-        parse([], option(:foo, short: "-f int", arity: -2))
+        parse([], option(:foo, short: "-f int", arity: -2),
+             raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "expected option :foo to appear at least 1 time but " \
                        "appeared 0 times")

@@ -2,7 +2,7 @@
 
 RSpec.describe TTY::Option::ErrorAggregator do
   it "raises error by default" do
-    aggregator = described_class.new
+    aggregator = described_class.new(raise_on_parse_error: true)
     expect {
       aggregator.(TTY::Option::MissingParameter, "boom")
     }.to raise_error(TTY::Option::MissingParameter, "boom")
@@ -23,7 +23,7 @@ RSpec.describe TTY::Option::ErrorAggregator do
   end
 
   it "collects errors as instances with custom messages" do
-    aggregator = described_class.new(raise_on_parsing_error: false)
+    aggregator = described_class.new
     foo_param = TTY::Option::Parameter::Option.create(:foo)
     bar_param = TTY::Option::Parameter::Option.create(:bar)
 
@@ -40,7 +40,7 @@ RSpec.describe TTY::Option::ErrorAggregator do
   end
 
   it "collects unknown error instances with messages" do
-    aggregator = described_class.new(raise_on_parsing_error: false)
+    aggregator = described_class.new
 
     foo_error = TTY::Option::MissingParameter.new("foo boom")
     bar_error = TTY::Option::MissingParameter.new("bar boom")

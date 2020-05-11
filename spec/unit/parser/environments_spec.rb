@@ -55,7 +55,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
   it "doesn't parse required env var" do
     expect {
-      parse([], {}, env(:foo, required: true))
+      parse([], {}, env(:foo, required: true), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
                     "need to provide 'foo' environment")
   end
@@ -152,7 +152,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
     it "doesn't find enough env vars to match specific arity" do
       expect {
-        parse(%w[FOO=a], {}, env(:foo, arity: 2))
+        parse(%w[FOO=a], {}, env(:foo, arity: 2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                       "expected environment :foo to appear 2 times but " \
                       "appeared 1 time")
@@ -166,7 +166,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
     it "doesn't find enough env vars to match at least arity" do
       expect {
-        parse(%w[FOO=a], {}, env(:foo, arity: -3))
+        parse(%w[FOO=a], {}, env(:foo, arity: -3), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                       "expected environment :foo to appear at least 2 times but " \
                       "appeared 1 time")
@@ -174,7 +174,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
     it "doesn't find any env vars to match at least arity" do
       expect {
-        parse([], {}, env(:foo, arity: -2))
+        parse([], {}, env(:foo, arity: -2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "expected environment :foo to appear at least 1 time but " \
                        "appeared 0 times")

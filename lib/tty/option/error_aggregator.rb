@@ -12,7 +12,7 @@ module TTY
 
       def initialize(errors = {}, **config)
         @errors = errors
-        @raise_on_parsing_error = config.fetch(:raise_on_parsing_error) { true }
+        @raise_on_parsing_error = config.fetch(:raise_on_parse_error) { false }
       end
 
       # Record or raise an error

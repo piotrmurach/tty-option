@@ -26,7 +26,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
 
   it "doesn't find enough arguments to match specific arity" do
     expect {
-      parse(%w[a], arg(:foo, arity: 2))
+      parse(%w[a], arg(:foo, arity: 2), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::InvalidArity,
                      "expected argument :foo to appear 2 times but " \
                      "appeared 1 time")
@@ -34,7 +34,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
 
   it "doesn't find enough arguments to match at least arity" do
     expect {
-      parse(%w[a], arg(:foo, arity: -3))
+      parse(%w[a], arg(:foo, arity: -3), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::InvalidArity,
                      "expected argument :foo to appear at least 2 times but " \
                      "appeared 1 time")
@@ -49,7 +49,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
 
   it "raises if required argument isn't present" do
     expect {
-      parse(%w[], arg(:foo, required: true))
+      parse(%w[], arg(:foo, required: true), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
                      "need to provide 'foo' argument")
   end

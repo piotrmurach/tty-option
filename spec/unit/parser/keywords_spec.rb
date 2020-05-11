@@ -65,7 +65,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
   it "raises if required keyword isn't present" do
     expect {
-      parse(%w[], keyword(:foo, required: true))
+      parse(%w[], keyword(:foo, required: true), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
                      "need to provide 'foo' keyword")
   end
@@ -144,7 +144,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
     it "doesn't find enough keywords to match specific arity" do
       expect {
-        parse(%w[foo=1], keyword(:foo, arity: 2))
+        parse(%w[foo=1], keyword(:foo, arity: 2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                       "expected keyword :foo to appear 2 times but " \
                       "appeared 1 time")
@@ -158,7 +158,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
     it "doesn't find enough keywords to match at least arity" do
       expect {
-        parse(%w[foo=1], keyword(:foo, arity: -3))
+        parse(%w[foo=1], keyword(:foo, arity: -3), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                       "expected keyword :foo to appear at least 2 times but " \
                       "appeared 1 time")
@@ -166,7 +166,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
     it "doesn't find any keywords to match at least arity" do
       expect {
-        parse([], keyword(:foo, arity: -2))
+        parse([], keyword(:foo, arity: -2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "expected keyword :foo to appear at least 1 time but " \
                        "appeared 0 times")

@@ -123,7 +123,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[x y])
+        cmd.parse(%w[x y], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                       "expected argument :foo to appear at least 3 times but " \
                       "appeared 2 times")
@@ -152,7 +152,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[a:1 b:2 c:3])
+        cmd.parse(%w[a:1 b:2 c:3], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
                 "value of `[:c, 3]` fails validation rule for :foo parameter")
     end
@@ -196,7 +196,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[14])
+        cmd.parse(%w[14], raise_on_parse_error:  true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
                       "unpermitted argument 14 for :foo parameter")
     end
@@ -272,7 +272,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[foo=11 foo=13])
+        cmd.parse(%w[foo=11 foo=13], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
                 "value of `13` fails validation rule for :foo parameter")
     end
@@ -286,7 +286,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[foo=14])
+        cmd.parse(%w[foo=14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
                       "unpermitted argument 14 for :foo parameter")
     end
@@ -299,7 +299,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse([])
+        cmd.parse([], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingParameter,
                        "need to provide 'foo' keyword")
     end
@@ -356,7 +356,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[FOO=10,12,14])
+        cmd.parse(%w[FOO=10,12,14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
                       "value of `14` fails validation rule for :foo parameter")
     end
@@ -370,7 +370,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[FOO=14])
+        cmd.parse(%w[FOO=14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
                       "unpermitted argument 14 for :foo parameter")
     end
@@ -381,7 +381,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse([], {}, **{})
+        cmd.parse([], {}, raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingParameter,
                        "need to provide 'foo' environment")
     end
@@ -433,7 +433,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse([])
+        cmd.parse([], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingParameter,
                        "need to provide '--foo' option")
     end
@@ -457,7 +457,7 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[--foo])
+        cmd.parse(%w[--foo], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingArgument)
     end
 
@@ -593,7 +593,7 @@ RSpec.describe TTY::Option do
         end
 
         expect {
-          cmd.parse(%w[--foo 14])
+          cmd.parse(%w[--foo 14], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::UnpermittedArgument,
                         "unpermitted argument 14 for :foo parameter")
       end
@@ -611,7 +611,7 @@ RSpec.describe TTY::Option do
         end
 
         expect {
-          cmd.parse(%w[--foo 13])
+          cmd.parse(%w[--foo 13], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
                         "value of `13` fails validation rule for :foo parameter")
       end
@@ -625,7 +625,7 @@ RSpec.describe TTY::Option do
         end
 
         expect {
-          cmd.parse(%w[--foo bar])
+          cmd.parse(%w[--foo bar], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
                         "value of `bar` fails validation rule for :foo parameter")
       end
@@ -640,7 +640,7 @@ RSpec.describe TTY::Option do
         end
 
         expect {
-          cmd.parse(%w[--foo 10,11,12])
+          cmd.parse(%w[--foo 10,11,12], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
                          "value of `12` fails validation rule for :foo parameter")
       end
