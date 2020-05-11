@@ -16,9 +16,13 @@ module TTY
                      :empty?, :include?, :each_key, :each_value
 
       # The remaining unparsed arguments
+      #
+      # @api public
       attr_reader :remaining
 
       # The parameter parsing errors
+      #
+      # @api public
       attr_reader :errors
 
       # Create Params

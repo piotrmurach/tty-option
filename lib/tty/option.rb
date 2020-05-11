@@ -35,22 +35,7 @@ module TTY
       #
       # @api public
       def params
-        @__params ||= {}
-      end
-
-      # The remaining unparsed arguments
-      #
-      # @api public
-      def remaining
-        @__remaining ||= []
-      end
-      alias :remaining_args :remaining
-
-      # The parsing errors
-      #
-      # @api public
-      def errors
-        @__errors ||= {}
+        @__params ||= Params.create({}, [], {})
       end
 
       # Parse command line arguments
@@ -63,8 +48,7 @@ module TTY
       # @api public
       def parse(argv = ARGV, env = ENV, **config)
         parser = Parser.new(self.class.parameters, **config)
-        params, @__remaining, @__errors = parser.parse(argv, env)
-        @__params = Params.new(params)
+        @__params = Params.create(*parser.parse(argv, env))
         self
       end
 

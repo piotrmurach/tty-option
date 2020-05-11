@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 RSpec.describe TTY::Option do
-  it "doesn't allow to register same name parameter" do
-    expect {
-      command do
-        argument :foo
-
-        keyword :foo
-      end
-    }.to raise_error(TTY::Option::ParameterConflict,
-                    "already registered parameter :foo")
-  end
-
   context "argument" do
+    it "doesn't allow to register same name parameter" do
+      expect {
+        command do
+          argument :foo
+
+          keyword :foo
+        end
+      }.to raise_error(TTY::Option::ParameterConflict,
+                      "already registered parameter :foo")
+    end
+
     it "reads a single argument" do
       cmd = new_command do
         argument :foo
@@ -30,7 +30,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse([], raise_on_parsing_error: false)
 
-      expect(cmd.errors[:foo]).to eq({
+      expect(cmd.params.errors[:foo]).to eq({
         missing_parameter: "need to provide 'foo' argument"
       })
     end
@@ -167,7 +167,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[11], raise_on_parsing_error: false)
 
-      expect(cmd.errors[:foo]).to eq({
+      expect(cmd.params.errors[:foo]).to eq({
         invalid_argument: "value of `11` fails validation rule for :foo parameter"
       })
     end
@@ -182,7 +182,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[bar], raise_on_parsing_error: false)
 
       expect(cmd.params[:foo]).to eq(nil)
-      expect(cmd.errors[:foo]).to eq({
+      expect(cmd.params.errors[:foo]).to eq({
         invalid_conversion_argument: "Invalid value of \"bar\" for :int conversion"
       })
     end
@@ -211,7 +211,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[14], raise_on_parsing_error: false)
 
-      expect(cmd.errors[:foo]).to eq({
+      expect(cmd.params.errors[:foo]).to eq({
         unpermitted_argument: "unpermitted argument 14 for :foo parameter"
       })
     end
@@ -706,7 +706,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[], raise_on_parsing_error: false)
 
-      expect(cmd.errors).to eq({
+      expect(cmd.params.errors).to eq({
         foo: { missing_parameter: "need to provide 'foo' argument" },
         bar: { missing_parameter: "need to provide 'bar' keyword" },
         baz: { missing_parameter: "need to provide '--baz' option" },
@@ -716,6 +716,14 @@ RSpec.describe TTY::Option do
   end
 
   context "when remaining arguments" do
+    it "defaults remainng parameters" do
+      cmd = new_command
+
+      expect(cmd.params.to_h).to eq({})
+      expect(cmd.params.remaining).to eq([])
+      expect(cmd.params.errors).to eq({})
+    end
+
     it "adds unparsed arumguments to remaining" do
       cmd = new_command do
         argument :foo
@@ -724,7 +732,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[a b c])
 
       expect(cmd.params[:foo]).to eq("a")
-      expect(cmd.remaining).to eq(%w[b c])
+      expect(cmd.params.remaining).to eq(%w[b c])
     end
   end
 
@@ -750,8 +758,9 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq("a")
       expect(cmd.params[:bar]).to eq(nil)
       expect(cmd.params[:help]).to eq(true)
-      expect(cmd.errors[:bar]).to eq({missing_parameter: "need to provide '--bar' option"})
-      expect(cmd.remaining).to eq(%w[])
+      expect(cmd.params.errors[:bar]).to eq(
+        {missing_parameter: "need to provide '--bar' option"})
+      expect(cmd.params.remaining).to eq(%w[])
     end
   end
 
@@ -762,7 +771,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[--])
 
       expect(cmd.params).to be_empty
-      expect(cmd.remaining).to eq([])
+      expect(cmd.params.remaining).to eq([])
     end
 
     it "doesn't include arguments after --- split" do
@@ -771,7 +780,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[--- a b])
 
       expect(cmd.params).to be_empty
-      expect(cmd.remaining).to eq(%w[a b])
+      expect(cmd.params.remaining).to eq(%w[a b])
     end
 
     it "parses anything after -- as remaining arguments" do
@@ -793,7 +802,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[--foo a b -- --bar c d])
 
       expect(cmd.params[:foo]).to eq(%w[a b])
-      expect(cmd.remaining).to eq(%w[--bar c d])
+      expect(cmd.params.remaining).to eq(%w[--bar c d])
     end
   end
 end

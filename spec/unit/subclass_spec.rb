@@ -20,9 +20,9 @@ RSpec.describe TTY::Option do
     parent_cmd.parse(%w[--foo a])
 
     expect(parent_cmd.params[:foo]).to eq("a")
-    expect(parent_cmd.remaining).to eq([])
+    expect(parent_cmd.params.remaining).to eq([])
     expect(child_cmd.params[:foo]).to eq("b")
-    expect(child_cmd.remaining).to eq([])
+    expect(child_cmd.params.remaining).to eq([])
   end
 
   it "adds new parameters in child class" do
@@ -48,13 +48,13 @@ RSpec.describe TTY::Option do
     expect(parent_class.parameters.options.map(&:name)).to eq([:foo])
     expect(parent_cmd.params[:foo]).to eq("a")
     expect(parent_cmd.params[:bar]).to eq(nil)
-    expect(parent_cmd.remaining).to eq(%w[--bar b])
+    expect(parent_cmd.params.remaining).to eq(%w[--bar b])
 
     expect(child_class.parameters.map(&:name)).to eq([:foo, :bar])
     expect(child_class.parameters.options.map(&:name)).to eq([:foo, :bar])
     expect(child_cmd.params[:foo]).to eq("aa")
     expect(child_cmd.params[:bar]).to eq("bb")
-    expect(child_cmd.remaining).to eq([])
+    expect(child_cmd.params.remaining).to eq([])
   end
 
   it "redefines option in child class" do
@@ -80,11 +80,11 @@ RSpec.describe TTY::Option do
 
     expect(parent_class.parameters.map(&:name)).to eq([:foo])
     expect(parent_cmd.params[:foo]).to eq("a")
-    expect(parent_cmd.remaining).to eq(%w[-f b])
+    expect(parent_cmd.params.remaining).to eq(%w[-f b])
 
     expect(child_class.parameters.map(&:name)).to eq([:foo])
     expect(child_cmd.params[:foo]).to eq("bb")
-    expect(child_cmd.remaining).to eq(%w[--foo aa])
+    expect(child_cmd.params.remaining).to eq(%w[--foo aa])
   end
 
   it "removes option in child class and adds new one" do
@@ -116,12 +116,12 @@ RSpec.describe TTY::Option do
     expect(parent_cmd.params[:foo]).to eq("a")
     expect(parent_cmd.params[:bar]).to eq("b")
     expect(parent_cmd.params[:baz]).to eq(nil)
-    expect(parent_cmd.remaining).to eq(%w[--baz c])
+    expect(parent_cmd.params.remaining).to eq(%w[--baz c])
 
     expect(child_class.parameters.map(&:name)).to eq([:foo, :baz])
     expect(child_cmd.params[:foo]).to eq("aa")
     expect(child_cmd.params[:bar]).to eq(nil)
     expect(child_cmd.params[:baz]).to eq("cc")
-    expect(child_cmd.remaining).to eq(%w[--bar bb])
+    expect(child_cmd.params.remaining).to eq(%w[--bar bb])
   end
 end
