@@ -44,7 +44,7 @@ RSpec.describe TTY::Option::Params do
     it "has no errors by default" do
       params = described_class.new({foo: 1})
 
-      expect(params.errors).to eq({})
+      expect(params.errors).to eq([])
     end
 
     it "allows acess to errors" do

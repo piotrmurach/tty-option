@@ -7,7 +7,7 @@ module TTY
     class Params
       extend Forwardable
 
-      def self.create(parameters, remaining, errors)
+      def self.create(parameters = {}, remaining = [], errors = [])
         new(parameters, remaining: remaining, errors: errors)
       end
 
@@ -28,7 +28,7 @@ module TTY
       # Create Params
       #
       # @api private
-      def initialize(parameters, remaining: [], errors: {})
+      def initialize(parameters, remaining: [], errors: [])
         @parameters = parameters
         @parameters.default_proc = ->(hash, key) do
           return hash[key] if hash.key?(key)

@@ -35,7 +35,7 @@ module TTY
       #
       # @api public
       def params
-        @__params ||= Params.create({}, [], {})
+        @__params ||= Params.create
       end
 
       # Parse command line arguments

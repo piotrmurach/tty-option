@@ -721,7 +721,7 @@ RSpec.describe TTY::Option do
 
       expect(cmd.params.to_h).to eq({})
       expect(cmd.params.remaining).to eq([])
-      expect(cmd.params.errors).to eq({})
+      expect(cmd.params.errors).to eq([])
     end
 
     it "adds unparsed arumguments to remaining" do
