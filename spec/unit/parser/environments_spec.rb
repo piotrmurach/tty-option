@@ -72,26 +72,26 @@ RSpec.describe TTY::Option::Parser::Environments do
     envs << env(:bar, required: true)
     envs << env(:baz, optional: true)
 
-    params, rest, errors = parse([], {}, envs, raise_on_parsing_error: false)
+    params, rest, errors = parse([], {}, envs)
 
     expect(params[:foo]).to eq(nil)
     expect(params[:bar]).to eq(nil)
     expect(params[:baz]).to eq(nil)
     expect(rest).to eq([])
-    expect(errors[:foo]).to eq({missing_parameter: "need to provide 'foo' environment"})
-    expect(errors[:bar]).to eq({missing_parameter: "need to provide 'bar' environment"})
-    expect(errors[:baz]).to eq(nil)
+    expect(errors.map(&:message)).to eq([
+      "need to provide 'foo' environment",
+      "need to provide 'bar' environment"
+    ])
   end
 
   it "parses unrecognized env vars and collects error" do
     envs = []
     envs << env(:foo, variable: "FOO_ENV")
-    params, rest, errors = parse(%w[FOO_ENV=a WRONG=d], {}, envs,
-                                 raise_on_parsing_error: false)
+    params, rest, errors = parse(%w[FOO_ENV=a WRONG=d], {}, envs)
 
     expect(params[:foo]).to eq("a")
     expect(rest).to eq([])
-    expect(errors[:messages]).to eq([{invalid_parameter: "invalid environment WRONG=d"}])
+    expect(errors).to eq([[TTY::Option::InvalidParameter, "invalid environment WRONG=d"]])
   end
 
   it "parses unrecognized env vars and doesn't check invalid parameter" do
@@ -102,7 +102,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
     expect(params[:foo]).to eq("a")
     expect(rest).to eq(["WRONG=d"])
-    expect(errors).to eq({})
+    expect(errors).to eq([])
   end
 
   it "collects all remaining parameters" do
@@ -116,7 +116,7 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect(params[:foo]).to eq("a")
     expect(params[:bar]).to eq("c")
     expect(rest).to eq(%w[-u arg1 --unknown arg2 UNKNOWN=b -b d])
-    expect(errors).to eq({})
+    expect(errors).to eq([])
   end
 
   context "when multiple times" do
@@ -185,14 +185,15 @@ RSpec.describe TTY::Option::Parser::Environments do
       envs << env(:foo, arity: 2)
       envs << env(:bar, arity: -3)
 
-      params, rest, errors = parse(%w[FOO=1 BAR=2], {}, envs,
-                                   raise_on_parsing_error: false)
+      params, rest, errors = parse(%w[FOO=1 BAR=2], {}, envs)
 
       expect(params[:foo]).to eq(["1"])
       expect(params[:bar]).to eq(["2"])
       expect(rest).to eq([])
-      expect(errors[:foo]).to eq({invalid_arity: "expected environment :foo to appear 2 times but appeared 1 time"})
-      expect(errors[:bar]).to eq({invalid_arity: "expected environment :bar to appear at least 2 times but appeared 1 time"})
+      expect(errors.map(&:message)).to eq([
+        "expected environment :foo to appear 2 times but appeared 1 time",
+        "expected environment :bar to appear at least 2 times but appeared 1 time"
+      ])
     end
   end
 

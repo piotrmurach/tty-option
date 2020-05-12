@@ -66,11 +66,13 @@ RSpec.describe TTY::Option::Parser::Arguments do
   end
 
   it "collects errors when :raise_on_parsing_error is false" do
-    args, rest, errors = parse(%w[a], arg(:foo, arity: 2), raise_on_parsing_error: false)
+    args, rest, errors = parse(%w[a], arg(:foo, arity: 2))
 
     expect(args[:foo]).to eq("a")
     expect(rest).to eq([])
-    expect(errors[:foo]).to eq({invalid_arity: "expected argument :foo to appear 2 times but appeared 1 time"})
+    expect(errors.map(&:message)).to eq([
+      "expected argument :foo to appear 2 times but appeared 1 time"
+    ])
   end
 
   it "parses zero or more arguments" do

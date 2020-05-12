@@ -14,12 +14,10 @@ RSpec.describe TTY::Option::ErrorAggregator do
     aggregator.(TTY::Option::MissingParameter, "foo boom")
     aggregator.(TTY::Option::MissingParameter, "bar boom")
 
-    expect(aggregator.errors).to eq({
-      messages: [
-        {missing_parameter: "foo boom"},
-        {missing_parameter: "bar boom"}
-      ]
-    })
+    expect(aggregator.errors).to eq([
+      [TTY::Option::MissingParameter, "foo boom"],
+      [TTY::Option::MissingParameter, "bar boom"]
+    ])
   end
 
   it "collects errors as instances with custom messages" do
@@ -33,10 +31,7 @@ RSpec.describe TTY::Option::ErrorAggregator do
     aggregator.(foo_error, "foo boom")
     aggregator.(bar_error, "bar boom")
 
-    expect(aggregator.errors).to eq({
-      foo: {missing_parameter: "foo boom"},
-      bar: {missing_parameter: "bar boom"}
-    })
+    expect(aggregator.errors).to eq([foo_error, bar_error])
   end
 
   it "collects unknown error instances with messages" do
@@ -48,11 +43,6 @@ RSpec.describe TTY::Option::ErrorAggregator do
     aggregator.(foo_error)
     aggregator.(bar_error)
 
-    expect(aggregator.errors).to eq({
-      messages: [
-        {missing_parameter: "foo boom"},
-        {missing_parameter: "bar boom"}
-      ]
-    })
+    expect(aggregator.errors).to eq([foo_error, bar_error])
   end
 end

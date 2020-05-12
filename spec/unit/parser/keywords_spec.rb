@@ -75,24 +75,25 @@ RSpec.describe TTY::Option::Parser::Keywords do
     keywords << keyword(:foo, required: true)
     keywords << keyword(:bar, required: true)
 
-    params, rest, errors = parse(%w[], keywords, raise_on_parsing_error: false)
+    params, rest, errors = parse(%w[], keywords)
 
     expect(params[:foo]).to eq(nil)
     expect(params[:bar]).to eq(nil)
     expect(rest).to eq([])
-    expect(errors[:foo]).to eq({missing_parameter: "need to provide 'foo' keyword"})
-    expect(errors[:bar]).to eq({missing_parameter: "need to provide 'bar' keyword"})
+    expect(errors.map(&:message)).to eq([
+      "need to provide 'foo' keyword",
+      "need to provide 'bar' keyword"
+    ])
   end
 
   it "parses unrecognized keywords and collects error" do
     keywords = []
     keywords << keyword(:foo)
-    params, rest, errors = parse(%w[foo=a unknown=b], keywords,
-                                 raise_on_parsing_error: false)
+    params, rest, errors = parse(%w[foo=a unknown=b], keywords)
 
     expect(params[:foo]).to eq("a")
     expect(rest).to eq([])
-    expect(errors[:messages]).to eq([{invalid_parameter: "invalid keyword unknown=b"}])
+    expect(errors).to eq([[TTY::Option::InvalidParameter, "invalid keyword unknown=b"]])
   end
 
   it "parses unrecognized keywords and doesn't check invalid parameter" do
@@ -102,7 +103,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
                                  check_invalid_params: false)
     expect(params[:foo]).to eq("a")
     expect(rest).to eq(["unknown=b"])
-    expect(errors).to eq({})
+    expect(errors).to eq([])
   end
 
   it "collects all remaining parameters" do
@@ -116,7 +117,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(params[:foo]).to eq("a")
     expect(params[:bar]).to eq("c")
     expect(rest).to eq(%w[-u arg1 --unknown arg2 FOO_ENV=b other=d -b f])
-    expect(errors).to eq({})
+    expect(errors).to eq([])
   end
 
   context "when multiple times" do
@@ -184,14 +185,15 @@ RSpec.describe TTY::Option::Parser::Keywords do
       keywords << keyword(:foo, arity: 2)
       keywords << keyword(:bar, arity: -3)
 
-      params, rest, errors = parse(%w[foo=1 bar=2], keywords,
-                                   raise_on_parsing_error: false)
+      params, rest, errors = parse(%w[foo=1 bar=2], keywords)
 
       expect(params[:foo]).to eq(["1"])
       expect(params[:bar]).to eq(["2"])
       expect(rest).to eq([])
-      expect(errors[:foo]).to eq({invalid_arity: "expected keyword :foo to appear 2 times but appeared 1 time"})
-      expect(errors[:bar]).to eq({invalid_arity: "expected keyword :bar to appear at least 2 times but appeared 1 time"})
+      expect(errors.map(&:message)).to eq([
+        "expected keyword :foo to appear 2 times but appeared 1 time",
+        "expected keyword :bar to appear at least 2 times but appeared 1 time"
+      ])
     end
   end
 

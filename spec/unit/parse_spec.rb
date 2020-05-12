@@ -28,11 +28,11 @@ RSpec.describe TTY::Option do
         argument :foo
       end
 
-      cmd.parse([], raise_on_parsing_error: false)
+      cmd.parse([])
 
-      expect(cmd.params.errors[:foo]).to eq({
-        missing_parameter: "need to provide 'foo' argument"
-      })
+      expect(cmd.params.errors.map(&:message)).to eq([
+        "need to provide 'foo' argument"
+      ])
     end
 
     it "defauls argument to a value" do
@@ -165,11 +165,11 @@ RSpec.describe TTY::Option do
         end
       end
 
-      cmd.parse(%w[11], raise_on_parsing_error: false)
+      cmd.parse(%w[11])
 
-      expect(cmd.params.errors[:foo]).to eq({
-        invalid_argument: "value of `11` fails validation rule for :foo parameter"
-      })
+      expect(cmd.params.errors.map(&:message)).to eq([
+        "value of `11` fails validation rule for :foo parameter"
+      ])
     end
 
     it "doesn't raise on a conversion failure and reads an error message" do
@@ -179,12 +179,12 @@ RSpec.describe TTY::Option do
         end
       end
 
-      cmd.parse(%w[bar], raise_on_parsing_error: false)
+      cmd.parse(%w[bar])
 
       expect(cmd.params[:foo]).to eq(nil)
-      expect(cmd.params.errors[:foo]).to eq({
-        invalid_conversion_argument: "Invalid value of \"bar\" for :int conversion"
-      })
+      expect(cmd.params.errors.map(&:message)).to eq([
+        "Invalid value of \"bar\" for :int conversion"
+      ])
     end
 
     it "doesn't permit a value" do
@@ -209,11 +209,11 @@ RSpec.describe TTY::Option do
         end
       end
 
-      cmd.parse(%w[14], raise_on_parsing_error: false)
+      cmd.parse(%w[14])
 
-      expect(cmd.params.errors[:foo]).to eq({
-        unpermitted_argument: "unpermitted argument 14 for :foo parameter"
-      })
+      expect(cmd.params.errors.map(&:message)).to eq([
+        "unpermitted argument 14 for :foo parameter"
+      ])
     end
   end
 
@@ -704,14 +704,14 @@ RSpec.describe TTY::Option do
         env(:qux) { required }
       end
 
-      cmd.parse(%w[], raise_on_parsing_error: false)
+      cmd.parse(%w[])
 
-      expect(cmd.params.errors).to eq({
-        foo: { missing_parameter: "need to provide 'foo' argument" },
-        bar: { missing_parameter: "need to provide 'bar' keyword" },
-        baz: { missing_parameter: "need to provide '--baz' option" },
-        qux: { missing_parameter: "need to provide 'qux' environment" }
-      })
+      expect(cmd.params.errors.map(&:message)).to eq([
+        "need to provide '--baz' option",
+        "need to provide 'bar' keyword",
+        "need to provide 'foo' argument",
+        "need to provide 'qux' environment"
+      ])
     end
   end
 
@@ -753,13 +753,12 @@ RSpec.describe TTY::Option do
         end
       end
 
-      cmd.parse(%w[a --help], raise_on_parsing_error: false)
+      cmd.parse(%w[a --help])
 
       expect(cmd.params[:foo]).to eq("a")
       expect(cmd.params[:bar]).to eq(nil)
       expect(cmd.params[:help]).to eq(true)
-      expect(cmd.params.errors[:bar]).to eq(
-        {missing_parameter: "need to provide '--bar' option"})
+      expect(cmd.params.errors.map(&:message)).to eq(["need to provide '--bar' option"])
       expect(cmd.params.remaining).to eq(%w[])
     end
   end

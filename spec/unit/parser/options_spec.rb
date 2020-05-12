@@ -99,17 +99,17 @@ RSpec.describe TTY::Option::Parser::Options do
 
     expect(params[:foo]).to eq(false)
     expect(rest).to eq(%w[-b --bar])
-    expect(errors).to eq({})
+    expect(errors).to eq([])
   end
 
   it "collects errors when :rais_if_missing is false" do
     options = []
     options << option(:foo, short: "-f")
-    params, rest, errors = parse(%w[-b], options, raise_on_parsing_error: false)
+    params, rest, errors = parse(%w[-b], options, raise_on_parse_error: false)
 
     expect(params[:foo]).to eq(false)
     expect(rest).to eq([])
-    expect(errors[:messages]).to eq([{invalid_parameter: "invalid option -b"}])
+    expect(errors).to eq([[TTY::Option::InvalidParameter, "invalid option -b"]])
   end
 
   it "parses compacted flags" do
@@ -277,13 +277,15 @@ RSpec.describe TTY::Option::Parser::Options do
     options << option(:foo, long: "--foo string", required: true)
     options << option(:bar, short: "-b string", required: true)
 
-    params, rest, errors = parse(%w[], options, raise_on_parsing_error: false)
+    params, rest, errors = parse(%w[], options)
 
     expect(params[:foo]).to eq(nil)
     expect(params[:bar]).to eq(nil)
     expect(rest).to eq([])
-    expect(errors[:foo]).to eq({missing_parameter: "need to provide '--foo' option"})
-    expect(errors[:bar]).to eq({missing_parameter: "need to provide '-b' option"})
+    expect(errors.map(&:message)).to eq([
+      "need to provide '--foo' option",
+      "need to provide '-b' option"
+    ])
   end
 
   it "collects all remaining parameters" do
@@ -297,7 +299,7 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(params[:foo]).to eq("a")
     expect(params[:bar]).to eq("c")
     expect(rest).to eq(%w[-u arg1 --unknown arg2 FOO_ENV=b bar=d])
-    expect(errors).to eq({})
+    expect(errors).to eq([])
   end
 
   context "when no arguments" do
@@ -427,13 +429,15 @@ RSpec.describe TTY::Option::Parser::Options do
       options << option(:foo, short: "-f int", arity: 2)
       options << option(:bar, short: "-b int", arity: -3)
 
-      params, rest, errors = parse(%w[-f 1 -b 2], options, raise_on_parsing_error: false)
+      params, rest, errors = parse(%w[-f 1 -b 2], options)
 
       expect(params[:foo]).to eq(["1"])
       expect(params[:bar]).to eq(["2"])
       expect(rest).to eq([])
-      expect(errors[:foo]).to eq({invalid_arity: "expected option :foo to appear 2 times but appeared 1 time"})
-      expect(errors[:bar]).to eq({invalid_arity: "expected option :bar to appear at least 2 times but appeared 1 time"})
+      expect(errors.map(&:message)).to eq([
+        "expected option :foo to appear 2 times but appeared 1 time",
+        "expected option :bar to appear at least 2 times but appeared 1 time"
+      ])
     end
 
     it "parses long flag with required argument and keeps the last argument" do

@@ -31,7 +31,7 @@ module TTY
       def parse(argv, env)
         argv = argv.dup
         params = {}
-        errors = {}
+        errors = []
         ignored = []
 
         # split argv into processable args and leftovers
@@ -50,7 +50,7 @@ module TTY
             parsed, argv, err = parser.parse(argv)
           end
           params.merge!(parsed)
-          errors.merge!(err)
+          errors.concat(err)
         end
 
         argv += ignored unless ignored.empty?

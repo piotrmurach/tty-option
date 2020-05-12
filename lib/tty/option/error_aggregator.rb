@@ -10,7 +10,7 @@ module TTY
       # Collected errors
       attr_reader :errors
 
-      def initialize(errors = {}, **config)
+      def initialize(errors = [], **config)
         @errors = errors
         @raise_on_parsing_error = config.fetch(:raise_on_parse_error) { false }
       end
@@ -32,15 +32,10 @@ module TTY
           end
         end
 
-        type_name = is_class ? error.name : error.class.name
-        type_key = underscore(demodulize(type_name)).to_sym
-
-        msg = message ? message : error.message
-
-        if error.respond_to?(:param) && error.param
-          (@errors[error.param.name] ||= {}).merge!(type_key => msg)
+        if is_class
+          @errors << [error, message]
         else
-          (@errors[:messages] ||= []) << { type_key => msg }
+          @errors << error
         end
       end
     end # ErrorAggregator
