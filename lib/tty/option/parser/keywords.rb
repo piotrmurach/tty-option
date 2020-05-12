@@ -106,7 +106,7 @@ module TTY
                 value = val
               end
             elsif @check_invalid_params
-              @error_aggregator.(InvalidParameter, "invalid keyword #{match}")
+              @error_aggregator.(InvalidParameter.new("invalid keyword #{match}"))
             else
               @remaining << match.to_s
             end

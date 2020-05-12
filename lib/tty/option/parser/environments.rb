@@ -115,7 +115,7 @@ module TTY
                 value = val
               end
             elsif @check_invalid_params
-              @error_aggregator.(InvalidParameter, "invalid environment #{match}")
+              @error_aggregator.(InvalidParameter.new("invalid environment #{match}"))
             else
               @remaining << match.to_s
             end

@@ -93,7 +93,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
     expect(params[:foo]).to eq("a")
     expect(rest).to eq([])
-    expect(errors).to eq([[TTY::Option::InvalidParameter, "invalid keyword unknown=b"]])
+    expect(errors.map(&:message)).to eq(["invalid keyword unknown=b"])
   end
 
   it "parses unrecognized keywords and doesn't check invalid parameter" do

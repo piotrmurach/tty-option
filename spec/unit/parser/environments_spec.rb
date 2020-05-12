@@ -91,7 +91,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
     expect(params[:foo]).to eq("a")
     expect(rest).to eq([])
-    expect(errors).to eq([[TTY::Option::InvalidParameter, "invalid environment WRONG=d"]])
+    expect(errors.map(&:message)).to eq(["invalid environment WRONG=d"])
   end
 
   it "parses unrecognized env vars and doesn't check invalid parameter" do
