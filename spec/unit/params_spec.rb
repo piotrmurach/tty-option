@@ -44,13 +44,13 @@ RSpec.describe TTY::Option::Params do
     it "has no errors by default" do
       params = described_class.new({foo: 1})
 
-      expect(params.errors).to eq([])
+      expect(params.errors.to_a).to eq([])
     end
 
     it "allows acess to errors" do
-      params = described_class.new({foo: 1}, errors: {foo: "error"})
+      params = described_class.new({foo: 1}, errors: [{foo: "error"}])
 
-      expect(params.errors).to eq({foo: "error"})
+      expect(params.errors.to_a).to eq([{foo: "error"}])
     end
 
     it "checks if params are valid" do

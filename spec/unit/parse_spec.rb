@@ -30,7 +30,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse([])
 
-      expect(cmd.params.errors.map(&:message)).to eq([
+      expect(cmd.params.errors.messages).to eq([
         "need to provide 'foo' argument"
       ])
     end
@@ -167,7 +167,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[11])
 
-      expect(cmd.params.errors.map(&:message)).to eq([
+      expect(cmd.params.errors.messages).to eq([
         "value of `11` fails validation rule for :foo parameter"
       ])
     end
@@ -182,7 +182,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[bar])
 
       expect(cmd.params[:foo]).to eq(nil)
-      expect(cmd.params.errors.map(&:message)).to eq([
+      expect(cmd.params.errors.messages).to eq([
         "Invalid value of \"bar\" for :int conversion"
       ])
     end
@@ -211,7 +211,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[14])
 
-      expect(cmd.params.errors.map(&:message)).to eq([
+      expect(cmd.params.errors.messages).to eq([
         "unpermitted argument 14 for :foo parameter"
       ])
     end
@@ -706,7 +706,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[])
 
-      expect(cmd.params.errors.map(&:message)).to eq([
+      expect(cmd.params.errors.messages).to eq([
         "need to provide '--baz' option",
         "need to provide 'bar' keyword",
         "need to provide 'foo' argument",
@@ -721,7 +721,7 @@ RSpec.describe TTY::Option do
 
       expect(cmd.params.to_h).to eq({})
       expect(cmd.params.remaining).to eq([])
-      expect(cmd.params.errors).to eq([])
+      expect(cmd.params.errors.to_a).to eq([])
     end
 
     it "adds unparsed arumguments to remaining" do
@@ -758,7 +758,7 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq("a")
       expect(cmd.params[:bar]).to eq(nil)
       expect(cmd.params[:help]).to eq(true)
-      expect(cmd.params.errors.map(&:message)).to eq(["need to provide '--bar' option"])
+      expect(cmd.params.errors.messages).to eq(["need to provide '--bar' option"])
       expect(cmd.params.remaining).to eq(%w[])
     end
   end

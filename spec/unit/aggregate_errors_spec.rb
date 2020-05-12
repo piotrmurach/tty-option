@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../lib/tty/option/aggregate_errors"
-
 RSpec.describe TTY::Option::AggregateErrors do
   context "checks presence" do
     it "is empty by default" do

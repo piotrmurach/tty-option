@@ -2,6 +2,8 @@
 
 require "forwardable"
 
+require_relative "aggregate_errors"
+
 module TTY
   module Option
     class Params
@@ -41,7 +43,7 @@ module TTY
           end
         end
         @remaining = remaining
-        @errors = errors
+        @errors = AggregateErrors.new(errors)
       end
 
       # Access a given value for a key
