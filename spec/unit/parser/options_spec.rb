@@ -109,7 +109,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
     expect(params[:foo]).to eq(false)
     expect(rest).to eq([])
-    expect(errors).to eq([[TTY::Option::InvalidParameter, "invalid option -b"]])
+    expect(errors.map(&:message)).to eq(["invalid option -b"])
   end
 
   it "parses compacted flags" do
