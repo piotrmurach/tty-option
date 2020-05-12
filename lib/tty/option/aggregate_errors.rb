@@ -38,22 +38,6 @@ module TTY
         @errors.each(&block)
       end
 
-      # All error full messages
-      #
-      # @exmaple
-      # @example
-      #   errors = AggregateErrors.new
-      #   errors.add TTY::OptionInvalidArgument.new("invalid argument")
-      #   errors.messages
-      #   # => ["... invalid argument (TTY::Option::InvalidArgument)"]
-      #
-      # @return [Array<TTY::Option::Error>]
-      #
-      # @api public
-      def full_messages
-        @errors.map(&:full_message)
-      end
-
       # All error messages
       #
       # @example
