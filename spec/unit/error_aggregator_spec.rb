@@ -14,7 +14,7 @@ RSpec.describe TTY::Option::ErrorAggregator do
     aggregator.(TTY::Option::MissingParameter, "foo boom")
     aggregator.(TTY::Option::MissingParameter, "bar boom")
 
-    expect(aggregator.errors).to eq([
+    expect(aggregator.errors.map { |e| [e.class, e.message] }).to eq([
       [TTY::Option::MissingParameter, "foo boom"],
       [TTY::Option::MissingParameter, "bar boom"]
     ])
@@ -28,8 +28,8 @@ RSpec.describe TTY::Option::ErrorAggregator do
     foo_error = TTY::Option::MissingParameter.new(foo_param)
     bar_error = TTY::Option::MissingParameter.new(bar_param)
 
-    aggregator.(foo_error, "foo boom")
-    aggregator.(bar_error, "bar boom")
+    aggregator.(foo_error)
+    aggregator.(bar_error)
 
     expect(aggregator.errors).to eq([foo_error, bar_error])
   end

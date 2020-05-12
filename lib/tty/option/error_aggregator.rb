@@ -22,21 +22,13 @@ module TTY
       #
       # @api public
       def call(error, message = nil)
-        is_class = error.is_a?(Class)
-
-        if @raise_on_parsing_error
-          if is_class
-            raise error, message
-          else
-            raise error
-          end
+        if error.is_a?(Class)
+          error = message.nil? ? error.new : error.new(message)
         end
 
-        if is_class
-          @errors << [error, message]
-        else
-          @errors << error
-        end
+        raise(error) if @raise_on_parsing_error
+
+        @errors << error
       end
     end # ErrorAggregator
   end # Option
