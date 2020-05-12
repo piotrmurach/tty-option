@@ -53,4 +53,35 @@ RSpec.describe TTY::Option::AggregateErrors do
       expect(errors.messages).to eq(["invalid argument", "invalid arity"])
     end
   end
+
+  context "summary" do
+    it "returns empty string when no errors" do
+      errors = described_class.new
+
+      expect(errors.summary).to eq("")
+    end
+
+    it "formats a single error message for display in terminal" do
+      errors = described_class.new
+
+      errors.add TTY::Option::InvalidArgument.new("invalid argument")
+
+      expect(errors.summary).to eq unindent(<<-EOS).chomp
+      Error: invalid argument
+      EOS
+    end
+
+    it "formats multiple error messages for display in terminal" do
+      errors = described_class.new
+
+      errors.add TTY::Option::InvalidArgument.new("invalid argument")
+      errors.add TTY::Option::InvalidArity.new("invalid arity")
+
+      expect(errors.summary).to eq unindent(<<-EOS).chomp
+      Errors:
+        * invalid argument
+        * invalid arity
+      EOS
+    end
+  end
 end

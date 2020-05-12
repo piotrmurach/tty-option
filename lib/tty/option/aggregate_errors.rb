@@ -50,6 +50,33 @@ module TTY
       def messages
         map(&:message)
       end
+
+      # Format errors for display in terminal
+      #
+      # @example
+      #   errors = AggregateErrors.new
+      #   errors.add TTY::OptionInvalidArgument.new("invalid argument")
+      #   errors.summary
+      #   # =>
+      #   # Error: invalid argument
+      #
+      # @return [String]
+      #
+      # @api public
+      def summary
+        return "" if count.zero?
+
+        output = []
+        if messages.count == 1
+          output << "Error: #{messages.first}"
+        else
+          output << "Errors:"
+          messages.each do |message|
+            output << "  * #{message}"
+          end
+        end
+        output.join("\n")
+      end
     end # AggregateErrors
   end # Option
 end # TTY
