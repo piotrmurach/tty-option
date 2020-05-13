@@ -24,7 +24,7 @@ RSpec.describe TTY::Option::Parser::RequiredCheck do
 
     required_check.()
 
-    error = TTY::Option::MissingParameter.new("need to provide '--foo' option")
+    error = TTY::Option::MissingParameter.new(new_parameter("option", :foo))
 
     expect(errors).to eq([error])
   end

@@ -51,7 +51,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
     expect {
       parse(%w[], arg(:foo, required: true), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
-                     "need to provide 'foo' argument")
+                     "argument 'foo' must be provided")
   end
 
   it "accepts optional argument" do

@@ -31,7 +31,7 @@ RSpec.describe TTY::Option do
       cmd.parse([])
 
       expect(cmd.params.errors.messages).to eq([
-        "need to provide 'foo' argument"
+        "argument 'foo' must be provided"
       ])
     end
 
@@ -301,7 +301,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse([], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingParameter,
-                       "need to provide 'foo' keyword")
+                       "keyword 'foo' must be provided")
     end
   end
 
@@ -383,7 +383,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse([], {}, raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingParameter,
-                       "need to provide 'FOO' environment")
+                       "environment 'FOO' must be provided")
     end
   end
 
@@ -435,7 +435,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse([], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingParameter,
-                       "need to provide '--foo' option")
+                       "option '--foo' must be provided")
     end
 
     it "marks an option as optional with required argument" do
@@ -706,10 +706,10 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[])
 
       expect(cmd.params.errors.messages).to eq([
-        "need to provide '--baz' option",
-        "need to provide 'bar' keyword",
-        "need to provide 'foo' argument",
-        "need to provide 'QUX' environment"
+        "option '--baz' must be provided",
+        "keyword 'bar' must be provided",
+        "argument 'foo' must be provided",
+        "environment 'QUX' must be provided"
       ])
     end
   end
@@ -757,7 +757,7 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq("a")
       expect(cmd.params[:bar]).to eq(nil)
       expect(cmd.params[:help]).to eq(true)
-      expect(cmd.params.errors.messages).to eq(["need to provide '--bar' option"])
+      expect(cmd.params.errors.messages).to eq(["option '--bar' must be provided"])
       expect(cmd.params.remaining).to eq(%w[])
     end
   end

@@ -57,7 +57,7 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect {
       parse([], {}, env(:foo, required: true), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
-                    "need to provide 'FOO' environment")
+                    "environment 'FOO' must be provided")
   end
 
   it "checks for required env var in env hash" do
@@ -79,8 +79,8 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect(params[:baz]).to eq(nil)
     expect(rest).to eq([])
     expect(errors.map(&:message)).to eq([
-      "need to provide 'FOO' environment",
-      "need to provide 'BAR' environment"
+      "environment 'FOO' must be provided",
+      "environment 'BAR' must be provided"
     ])
   end
 

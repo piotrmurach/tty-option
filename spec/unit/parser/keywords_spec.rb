@@ -67,7 +67,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect {
       parse(%w[], keyword(:foo, required: true), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
-                     "need to provide 'foo' keyword")
+                     "keyword 'foo' must be provided")
   end
 
   it "collects all keywords missing errors" do
@@ -81,8 +81,8 @@ RSpec.describe TTY::Option::Parser::Keywords do
     expect(params[:bar]).to eq(nil)
     expect(rest).to eq([])
     expect(errors.map(&:message)).to eq([
-      "need to provide 'foo' keyword",
-      "need to provide 'bar' keyword"
+      "keyword 'foo' must be provided",
+      "keyword 'bar' must be provided"
     ])
   end
 

@@ -269,7 +269,7 @@ RSpec.describe TTY::Option::Parser::Options do
       parse(%w[], option(:foo, long: "--foo string", required: true),
             raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
-                     "need to provide '--foo' option")
+                     "option '--foo' must be provided")
   end
 
   it "collects all options missing errors" do
@@ -283,8 +283,8 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(params[:bar]).to eq(nil)
     expect(rest).to eq([])
     expect(errors.map(&:message)).to eq([
-      "need to provide '--foo' option",
-      "need to provide '-b' option"
+      "option '--foo' must be provided",
+      "option '-b' must be provided"
     ])
   end
 

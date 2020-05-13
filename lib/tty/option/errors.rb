@@ -97,7 +97,7 @@ module TTY
 
     # Raised when a parameter is required but not present
     class MissingParameter < ParameterError
-      MESSAGE = "need to provide '%<name>s' %<type>s"
+      MESSAGE = "%<type>s '%<name>s' must be provided"
 
       def initialize(param_or_message)
         if param_or_message.is_a?(Parameter)
