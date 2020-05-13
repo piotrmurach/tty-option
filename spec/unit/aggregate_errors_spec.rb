@@ -83,5 +83,9 @@ RSpec.describe TTY::Option::AggregateErrors do
         2) Invalid arity
       EOS
     end
+
+    it "formats majority of errors" do
+
+    end
   end
 end

@@ -20,6 +20,6 @@ RSpec.describe TTY::Option::ParamPermitted do
 
     expect(result.value).to eq(nil)
     expect(result.error).to be_an_instance_of(TTY::Option::UnpermittedArgument)
-    expect(result.error.message).to eq("unpermitted argument d for :foo parameter")
+    expect(result.error.message).to eq("unpermitted value `d` for '--foo' option")
   end
 end

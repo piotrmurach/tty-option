@@ -115,14 +115,17 @@ module TTY
 
     # Raised when argument value isn't permitted
     class UnpermittedArgument < Error
-      MESSAGE = "unpermitted argument %<value>s for %<name>s parameter"
+      MESSAGE = "unpermitted value `%<value>s` for '%<name>s' %<type>s"
 
       attr_reader :param
 
       def initialize(param_or_message, value = nil)
         if param_or_message.is_a?(Parameter)
           @param = param_or_message
-          message = format(MESSAGE, value: value, name: param.name.inspect)
+          message = format(MESSAGE,
+                           value: value,
+                           name: param.variable,
+                           type: param.to_sym)
         else
           message = param_or_message
         end
