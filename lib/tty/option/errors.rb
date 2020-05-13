@@ -84,8 +84,7 @@ module TTY
 
       def initialize(param)
         @param = param
-        name = switch_name.nil? ? param.name : switch_name
-        message = format(MESSAGE, type: param.to_sym, name: name)
+        message = format(MESSAGE, type: param.to_sym, name: param.variable)
 
         super(message)
       end
@@ -100,14 +99,7 @@ module TTY
       def initialize(param_or_message)
         if param_or_message.is_a?(Parameter)
           @param = param_or_message
-
-          name = if param.respond_to?(:long_name)
-                   param.long? ? param.long_name : param.short_name
-                 else
-                   param.variable
-                 end
-
-          message = format(MESSAGE, name: name, type: param.to_sym)
+          message = format(MESSAGE, name: param.variable, type: param.to_sym)
         else
           message = param_or_message
         end
