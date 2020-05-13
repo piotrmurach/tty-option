@@ -25,14 +25,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect {
         described_class.new(:foo, arity: nil)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "argument :foo expects an integer value for arity")
+                       "argument 'foo' arity needs to be an integer")
     end
 
     it "is invalid when 0" do
       expect {
         described_class.new(:foo, arity: 0)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "argument :foo arity cannot be zero")
+                       "argument 'foo' arity cannot be zero")
     end
 
     it "accepts * as zero or more arity" do
@@ -205,14 +205,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect {
         described_class.new(:foo, permit: nil)
       }.to raise_error(TTY::Option::InvalidPermitted,
-                       "expects an Array type")
+                       "argument 'foo' expects an Array for permitted values")
     end
 
     it "is invalid when not an array type" do
       expect {
         described_class.new(:foo, permit: Object.new)
       }.to raise_error(TTY::Option::InvalidPermitted,
-                       "expects an Array type")
+                       "argument 'foo' expects an Array for permitted values")
     end
   end
 
@@ -243,14 +243,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect {
         described_class.new(:foo, validate: nil)
       }.to raise_error(TTY::Option::InvalidValidation,
-                       "expects a Proc or a Regexp value")
+                       "argument 'foo' validation needs to be a Proc or a Regexp")
     end
 
     it "is invalid when not a proc or a regexp type" do
       expect {
         described_class.new(:foo, validate: Object.new)
       }.to raise_error(TTY::Option::InvalidValidation,
-                       "only accepts a Proc or a Regexp type")
+                       "argument 'foo' validation can only be a Proc or a Regexp")
     end
   end
 

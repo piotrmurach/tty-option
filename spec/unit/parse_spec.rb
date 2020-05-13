@@ -74,7 +74,7 @@ RSpec.describe TTY::Option do
           argument :foo, arity: 0
         end
       }.to raise_error(TTY::Option::InvalidArity,
-                       "argument :foo arity cannot be zero")
+                       "argument 'foo' arity cannot be zero")
     end
 
     it "reads zero or more values with zero_or_more arity" do

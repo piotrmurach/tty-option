@@ -241,7 +241,7 @@ module TTY
       def check_arity(value)
         if value.nil?
           raise InvalidArity,
-                "#{to_sym} #{name.inspect} expects an integer value for arity"
+                "#{to_sym} '#{variable}' arity needs to be an integer"
         end
 
         case value.to_s
@@ -251,7 +251,7 @@ module TTY
         end
 
         if value.zero?
-          raise InvalidArity, "#{to_sym} #{name.inspect} arity cannot be zero"
+          raise InvalidArity, "#{to_sym} '#{variable}' arity cannot be zero"
         end
         value
       end
@@ -261,7 +261,8 @@ module TTY
         if value.respond_to?(:include?)
           value
         else
-          raise InvalidPermitted, "expects an Array type"
+          raise InvalidPermitted,
+                "#{to_sym} '#{variable}' expects an Array for permitted values"
         end
       end
 
@@ -269,13 +270,15 @@ module TTY
       def check_validation(value)
         case value
         when NilClass
-          raise InvalidValidation, "expects a Proc or a Regexp value"
+          raise InvalidValidation,
+                "#{to_sym} '#{variable}' validation needs to be a Proc or a Regexp"
         when Proc
           value
         when Regexp, String
           Regexp.new(value.to_s)
         else
-          raise InvalidValidation, "only accepts a Proc or a Regexp type"
+          raise InvalidValidation,
+                "#{to_sym} '#{variable}' validation can only be a Proc or a Regexp"
         end
       end
     end # Parameter
