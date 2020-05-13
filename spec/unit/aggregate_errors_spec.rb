@@ -79,8 +79,8 @@ RSpec.describe TTY::Option::AggregateErrors do
 
       expect(errors.summary).to eq unindent(<<-EOS).chomp
       Errors:
-        * invalid argument
-        * invalid arity
+        1) Invalid argument
+        2) Invalid arity
       EOS
     end
   end

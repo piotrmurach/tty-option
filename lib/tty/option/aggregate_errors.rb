@@ -71,8 +71,8 @@ module TTY
           output << "Error: #{messages.first}"
         else
           output << "Errors:"
-          messages.each do |message|
-            output << "  * #{message}"
+          messages.each_with_index do |message, num|
+            output << "  #{num+1}) #{message.capitalize}"
           end
         end
         output.join("\n")
