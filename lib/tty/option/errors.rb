@@ -12,17 +12,17 @@ module TTY
 
     # Raised when argument doesn't match expected value
     class InvalidArgument < Error
+      MESSAGE = "value of `%<value>s` fails validation for %<name>s %<type>s"
       attr_reader :param
 
       def initialize(param_or_message, value = nil)
         if param_or_message.is_a?(Parameter)
           @param = param_or_message
 
-          message = format(
-            "value of `%s` fails validation rule for %s parameter",
-            value,
-            param.name.inspect
-          )
+          message = format(MESSAGE,
+                           value: value,
+                           name: param.variable.inspect,
+                           type: param.to_sym)
         else
           message = param_or_message
         end
@@ -33,6 +33,7 @@ module TTY
 
     # Raised when number of arguments doesn't match
     class InvalidArity < Error
+      MESSAGE = "expected %<type>s %<name>s to appear %<expect>s but appeared %<actual>s"
       attr_reader :param
 
       def initialize(param_or_message, arity = nil)
@@ -41,13 +42,11 @@ module TTY
           prefix = param.arity < 0 ? "at least " : ""
           expected_arity = param.arity < 0 ? param.arity.abs - 1 : param.arity
 
-          message = format(
-            "expected %s %s to appear %s but appeared %s",
-            param.to_sym,
-            param.name.inspect,
-            prefix + pluralize("time", expected_arity),
-            pluralize("time", arity)
-          )
+          message = format(MESSAGE,
+                           type: param.to_sym,
+                           name: param.name.inspect,
+                           expect: prefix + pluralize("time", expected_arity),
+                           actual: pluralize("time", arity))
         else
           message = param_or_message
         end
@@ -78,13 +77,15 @@ module TTY
     InvalidValidation = Class.new(Error)
 
     # Raised when option requires an argument
-    class MissingArgument  < Error
+    class MissingArgument < Error
+      MESSAGE = "%<type>s %<name>s requires an argument"
+
       attr_reader :param
 
       def initialize(param, switch_name = nil)
         @param = param
         name = switch_name.nil? ? param.name : switch_name
-        message = "#{param.to_sym} #{name} requires an argument"
+        message = format(MESSAGE, type: param.to_sym, name: name)
 
         super(message)
       end
@@ -92,6 +93,8 @@ module TTY
 
     # Raised when a parameter is required but not present
     class MissingParameter < Error
+      MESSAGE = "need to provide '%<name>s' %<type>s"
+
       attr_reader :param
 
       def initialize(param_or_message)
@@ -99,12 +102,12 @@ module TTY
           @param = param_or_message
 
           name = if param.respond_to?(:long_name)
-            param.long? ? param.long_name : param.short_name
-          else
-            param.name
-          end
+                   param.long? ? param.long_name : param.short_name
+                 else
+                   param.variable
+                 end
 
-          message =  "need to provide '#{name}' #{param.to_sym}"
+          message = format(MESSAGE, name: name, type: param.to_sym)
         else
           message = param_or_message
         end
@@ -121,17 +124,17 @@ module TTY
 
     # Raised when argument value isn't permitted
     class UnpermittedArgument < Error
+      MESSAGE = "unpermitted argument %<value>s for %<name>s parameter"
+
       attr_reader :param
 
       def initialize(param_or_message, value = nil)
         if param_or_message.is_a?(Parameter)
           @param = param_or_message
 
-          message = format(
-            "unpermitted argument %s for %s parameter",
-            value,
-            param.name.inspect
-          )
+          message = format(MESSAGE,
+                           value: value,
+                           name: param.name.inspect)
         else
           message = param_or_message
         end

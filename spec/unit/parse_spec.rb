@@ -154,7 +154,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[a:1 b:2 c:3], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
-                "value of `[:c, 3]` fails validation rule for :foo parameter")
+                "value of `[:c, 3]` fails validation for \"foo\" argument")
     end
 
     it "doesn't raise on a validation rule failure and reads an error message" do
@@ -168,7 +168,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[11])
 
       expect(cmd.params.errors.messages).to eq([
-        "value of `11` fails validation rule for :foo parameter"
+        "value of `11` fails validation for \"foo\" argument"
       ])
     end
 
@@ -274,7 +274,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[foo=11 foo=13], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
-                "value of `13` fails validation rule for :foo parameter")
+                "value of `13` fails validation for \"foo\" keyword")
     end
 
     it "doesn't permit a value" do
@@ -358,7 +358,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[FOO=10,12,14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
-                      "value of `14` fails validation rule for :foo parameter")
+                      "value of `14` fails validation for \"FOO\" environment")
     end
 
     it "doesn't permit a value" do
@@ -383,7 +383,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse([], {}, raise_on_parse_error: true)
       }.to raise_error(TTY::Option::MissingParameter,
-                       "need to provide 'foo' environment")
+                       "need to provide 'FOO' environment")
     end
   end
 
@@ -613,7 +613,7 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo 13], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                        "value of `13` fails validation rule for :foo parameter")
+                        "value of `13` fails validation for \"foo\" option")
       end
 
       it "validates an option with a string as regex" do
@@ -627,7 +627,7 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo bar], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                        "value of `bar` fails validation rule for :foo parameter")
+                        "value of `bar` fails validation for \"foo\" option")
       end
 
       it "validates an option with a multiple argument" do
@@ -642,7 +642,7 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo 10,11,12], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                         "value of `12` fails validation rule for :foo parameter")
+                         "value of `12` fails validation for \"foo\" option")
       end
     end
   end
@@ -710,7 +710,7 @@ RSpec.describe TTY::Option do
         "need to provide '--baz' option",
         "need to provide 'bar' keyword",
         "need to provide 'foo' argument",
-        "need to provide 'qux' environment"
+        "need to provide 'QUX' environment"
       ])
     end
   end
