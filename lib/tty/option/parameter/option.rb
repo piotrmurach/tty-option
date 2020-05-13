@@ -16,6 +16,13 @@ module TTY
         # Matches "--foo [string]"
         LONG_ARGUMENT_OPTIONAL_RE = /^--\S+\s*\[\S+\]\s*$/.freeze
 
+        # Return long name if present, otherwise short name
+        #
+        # @api private
+        def default_variable_name
+          [long_name, short_name].reject(&:empty?).first
+        end
+
         def short(value = (not_set = true))
           if not_set
             @settings[:short]

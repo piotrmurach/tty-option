@@ -305,6 +305,32 @@ RSpec.describe TTY::Option::Parameter::Option do
     end
   end
 
+  context "variable setting" do
+    it "defaults option's variable to a generated long name" do
+      option = described_class.new(:foo)
+
+      expect(option.variable).to eq("--foo")
+    end
+
+    it "returns a short name as variable" do
+      option = described_class.new(:foo, short: "-f string")
+
+      expect(option.variable).to eq("-f")
+    end
+
+    it "returns a long name as variable" do
+      option = described_class.new(:foo, long: "--foo string")
+
+      expect(option.variable).to eq("--foo")
+    end
+
+    it "returns long name for variable when both short & long present" do
+      option = described_class.new(:foo, short: "-f", long: "--foo string")
+
+      expect(option.variable).to eq("--foo")
+    end
+  end
+
   context "comparison" do
     it "orders options by long name" do
       option_b = described_class.new(:foo, long: "--bb")

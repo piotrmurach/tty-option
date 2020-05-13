@@ -27,14 +27,14 @@ RSpec.describe TTY::Option::ParamValidation do
     expect(result.value).to eq(nil)
     expect(result.error[0]).to be_an_instance_of(TTY::Option::InvalidArgument)
     expect(result.error[0].message).to eq(
-      "value of `bar` fails validation for \"foo\" option"
+      "value of `bar` fails validation for \"--foo\" option"
     )
   end
 
   it "accepts a pram and fails another" do
     param = TTY::Option::Parameter::Option.create(:foo, validate: /\d{2,}/)
     error = TTY::Option::InvalidArgument.new(
-              "value of `4` fails validation for \"foo\" option")
+              "value of `4` fails validation for \"--foo\" option")
 
     result = described_class[param, %w[12 13 4]]
 

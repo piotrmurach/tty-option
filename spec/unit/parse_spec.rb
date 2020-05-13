@@ -613,7 +613,7 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo 13], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                        "value of `13` fails validation for \"foo\" option")
+                        "value of `13` fails validation for \"--foo\" option")
       end
 
       it "validates an option with a string as regex" do
@@ -627,7 +627,7 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo bar], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                        "value of `bar` fails validation for \"foo\" option")
+                        "value of `bar` fails validation for \"--foo\" option")
       end
 
       it "validates an option with a multiple argument" do
@@ -642,7 +642,7 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo 10,11,12], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                         "value of `12` fails validation for \"foo\" option")
+                         "value of `12` fails validation for \"--foo\" option")
       end
     end
   end
