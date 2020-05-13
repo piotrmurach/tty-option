@@ -147,7 +147,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect {
         parse(%w[foo=1], keyword(:foo, arity: 2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "expected keyword :foo to appear 2 times but " \
+                      "expected keyword 'foo' to appear 2 times but " \
                       "appeared 1 time")
     end
 
@@ -161,7 +161,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect {
         parse(%w[foo=1], keyword(:foo, arity: -3), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "expected keyword :foo to appear at least 2 times but " \
+                      "expected keyword 'foo' to appear at least 2 times but " \
                       "appeared 1 time")
     end
 
@@ -169,7 +169,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect {
         parse([], keyword(:foo, arity: -2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "expected keyword :foo to appear at least 1 time but " \
+                       "expected keyword 'foo' to appear at least 1 time but " \
                        "appeared 0 times")
     end
 
@@ -191,8 +191,8 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect(params[:bar]).to eq(["2"])
       expect(rest).to eq([])
       expect(errors.map(&:message)).to eq([
-        "expected keyword :foo to appear 2 times but appeared 1 time",
-        "expected keyword :bar to appear at least 2 times but appeared 1 time"
+        "expected keyword 'foo' to appear 2 times but appeared 1 time",
+        "expected keyword 'bar' to appear at least 2 times but appeared 1 time"
       ])
     end
   end

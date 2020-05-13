@@ -33,7 +33,7 @@ module TTY
 
     # Raised when number of arguments doesn't match
     class InvalidArity < Error
-      MESSAGE = "expected %<type>s %<name>s to appear %<expect>s but appeared %<actual>s"
+      MESSAGE = "expected %<type>s '%<name>s' to appear %<expect>s but appeared %<actual>s"
       attr_reader :param
 
       def initialize(param_or_message, arity = nil)
@@ -44,7 +44,7 @@ module TTY
 
           message = format(MESSAGE,
                            type: param.to_sym,
-                           name: param.name.inspect,
+                           name: param.variable,
                            expect: prefix + pluralize("time", expected_arity),
                            actual: pluralize("time", arity))
         else

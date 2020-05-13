@@ -23,7 +23,7 @@ RSpec.describe TTY::Option::Parser::ArityCheck do
     arity_check.({foo: 1})
 
     error = TTY::Option::InvalidArity.new(
-      "expected option :foo to appear 2 times but appeared 1 time")
+      "expected option '--foo' to appear 2 times but appeared 1 time")
 
     expect(errors.first).to eq(error)
   end

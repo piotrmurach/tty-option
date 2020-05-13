@@ -125,7 +125,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[x y], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "expected argument :foo to appear at least 3 times but " \
+                      "expected argument 'foo' to appear at least 3 times but " \
                       "appeared 2 times")
     end
 
