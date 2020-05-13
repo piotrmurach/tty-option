@@ -90,7 +90,7 @@ RSpec.describe TTY::Option::Parser::Options do
   it "raises if short option isn't defined" do
     expect {
       parse(%w[-b], option(:foo, short: "-f"), raise_on_parse_error: true)
-    }.to raise_error(TTY::Option::InvalidParameter, "invalid option -b")
+    }.to raise_error(TTY::Option::InvalidParameter, "invalid option '-b'")
   end
 
   it "collects unrecognized options when :check_invalid_params is false" do
@@ -109,7 +109,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
     expect(params[:foo]).to eq(false)
     expect(rest).to eq([])
-    expect(errors.map(&:message)).to eq(["invalid option -b"])
+    expect(errors.map(&:message)).to eq(["invalid option '-b'"])
   end
 
   it "parses compacted flags" do
@@ -228,7 +228,7 @@ RSpec.describe TTY::Option::Parser::Options do
     expect {
       parse(%w[--foo --bar], option(:foo, long: "--foo"),
             raise_on_parse_error: true)
-    }.to raise_error(TTY::Option::InvalidParameter, "invalid option --bar")
+    }.to raise_error(TTY::Option::InvalidParameter, "invalid option '--bar'")
   end
 
   it "raises if long option isn't defined" do
@@ -238,7 +238,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
     expect {
       parse(%w[--foob ], options, raise_on_parse_error: true)
-    }.to raise_error(TTY::Option::AmbiguousOption, "option --foob is ambiguous")
+    }.to raise_error(TTY::Option::AmbiguousOption, "option '--foob' is ambiguous")
   end
 
   it "consumes non-option arguments" do

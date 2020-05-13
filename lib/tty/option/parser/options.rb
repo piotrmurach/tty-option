@@ -168,14 +168,14 @@ module TTY
 
             if matching_options.zero?
               if @check_invalid_params
-                @error_aggregator.(InvalidParameter.new("invalid option #{long}"))
+                @error_aggregator.(InvalidParameter.new("invalid option '#{long}'"))
               else
                 @remaining << long
               end
             elsif matching_options == 1
               value = long[opt.long_name.size..-1]
             else
-              @error_aggregator.(AmbiguousOption.new("option #{long} is ambiguous"))
+              @error_aggregator.(AmbiguousOption.new("option '#{long}' is ambiguous"))
             end
           end
 
@@ -221,7 +221,7 @@ module TTY
               value = true
             end
           elsif @check_invalid_params
-            @error_aggregator.(InvalidParameter.new("invalid option #{short}"))
+            @error_aggregator.(InvalidParameter.new("invalid option '#{short}'"))
           else
             @remaining << short
           end
