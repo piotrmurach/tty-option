@@ -82,7 +82,7 @@ module TTY
 
       attr_reader :param
 
-      def initialize(param, switch_name = nil)
+      def initialize(param)
         @param = param
         name = switch_name.nil? ? param.name : switch_name
         message = format(MESSAGE, type: param.to_sym, name: name)

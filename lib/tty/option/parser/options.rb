@@ -140,7 +140,7 @@ module TTY
               elsif !@argv.empty?
                 value = opt.multi_argument? ? consume_arguments : @argv.shift
               else
-                @error_aggregator.(MissingArgument.new(opt, long))
+                @error_aggregator.(MissingArgument.new(opt))
               end
             elsif opt.argument_optional?
               if !rest.empty?
@@ -202,7 +202,7 @@ module TTY
               elsif !@argv.empty?
                 value = opt.multi_argument? ? consume_arguments : @argv.shift
               else
-                @error_aggregator.(MissingArgument.new(opt, short))
+                @error_aggregator.(MissingArgument.new(opt))
               end
             elsif opt.argument_optional?
               if !other_singles.empty?
