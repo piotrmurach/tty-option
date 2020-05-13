@@ -403,7 +403,7 @@ RSpec.describe TTY::Option::Parser::Options do
         parse(%w[-f 1], option(:foo, short: "-f int", arity: 2),
              raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "expected option '-f' to appear 2 times but appeared 1 time")
+                       "option '-f' should appear 2 times but appeared 1 time")
     end
 
     it "doesn't find enough options to match at least arity for short flag" do
@@ -411,7 +411,7 @@ RSpec.describe TTY::Option::Parser::Options do
         parse(%w[-f 1], option(:foo, short: "-f int", arity: -3),
              raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "expected option '-f' to appear at least 2 times but " \
+                       "option '-f' should appear at least 2 times but " \
                        "appeared 1 time")
     end
 
@@ -420,7 +420,7 @@ RSpec.describe TTY::Option::Parser::Options do
         parse([], option(:foo, short: "-f int", arity: -2),
              raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "expected option '-f' to appear at least 1 time but " \
+                       "option '-f' should appear at least 1 time but " \
                        "appeared 0 times")
     end
 
@@ -435,8 +435,8 @@ RSpec.describe TTY::Option::Parser::Options do
       expect(params[:bar]).to eq(["2"])
       expect(rest).to eq([])
       expect(errors.map(&:message)).to eq([
-        "expected option '-f' to appear 2 times but appeared 1 time",
-        "expected option '-b' to appear at least 2 times but appeared 1 time"
+        "option '-f' should appear 2 times but appeared 1 time",
+        "option '-b' should appear at least 2 times but appeared 1 time"
       ])
     end
 

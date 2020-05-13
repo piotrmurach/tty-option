@@ -28,7 +28,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
     expect {
       parse(%w[a], arg(:foo, arity: 2), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::InvalidArity,
-                     "expected argument 'foo' to appear 2 times but " \
+                     "argument 'foo' should appear 2 times but " \
                      "appeared 1 time")
   end
 
@@ -36,7 +36,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
     expect {
       parse(%w[a], arg(:foo, arity: -3), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::InvalidArity,
-                     "expected argument 'foo' to appear at least 2 times but " \
+                     "argument 'foo' should appear at least 2 times but " \
                      "appeared 1 time")
   end
 
@@ -71,7 +71,7 @@ RSpec.describe TTY::Option::Parser::Arguments do
     expect(args[:foo]).to eq("a")
     expect(rest).to eq([])
     expect(errors.map(&:message)).to eq([
-      "expected argument 'foo' to appear 2 times but appeared 1 time"
+      "argument 'foo' should appear 2 times but appeared 1 time"
     ])
   end
 

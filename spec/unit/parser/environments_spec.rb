@@ -154,7 +154,7 @@ RSpec.describe TTY::Option::Parser::Environments do
       expect {
         parse(%w[FOO=a], {}, env(:foo, arity: 2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "expected environment 'FOO' to appear 2 times but " \
+                      "environment 'FOO' should appear 2 times but " \
                       "appeared 1 time")
     end
 
@@ -168,7 +168,7 @@ RSpec.describe TTY::Option::Parser::Environments do
       expect {
         parse(%w[FOO=a], {}, env(:foo, arity: -3), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "expected environment 'FOO' to appear at least 2 times but " \
+                      "environment 'FOO' should appear at least 2 times but " \
                       "appeared 1 time")
     end
 
@@ -176,7 +176,7 @@ RSpec.describe TTY::Option::Parser::Environments do
       expect {
         parse([], {}, env(:foo, arity: -2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "expected environment 'FOO' to appear at least 1 time but " \
+                       "environment 'FOO' should appear at least 1 time but " \
                        "appeared 0 times")
     end
 
@@ -191,8 +191,8 @@ RSpec.describe TTY::Option::Parser::Environments do
       expect(params[:bar]).to eq(["2"])
       expect(rest).to eq([])
       expect(errors.map(&:message)).to eq([
-        "expected environment 'FOO' to appear 2 times but appeared 1 time",
-        "expected environment 'BAR' to appear at least 2 times but appeared 1 time"
+        "environment 'FOO' should appear 2 times but appeared 1 time",
+        "environment 'BAR' should appear at least 2 times but appeared 1 time"
       ])
     end
   end
