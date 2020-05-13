@@ -10,10 +10,29 @@ module TTY
     # Raised when overriding already defined conversion
     ConversionAlreadyDefined = Class.new(Error)
 
-    # Raised when argument doesn't match expected value
-    class InvalidArgument < Error
+    # Raised when found unrecognized parameter
+    InvalidParameter = Class.new(Error)
+
+    # Raised when permitted type is incorrect
+    InvalidPermitted = Class.new(Error)
+
+    # Raised when validation format is not supported
+    InvalidValidation = Class.new(Error)
+
+    # Raised when attempting to register already registered parameter
+    ParameterConflict = Class.new(Error)
+
+    # Raised when conversion type isn't registered
+    UnsupportedConversion = Class.new(Error)
+
+    # Raised when a parameter invariant is invalid
+    class ParameterError < Error
+      attr_accessor :param
+    end
+
+    # Raised when parameter argument doesn't match expected value
+    class InvalidArgument < ParameterError
       MESSAGE = "value of `%<value>s` fails validation for %<name>s %<type>s"
-      attr_reader :param
 
       def initialize(param_or_message, value = nil)
         if param_or_message.is_a?(Parameter)
@@ -31,10 +50,9 @@ module TTY
       end
     end
 
-    # Raised when number of arguments doesn't match
-    class InvalidArity < Error
+    # Raised when number of parameter arguments doesn't match
+    class InvalidArity < ParameterError
       MESSAGE = "%<type>s '%<name>s' should appear %<expect>s but appeared %<actual>s"
-      attr_reader :param
 
       def initialize(param_or_message, arity = nil)
         if param_or_message.is_a?(Parameter)
@@ -63,24 +81,12 @@ module TTY
     end
 
     # Raised when conversion provided with unexpected argument
-    class InvalidConversionArgument < Error
-      attr_accessor :param
+    class InvalidConversionArgument < ParameterError
     end
 
-    # Raised when found unrecognized parameter
-    InvalidParameter = Class.new(Error)
-
-    # Raised when permitted type is incorrect
-    InvalidPermitted = Class.new(Error)
-
-    # Raised when validation format is not supported
-    InvalidValidation = Class.new(Error)
-
     # Raised when option requires an argument
-    class MissingArgument < Error
+    class MissingArgument < ParameterError
       MESSAGE = "%<type>s %<name>s requires an argument"
-
-      attr_reader :param
 
       def initialize(param)
         @param = param
@@ -90,10 +96,8 @@ module TTY
     end
 
     # Raised when a parameter is required but not present
-    class MissingParameter < Error
+    class MissingParameter < ParameterError
       MESSAGE = "need to provide '%<name>s' %<type>s"
-
-      attr_reader :param
 
       def initialize(param_or_message)
         if param_or_message.is_a?(Parameter)
@@ -107,17 +111,9 @@ module TTY
       end
     end
 
-    # Raised when attempting to register already registered parameter
-    ParameterConflict = Class.new(Error)
-
-    # Raised when conversion type isn't registered
-    UnsupportedConversion = Class.new(Error)
-
     # Raised when argument value isn't permitted
-    class UnpermittedArgument < Error
+    class UnpermittedArgument < ParameterError
       MESSAGE = "unpermitted value `%<value>s` for '%<name>s' %<type>s"
-
-      attr_reader :param
 
       def initialize(param_or_message, value = nil)
         if param_or_message.is_a?(Parameter)
