@@ -71,7 +71,7 @@ Or install it yourself as:
     * [2.7.7 footer](#277-footer)
   * [2.8 help](#28-help)
     * [2.8.1 :order](#281-order)
-    * [2.8.2 :param_display](#282-param-display)
+    * [2.8.2 :param_display](#282-param_display)
     * [2.8.3 :width](#283-width)
 
 ## 1. Usage
@@ -859,10 +859,77 @@ end
 
 ### 2.7.4 banner
 
+The usage information of how to use a program is displayed right after header. If no header is specified, it will be displayed first.
+
+This information is handled by the `banner` helper. By default, it will use the parameter definitions to generate usage information.
+
+For example, given the following declarations:
+
 ```ruby
+usage do
+  program :foo
+
+  command :bar
+end
+
+argument :baz
+
+keyword :qux do
+  convert :uri
+end
+
+option :fum
+```
+
+The generated usage information will be:
+
+```bash
+Usage: foo bar [OPTIONS] BAZ [QUX=URI]
+```
+
+If you want to configure how arguments are displayed specify [2.8.2 :param_display](#282-param_display) setting.
+
+You can also change completely how to the banner is displayed:
+
+```ruby
+usage do
+  program "foo"
+
+  banner "Usage: #{program} BAR BAZ"
+end
 ```
 
 ### 2.7.5 desc(ription)
+
+The description is placed between usage information and the parameters and given with `desc` or `description` helpers.
+
+The `desc` helper accepts multiple strings that will be displayed on separate lines.
+
+```ruby
+usage do
+  desc "Some description", "on multiline"
+end
+```
+
+This will result in the following help output:
+
+```
+Some description
+on multiline
+```
+
+The `desc` helper can be called multiple times to build an examples section:
+
+```ruby
+usage do
+  desc "Some description", "on multiline"
+
+  desc <<~EOS
+  Another description
+  on multiline
+  EOS
+end
+```
 
 ### 2.7.6 example(s)
 
@@ -871,22 +938,18 @@ To add usage examples section to the help information use the `example` or `exam
 The `example` helper accepts multiple strings that will be displayed on separate lines. For instance, the following class will add a single example:
 
 ```ruby
-class Command
-  include TTY::Option
-
-  usage do
-    example "Some example how to use foo",
-            " $ foo bar"
-  end
+usage do
+  example "Some example how to use foo",
+          " $ foo bar"
 end
 ```
 
 This will result in the following help output:
 
-```ruby
-# Examples:
-#   Some example how to use foo
-#     $ foo bar
+```
+Examples:
+  Some example how to use foo
+    $ foo bar
 ```
 
 The `example` helper can be called multiple times to build an examples section:
@@ -905,13 +968,13 @@ end
 
 The usage help will contain the following:
 
-```ruby
-# Examples:
-#   Some example how to use foo
-#     $ foo bar
-#
-#   Another example how to use foo
-#     $ foo baz
+```
+Examples:
+  Some example how to use foo
+    $ foo bar
+
+  Another example how to use foo
+    $ foo baz
 ```
 
 ### 2.7.7 footer
@@ -989,7 +1052,9 @@ For example, to lowercase and surround your parameters with `< >` brackets do:
 help(param_display: ->(str) { "<#{str.downcase}>" })
 ```
 
-```bash
+This will produce the following output:
+
+```
 Usage: run [<options>] <foo> <bar>=<uri>
 ```
 
