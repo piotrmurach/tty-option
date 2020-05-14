@@ -10,12 +10,6 @@ module TTY
     # Raised when overriding already defined conversion
     ConversionAlreadyDefined = Class.new(Error)
 
-    # Raised when permitted type is incorrect
-    InvalidPermitted = Class.new(Error)
-
-    # Raised when validation format is not supported
-    InvalidValidation = Class.new(Error)
-
     # Raised when attempting to register already registered parameter
     ParameterConflict = Class.new(Error)
 

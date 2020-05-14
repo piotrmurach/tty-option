@@ -242,7 +242,7 @@ module TTY
       # @api private
       def check_arity(value)
         if value.nil?
-          raise InvalidArity,
+          raise ConfigurationError,
                 "#{to_sym} '#{variable}' arity needs to be an Integer"
         end
 
@@ -253,7 +253,7 @@ module TTY
         end
 
         if value.zero?
-          raise InvalidArity, "#{to_sym} '#{variable}' arity cannot be zero"
+          raise ConfigurationError, "#{to_sym} '#{variable}' arity cannot be zero"
         end
         value
       end
@@ -263,7 +263,7 @@ module TTY
         if value.respond_to?(:include?)
           value
         else
-          raise InvalidPermitted,
+          raise ConfigurationError,
                 "#{to_sym} '#{variable}' permitted value needs to be an Array"
         end
       end
@@ -291,14 +291,14 @@ module TTY
       def check_validation(value)
         case value
         when NilClass
-          raise InvalidValidation,
+          raise ConfigurationError,
                 "#{to_sym} '#{variable}' validation needs to be a Proc or a Regexp"
         when Proc
           value
         when Regexp, String
           Regexp.new(value.to_s)
         else
-          raise InvalidValidation,
+          raise ConfigurationError,
                 "#{to_sym} '#{variable}' validation can only be a Proc or a Regexp"
         end
       end

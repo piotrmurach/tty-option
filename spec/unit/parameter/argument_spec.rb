@@ -24,14 +24,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "is invalid when nil" do
       expect {
         described_class.new(:foo, arity: nil)
-      }.to raise_error(TTY::Option::InvalidArity,
+      }.to raise_error(TTY::Option::ConfigurationError,
                        "argument 'foo' arity needs to be an Integer")
     end
 
     it "is invalid when 0" do
       expect {
         described_class.new(:foo, arity: 0)
-      }.to raise_error(TTY::Option::InvalidArity,
+      }.to raise_error(TTY::Option::ConfigurationError,
                        "argument 'foo' arity cannot be zero")
     end
 
@@ -220,14 +220,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "is invalid when nil" do
       expect {
         described_class.new(:foo, permit: nil)
-      }.to raise_error(TTY::Option::InvalidPermitted,
+      }.to raise_error(TTY::Option::ConfigurationError,
                        "argument 'foo' permitted value needs to be an Array")
     end
 
     it "is invalid when not an array type" do
       expect {
         described_class.new(:foo, permit: Object.new)
-      }.to raise_error(TTY::Option::InvalidPermitted,
+      }.to raise_error(TTY::Option::ConfigurationError,
                        "argument 'foo' permitted value needs to be an Array")
     end
   end
@@ -258,14 +258,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "is invalid when nil" do
       expect {
         described_class.new(:foo, validate: nil)
-      }.to raise_error(TTY::Option::InvalidValidation,
+      }.to raise_error(TTY::Option::ConfigurationError,
                        "argument 'foo' validation needs to be a Proc or a Regexp")
     end
 
     it "is invalid when not a proc or a regexp type" do
       expect {
         described_class.new(:foo, validate: Object.new)
-      }.to raise_error(TTY::Option::InvalidValidation,
+      }.to raise_error(TTY::Option::ConfigurationError,
                        "argument 'foo' validation can only be a Proc or a Regexp")
     end
   end
