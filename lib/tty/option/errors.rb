@@ -4,14 +4,8 @@ module TTY
   module Option
     Error = Class.new(StandardError)
 
-    # Raised when an option matches more than one parameter option
-    AmbiguousOption = Class.new(Error)
-
     # Raised when overriding already defined conversion
     ConversionAlreadyDefined = Class.new(Error)
-
-    # Raised when found unrecognized parameter
-    InvalidParameter = Class.new(Error)
 
     # Raised when permitted type is incorrect
     InvalidPermitted = Class.new(Error)
@@ -25,13 +19,19 @@ module TTY
     # Raised when conversion type isn't registered
     UnsupportedConversion = Class.new(Error)
 
-    # Raised when a parameter invariant is invalid
-    class ParameterError < Error
+    # Raised during command line input parsing
+    class ParseError < Error
       attr_accessor :param
     end
 
+    # Raised when found unrecognized parameter
+    InvalidParameter = Class.new(ParseError)
+
+    # Raised when an option matches more than one parameter option
+    AmbiguousOption = Class.new(ParseError)
+
     # Raised when parameter argument doesn't match expected value
-    class InvalidArgument < ParameterError
+    class InvalidArgument < ParseError
       MESSAGE = "value of `%<value>s` fails validation for %<name>s %<type>s"
 
       def initialize(param_or_message, value = nil)
@@ -51,7 +51,7 @@ module TTY
     end
 
     # Raised when number of parameter arguments doesn't match
-    class InvalidArity < ParameterError
+    class InvalidArity < ParseError
       MESSAGE = "%<type>s '%<name>s' should appear %<expect>s but appeared %<actual>s"
 
       def initialize(param_or_message, arity = nil)
@@ -81,11 +81,11 @@ module TTY
     end
 
     # Raised when conversion provided with unexpected argument
-    class InvalidConversionArgument < ParameterError
+    class InvalidConversionArgument < ParseError
     end
 
     # Raised when option requires an argument
-    class MissingArgument < ParameterError
+    class MissingArgument < ParseError
       MESSAGE = "%<type>s %<name>s requires an argument"
 
       def initialize(param)
@@ -96,7 +96,7 @@ module TTY
     end
 
     # Raised when a parameter is required but not present
-    class MissingParameter < ParameterError
+    class MissingParameter < ParseError
       MESSAGE = "%<type>s '%<name>s' must be provided"
 
       def initialize(param_or_message)
@@ -112,7 +112,7 @@ module TTY
     end
 
     # Raised when argument value isn't permitted
-    class UnpermittedArgument < ParameterError
+    class UnpermittedArgument < ParseError
       MESSAGE = "unpermitted value `%<value>s` for '%<name>s' %<type>s"
 
       def initialize(param_or_message, value = nil)
