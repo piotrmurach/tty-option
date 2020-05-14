@@ -243,7 +243,7 @@ module TTY
       def check_arity(value)
         if value.nil?
           raise InvalidArity,
-                "#{to_sym} '#{variable}' arity needs to be an integer"
+                "#{to_sym} '#{variable}' arity needs to be an Integer"
         end
 
         case value.to_s
@@ -264,7 +264,7 @@ module TTY
           value
         else
           raise InvalidPermitted,
-                "#{to_sym} '#{variable}' expects an Array for permitted values"
+                "#{to_sym} '#{variable}' permitted value needs to be an Array"
         end
       end
 

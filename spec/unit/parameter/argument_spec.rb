@@ -25,7 +25,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect {
         described_class.new(:foo, arity: nil)
       }.to raise_error(TTY::Option::InvalidArity,
-                       "argument 'foo' arity needs to be an integer")
+                       "argument 'foo' arity needs to be an Integer")
     end
 
     it "is invalid when 0" do
@@ -221,14 +221,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect {
         described_class.new(:foo, permit: nil)
       }.to raise_error(TTY::Option::InvalidPermitted,
-                       "argument 'foo' expects an Array for permitted values")
+                       "argument 'foo' permitted value needs to be an Array")
     end
 
     it "is invalid when not an array type" do
       expect {
         described_class.new(:foo, permit: Object.new)
       }.to raise_error(TTY::Option::InvalidPermitted,
-                       "argument 'foo' expects an Array for permitted values")
+                       "argument 'foo' permitted value needs to be an Array")
     end
   end
 
