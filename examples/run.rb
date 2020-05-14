@@ -8,7 +8,7 @@ class RunImage
   usage do
     program "dock"
 
-    action "run"
+    command "run"
 
     desc "Run a command in a new container"
 
@@ -37,6 +37,12 @@ class RunImage
     desc "Restart policy to apply when a container exits"
   end
 
+  flag :help do
+    short "-h"
+    long "--help"
+    desc "Print usage"
+  end
+
   flag :detach do
     short "-d"
     long "--detach"
@@ -58,13 +64,26 @@ class RunImage
   end
 
   def run
-    pp params.to_h
+    if params[:help]
+      print help
+    elsif params.errors.any?
+      puts params.errors.summary
+    else
+      pp params.to_h
+    end
   end
 end
 
 cmd = RunImage.new
 
+# show parsed params
 cmd.parse(%w[restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4 bash])
 cmd.run
 
-puts cmd.help
+# show help
+cmd.parse(%w[--help], raise_on_parsing_error: false)
+cmd.run
+
+# show errors
+cmd.parse(%w[--unknown])
+cmd.run
