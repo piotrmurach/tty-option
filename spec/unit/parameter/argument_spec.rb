@@ -84,10 +84,18 @@ RSpec.describe TTY::Option::Parameter::Argument do
     end
 
     it "returns default value" do
-      arg = described_class.new(:foo, default: "arg1")
+      arg = described_class.new(:foo, required: false, default: "arg1")
 
       expect(arg.default).to eq("arg1")
       expect(arg.default?).to eq(true)
+    end
+
+    it "cannot be both required and default" do
+      arg = described_class.new(:foo, required: true)
+      expect {
+        arg.default 1
+      }.to raise_error(TTY::Option::ConfigurationError,
+                      "argument 'foo' cannot have default value and be required")
     end
   end
 
@@ -161,6 +169,14 @@ RSpec.describe TTY::Option::Parameter::Argument do
 
       expect(arg.required?).to eq(false)
       expect(arg.optional?).to eq(true)
+    end
+
+    it "cannot be both required and default" do
+      arg = described_class.new(:foo, required: false, default: 1)
+      expect {
+         arg.required
+      }.to raise_error(TTY::Option::ConfigurationError,
+                      "argument 'foo' cannot be required and have default value")
     end
   end
 
@@ -317,8 +333,9 @@ RSpec.describe TTY::Option::Parameter::Argument do
 
   context "dup argument instance" do
     it "duplicates argument settings provided as keywords" do
-      arg = described_class.new(:foo, arity: 2, default: "bar", desc: "Some desc",
-                                convert: :int, permit: %w[a b c], required: true)
+      arg = described_class.new(:foo, arity: 2, required: false, default: "bar",
+                                desc: "Some desc",
+                                convert: :int, permit: %w[a b c])
       dupped_arg = arg.dup
 
       expect(dupped_arg).to eq(arg)
@@ -347,7 +364,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
 
     it "duplicates argument settings provided via method calls" do
       arg = described_class.new(:foo) do
-        required
+        optional
         arity 2
         default "bar"
         desc "Some desc"
@@ -386,7 +403,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "returns all settings as hash" do
       param = described_class.new(:foo) do
         variable "Variable"
-        required
+        optional
         arity 2
         convert :int
         default 11
@@ -403,7 +420,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
         desc: "Description",
         hidden: true,
         permit: [11, 12, 13],
-        required: true,
+        required: false,
         validate: Regexp.new("\d+"),
         var: "Variable"
       })
@@ -412,7 +429,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "transforms hash via a block" do
       param = described_class.new(:foo) do
         variable "Variable"
-        required
+        optional
         arity 2
         convert :int
         default 11
@@ -431,7 +448,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
         "desc" => "Description",
         "hidden" => true,
         "permit" => [11, 12, 13],
-        "required" => true,
+        "required" => false,
         "validate" => Regexp.new("\d+"),
         "var" => "Variable"
       })

@@ -112,14 +112,14 @@ RSpec.describe TTY::Option::Parser::Arguments do
 
   context "when :default" do
     it "parses no arguments and has default value" do
-      params, rest = parse([], arg(:foo, arity: 2, default: %w[a b]))
+      params, rest = parse([], arg(:foo, arity: 2, required: false, default: %w[a b]))
 
       expect(params[:foo]).to eq(%w[a b])
       expect(rest).to eq([])
     end
 
     it "parses no arguments and has proc default" do
-      params, rest = parse([], arg(:foo, arity: 2, default: -> { %w[a b] }))
+      params, rest = parse([], arg(:foo, arity: 2, required: false, default: -> { %w[a b] }))
 
       expect(params[:foo]).to eq(%w[a b])
       expect(rest).to eq([])

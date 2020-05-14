@@ -30,8 +30,10 @@ module TTY
           case key.to_sym
           when :arity
             val = check_arity(val)
+          when :default
+            val = check_default(val)
           when :optional
-            key, val = :required, !val
+            key, val = :required, check_required(!val)
           when :permit
             val = check_permitted(val)
           when :validate
@@ -89,7 +91,7 @@ module TTY
         if not_set
           @settings[:default]
         else
-          @settings[:default] = value
+          @settings[:default] = check_default(value)
         end
       end
       alias defaults default
@@ -126,7 +128,7 @@ module TTY
       end
 
       def required
-        @settings[:required] = true
+        @settings[:required] = check_required(true)
       end
 
       def required?
@@ -263,6 +265,25 @@ module TTY
         else
           raise InvalidPermitted,
                 "#{to_sym} '#{variable}' expects an Array for permitted values"
+        end
+      end
+
+      def check_default(value)
+        if !value.nil? && required?
+          raise ConfigurationError,
+                "#{to_sym} '#{variable}' cannot have default value and be required"
+        else
+          value
+        end
+      end
+
+      # @api private
+      def check_required(value)
+        if value && default?
+          raise ConfigurationError,
+                "#{to_sym} '#{variable}' cannot be required and have default value"
+        else
+          value
         end
       end
 

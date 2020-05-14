@@ -4,6 +4,9 @@ module TTY
   module Option
     Error = Class.new(StandardError)
 
+    # Raised when a parameter invariant is invalid
+    ConfigurationError = Class.new(Error)
+
     # Raised when overriding already defined conversion
     ConversionAlreadyDefined = Class.new(Error)
 

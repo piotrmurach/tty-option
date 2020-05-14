@@ -35,9 +35,12 @@ RSpec.describe TTY::Option do
       ])
     end
 
-    it "defauls argument to a value" do
+    it "defauls argument to a value when optional" do
       cmd = new_command do
-        argument(:foo) { default "bar" }
+        argument(:foo) do
+          optional
+          default "bar"
+        end
       end
 
       cmd.parse([])
@@ -45,9 +48,12 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:foo]).to eq("bar")
     end
 
-    it "defauls argument to a proc" do
+    it "defauls argument to a proc when optional" do
       cmd = new_command do
-        argument(:foo) { default -> { "bar" } }
+        argument(:foo) do
+          optional
+          default -> { "bar" }
+        end
       end
 
       cmd.parse([])
