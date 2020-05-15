@@ -14,7 +14,8 @@ RSpec.describe TTY::Option::ParamConversion do
 
     expect(result.value).to eq(nil)
     expect(result.error).to be_an_instance_of(TTY::Option::InvalidConversionArgument)
-    expect(result.error.message).to eq("Invalid value of \"bar\" for :integer conversion")
+    expect(result.error.message).to eq(
+      "cannot convert value of `bar` into 'int' type for 'foo' argument")
   end
 
   it "converts parameter value to expected type with a block" do

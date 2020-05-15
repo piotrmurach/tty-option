@@ -189,7 +189,7 @@ RSpec.describe TTY::Option do
 
       expect(cmd.params[:foo]).to eq(nil)
       expect(cmd.params.errors.messages).to eq([
-        "Invalid value of \"bar\" for :integer conversion"
+        "cannot convert value of `bar` into 'int' type for 'foo' argument"
       ])
     end
 

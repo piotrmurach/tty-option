@@ -79,6 +79,19 @@ module TTY
 
     # Raised when conversion provided with unexpected argument
     class InvalidConversionArgument < ParseError
+      MESSAGE = "cannot convert value of `%<value>s` into '%<cast>s' type " \
+                "for '%<name>s' %<type>s"
+
+      def initialize(param_or_message, value = nil)
+        if param_or_message.is_a?(Parameter)
+          @param = param_or_message
+          message = format(MESSAGE, value: value, cast: param.convert,
+                           name: param.variable, type: param.to_sym)
+        else
+          message = param_or_message
+        end
+        super(message)
+      end
     end
 
     # Raised when option requires an argument
