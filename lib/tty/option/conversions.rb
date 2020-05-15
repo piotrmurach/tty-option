@@ -12,9 +12,9 @@ module TTY
 
       # @api public
       def self.raise_invalid_argument(conv_name, val)
-        raise InvalidConversionArgument,
-              format("Invalid value of %s for %s conversion",
-                     val.inspect, conv_name.inspect)
+        raise ConversionError,
+              format("invalid value of %<value>s for %<conv>s conversion",
+                     value: val.inspect, conv: conv_name.inspect)
       end
 
       convert :bool, :boolean do |val|

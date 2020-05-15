@@ -7,11 +7,14 @@ module TTY
     # Raised when a parameter invariant is invalid
     ConfigurationError = Class.new(Error)
 
+    # Raised when attempting to register already registered parameter
+    ParameterConflict = Class.new(Error)
+
     # Raised when overriding already defined conversion
     ConversionAlreadyDefined = Class.new(Error)
 
-    # Raised when attempting to register already registered parameter
-    ParameterConflict = Class.new(Error)
+    # Raised when conversion cannot be performed
+    ConversionError = Class.new(Error)
 
     # Raised when conversion type isn't registered
     UnsupportedConversion = Class.new(Error)
@@ -82,14 +85,10 @@ module TTY
       MESSAGE = "cannot convert value of `%<value>s` into '%<cast>s' type " \
                 "for '%<name>s' %<type>s"
 
-      def initialize(param_or_message, value = nil)
-        if param_or_message.is_a?(Parameter)
-          @param = param_or_message
-          message = format(MESSAGE, value: value, cast: param.convert,
-                           name: param.variable, type: param.to_sym)
-        else
-          message = param_or_message
-        end
+      def initialize(param, value)
+        @param = param
+        message = format(MESSAGE, value: value, cast: param.convert,
+                          name: param.variable, type: param.to_sym)
         super(message)
       end
     end

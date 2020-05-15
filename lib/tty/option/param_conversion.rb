@@ -22,7 +22,7 @@ module TTY
         else
           Result.success(Conversions[cast].(value))
         end
-      rescue InvalidConversionArgument
+      rescue ConversionError
         Result.failure(InvalidConversionArgument.new(param, value))
       end
       module_function :call
