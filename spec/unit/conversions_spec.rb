@@ -48,6 +48,13 @@ RSpec.describe TTY::Option::Conversions do
       }.to raise_error(TTY::Option::InvalidConversionArgument,
                       /Invalid value of "invalid" for :date conversion/)
     end
+
+    it "fails to convert nil" do
+      expect {
+        described_class[:date].(nil)
+      }.to raise_error(TTY::Option::InvalidConversionArgument,
+                      /Invalid value of nil for :date conversion/)
+    end
   end
 
   context ":float" do
@@ -61,11 +68,18 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert" do
+    it "fails to convert string" do
       expect {
         described_class[:float].("invalid")
       }.to raise_error(TTY::Option::InvalidConversionArgument,
                       /Invalid value of "invalid" for :float conversion/)
+    end
+
+    it "fails to convert nil" do
+      expect {
+        described_class[:float].(nil)
+      }.to raise_error(TTY::Option::InvalidConversionArgument,
+                      /Invalid value of nil for :float conversion/)
     end
   end
 
@@ -80,11 +94,18 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert" do
+    it "fails to convert string" do
       expect {
         described_class[:int].("invalid")
       }.to raise_error(TTY::Option::InvalidConversionArgument,
-                      /Invalid value of "invalid" for :int conversion/)
+                      /Invalid value of "invalid" for :integer conversion/)
+    end
+
+    it "fails to convert nil" do
+      expect {
+        described_class[:integer].(nil)
+      }.to raise_error(TTY::Option::InvalidConversionArgument,
+                      /Invalid value of nil for :integer conversion/)
     end
   end
 
@@ -102,6 +123,7 @@ RSpec.describe TTY::Option::Conversions do
       "foo|bar" => /foo|bar/,
       true => /true/,
       1 => /1/,
+      nil => //
     }.each do |input, obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[:regexp].(input)).to eq(obj)
@@ -118,6 +140,7 @@ RSpec.describe TTY::Option::Conversions do
 
   context ":sym" do
     {
+      nil => :"",
       "foo" => :foo,
       "1" => :"1",
       %w[foo] => :"[\"foo\"]"

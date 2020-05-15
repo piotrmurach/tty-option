@@ -85,9 +85,9 @@ RSpec.describe TTY::Option::Formatter do
 
     it "formats banner with no arguments and some options" do
       cmd = new_command do
-          no_command
+        no_command
 
-          desc "Main description"
+        desc "Main description"
 
         option :foo do
           desc "Some description"

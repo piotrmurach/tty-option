@@ -32,7 +32,7 @@ module TTY
         begin
           require "date" unless defined?(::Date)
           ::Date.parse(val)
-        rescue ArgumentError
+        rescue ArgumentError, TypeError
           raise_invalid_argument(:date, val)
         end
       end
@@ -40,7 +40,7 @@ module TTY
       convert :float do |val|
         begin
           Float(val)
-        rescue ArgumentError
+        rescue ArgumentError, TypeError
           raise_invalid_argument(:float, val)
         end
       end
@@ -48,8 +48,8 @@ module TTY
       convert :int, :integer do |val|
         begin
           Float(val).to_i
-        rescue ArgumentError
-          raise_invalid_argument(:int, val)
+        rescue ArgumentError, TypeError
+          raise_invalid_argument(:integer, val)
         end
       end
 
