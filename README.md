@@ -24,7 +24,8 @@
 
 * Support for parsing of **positional arguments**, **keyword arguments**, **flags**, **options** and **environment variables**.
 * A convenient way to declare parsed parameters via DSL with a fallback to **hash-like syntax**.
-* Flexible parsing of option arguments that can handle complex inputs like **lists** and **maps**.
+* Parsing is flexible and **doesn't force any order for the parameters**. Options can be inserted anywhere between positional or keyword arguments.
+* Handling of complex option and keyword argument inputs like **lists** and **maps**.
 * Many **conversions types** provided out of the box, from basic integer to more complex hash structures.
 * Automatic **help generation** that can be customised with **usage** helpers like banner, examples and more.
 * Parsing **doesn't raise errors** by default and collects issues to allow for better user experience. 
@@ -58,21 +59,32 @@ Or install it yourself as:
     * [2.5.1 arity](#251-arity)
     * [2.5.2 convert](#252-convert)
     * [2.5.3 default](#253-default)
-    * [2.5.4 permit](#254-permit)
-    * [2.5.5 validate](#255-validate)
+    * [2.5.4 description](#254-description)
+    * [2.5.5 hidden](#255-hidden)
+    * [2.5.6 optional](#256-optional)
+    * [2.5.7 permit](#257-permit)
+    * [2.5.8 required](#258-required)
+    * [2.5.9 validate](#259-validate)
   * [2.6 parse](#26-parse)
-  * [2.7 usage](#27-usage)
-    * [2.7.1 header](#271-header)
-    * [2.7.2 program](#272-program)
-    * [2.7.3 command](#273-command)
-    * [2.7.4 banner](#274-banner)
-    * [2.7.5 description](#275-description)
-    * [2.7.6 example](#276-examples)
-    * [2.7.7 footer](#277-footer)
-  * [2.8 help](#28-help)
-    * [2.8.1 :order](#281-order)
-    * [2.8.2 :param_display](#282-param_display)
-    * [2.8.3 :width](#283-width)
+  * [2.7 params](#27-params)
+    * [2.7.1 errors](#271-errors)
+    * [2.7.2 remaining](#272-remaining)
+    * [2.7.3 valid?](#273-valid?)
+  * [2.8 usage](#28-usage)
+    * [2.8.1 header](#281-header)
+    * [2.8.2 program](#282-program)
+    * [2.8.3 command](#283-command)
+    * [2.8.4 banner](#284-banner)
+    * [2.8.5 description](#285-description)
+    * [2.8.6 example](#286-examples)
+    * [2.8.7 footer](#287-footer)
+  * [2.9 help](#29-help)
+    * [2.9.1 add_before|after](#291-add_beforeafter)
+    * [2.9.2 delete](#292-delete)
+    * [2.9.3 replace](#293-replace)
+    * [2.9.4 :order](#294-order)
+    * [2.9.5 :param_display](#295-param_display)
+    * [2.9.6 :width](#296-width)
 
 ## 1. Usage
 
@@ -683,7 +695,13 @@ end
 
 #### 2.5.3 default
 
-#### 2.5.4 permit
+#### 2.5.4 description
+
+#### 2.5.5 hidden
+
+#### 2.5.6 optional
+
+#### 2.5.7 permit
 
 The `permit` setting allows you to restrict an input to a set of possible values:
 
@@ -729,8 +747,9 @@ Then parsing:
 --foo 14
 # raises TTY::Option::UnpermittedArgument
 ```
+#### 2.5.8 required
 
-#### 2.5.5 validate
+#### 2.5.9 validate
 
 Use the `validate` setting if you wish to ensure only valid inputs are allowed.
 
@@ -747,8 +766,9 @@ Then parsing:
 
 ```
 --foo bar
-# raises TTY::Option:InvalidArgument
 ```
+
+Will internally cause an exception `TTY::Option::InvalidArgument` that will be stored in the `errors` list and make `params` invalid.
 
 You can also express a validation rule with a `proc` object:
 
@@ -764,14 +784,70 @@ Then parsing:
 
 ```
 foo=11 foo=13
-# raises TTY::Option::InvalidArgument
 ```
 
-## 2.7 usage
+Will similarly collect the `TTY::Option::InvalidArgument` error and render `params` invalid.
+
+### 2.6 parse
+
+After all parameters are defined, use the `parse` to process command line inputs.
+
+By default the `parse` method takes the input from the `ARGV` and the `ENV` variables.
+
+Alternatively, you can call `parse` with custom inputs. This is especially useful for testing your commands.
+
+Given parameter definitions:
+
+```ruby
+argument :foo
+
+flag :bar
+
+keyword :baz
+
+env :qux
+```
+
+Then parsing the following inputs:
+
+```ruby
+parse(%w[12 --bar baz=a QUX=b])
+```
+
+Would populate parameters:
+
+```ruby
+params[:foo] # => "12"
+params[:bar] # => true
+params[:baz] # => "a"
+params[:qux] # => "b"
+```
+
+The parsing is flexible and doesn't force any order for the parameters. Options can be inserted anywhere between positional or keyword arguments.
+
+It handles parsing of compacted shorthand options that start with a single dash. These need to be boolean options bar the last one that can accept argument. All these are valid:
+
+```
+-f
+-fbq
+-fbqs 12  # mixed with an argument
+```
+
+Parameter parsing stops after the `--` terminator is found. The leftover inputs are collected and accessible via the `remaining` method.
+
+### 2.7 params
+
+#### 2.7.1 errors
+
+#### 2.7.2 remaining
+
+#### 2.7.3 valid?
+
+### 2.8 usage
 
 The `usage` and its helper methods allow you to configure the `help` display to your liking. The `header`, `desc(ription)`, `example` and `footer` can be called many times. Each new call will create a new paragraph. If you wish to insert multiple lines inside a given paragraph separate arguments with a comma.
 
-### 2.7.1 header
+#### 2.8.1 header
 
 To provide information above the banner explaining how to execute a program, use the `header` helper.
 
@@ -801,7 +877,7 @@ usage do
 end
 ```
 
-### 2.7.2 program
+#### 2.8.2 program
 
 By default the program name is inferred for you from the executable file name.
 
@@ -819,7 +895,7 @@ Then the program name will be used in the banner:
 Usage: custom-name
 ```
 
-### 2.7.3 command
+#### 2.8.3 command
 
 By default the command name is inferred from the class name.
 
@@ -857,7 +933,7 @@ usage do
 end
 ````
 
-### 2.7.4 banner
+#### 2.8.4 banner
 
 The usage information of how to use a program is displayed right after header. If no header is specified, it will be displayed first.
 
@@ -899,7 +975,7 @@ usage do
 end
 ```
 
-### 2.7.5 desc(ription)
+#### 2.8.5 desc(ription)
 
 The description is placed between usage information and the parameters and given with `desc` or `description` helpers.
 
@@ -931,7 +1007,7 @@ usage do
 end
 ```
 
-### 2.7.6 example(s)
+#### 2.8.6 example(s)
 
 To add usage examples section to the help information use the `example` or `examples` methods.
 
@@ -977,7 +1053,7 @@ Examples:
     $ foo baz
 ```
 
-### 2.7.7 footer
+#### 2.8.7 footer
 
 To provide information after all information in the usage help, use the `footer` helper.
 
@@ -1007,9 +1083,17 @@ usage do
 end
 ```
 
-## 2.8 help
+### 2.9 help
 
-### 2.8.1 :order
+With the `help` method you can generate usage information.
+
+#### 2.9.1 add_before|after
+
+#### 2.9.2 delete
+
+#### 2.9.3 replace
+
+#### 2.9.4 :order
 
 All parameters are alphabetically ordered in their respective sections. To change this default behaviour use the `:order` keyword when invoking `help`.
 
@@ -1019,7 +1103,7 @@ The `:order` expects a `Proc` object. For example, to remove any ordering and pr
 help(order: ->(params) { params })
 ````
 
-### 2.8.2 :param_display
+#### 2.9.5 :param_display
 
 By default banner positional and keyword arguments are displayed with all letters uppercased.
 
@@ -1058,7 +1142,7 @@ This will produce the following output:
 Usage: run [<options>] <foo> <bar>=<uri>
 ```
 
-### 2.8.3 :width
+#### 2.9.6 :width
 
 By default the help information is wrapped at `80` columns. If this is not what you want you can change it with `:width` keyword.
 
