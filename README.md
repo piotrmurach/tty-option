@@ -553,7 +553,7 @@ These settings are supported by all parameter types with the exception of `short
 
 #### 2.5.1 arity
 
-To describe how many times a given parameter may appear in the command line use the `arity` method. By default every parameter is assumed to appear only once. Any other occurrence will be disregarded and included in the remaining parameters list.
+To describe how many times a given parameter may appear in the command line use the `arity` setting. By default every parameter is assumed to appear only once. Any other occurrence will be disregarded and included in the remaining parameters list.
 
 For example, to match argument exactly 2 times do:
 
@@ -621,6 +621,20 @@ keyword :foo do
 end
 ```
 
+The [help](#29-help) method will handle the arity for the display. Given the following argument definition:
+
+```ruby
+argument :foo do
+  arity one_or_more
+end
+```
+
+The usage banner will display:
+
+```
+Usage: foobar FOO [FOO...]
+```
+
 #### 2.5.2 convert
 
 You can convert any parameter argument to another type using the `convert` method with a predefined symbol or class name. For example, to convert an argument to integer you can do:
@@ -628,6 +642,8 @@ You can convert any parameter argument to another type using the `convert` metho
 ```ruby
 argument :foo do
   convert :int
+  # or
+  convert Integer
 end
 ```
 
@@ -648,24 +664,28 @@ In addition you can specify a plural or append `list` to any base type:
 
 * `:ints` or `:int_list` - will convert to a list of integers
 * `:floats` or `:float_list` - will convert to a list of floats
-* `:bools` or `:bool_list` - will convert to a list of booleans, e.g. 't,f,t' becomes `[true, false, true]`
+* `:bools` or `:bool_list` - will convert to a list of booleans, e.g. `t,f,t` becomes `[true, false, true]`
+
+If like you can also use `list_of` helper and pass the type as a first argument.
 
 Similarly, you can append `map` to any base type:
 
-* `:int_map` - will convert to a map of integers, e.g 'a:1 b:2 c:3' becomes `{a: 1, b: 2, c: 3}`
-* `:bool_map` - will convert to a map of booleans, e.g 'a:t b:f c:t' becomes `{a: true, b: false, c: true}`
+* `:int_map` - will convert to a map of integers, e.g `a:1 b:2 c:3` becomes `{a: 1, b: 2, c: 3}`
+* `:bool_map` - will convert to a map of booleans, e.g `a:t b:f c:t` becomes `{a: true, b: false, c: true}`
+
+For convenience and readability you can also use `map_of` helper and pass the type as a first argument.
 
 For example, to parse options with required list and map arguments:
 
 ```ruby
 option :foo do
   long "--foo map"
-  convert :bools
+  convert :bools   # or `convert list_of(:bool)`
 end
 
 option :bar do
   long "--bar int map"
-  convert :int_map
+  convert :int_map   # or `conert map_of(:int)`
 end
 ````
 
@@ -681,10 +701,10 @@ Will give the following:
 params[:foo]
 # => [true, false, true]
 params[:bar]
-# => {a:1, b:2, c:3}
+# => {:a=>1, :b=>2, :c=>3}
 ````
 
-You can also provide `proc` to define your own conversion:
+You can also provide `proc` to define your own custom conversion:
 
 ```ruby
 option :bar do
@@ -695,15 +715,109 @@ end
 
 #### 2.5.3 default
 
-#### 2.5.4 description
+Any optional parameter such as options, flag, keyword or environment variable, can have a default value. This value can be specified with the `default` setting and will be used when the command-line input doesn't match any parameter definitions.
+
+For example, given the following option definition:
+
+```ruby
+option :foo do
+  long "--foo string"
+  default "bar"
+end
+```
+
+When no option `--foo` is parsed, then the `params` will be populated:
+
+```ruby
+params[:foo] # => "bar"
+```
+
+A parameter cannot be both required and have default value. Specifying both will raise `ConfigurationError`. For example, all positional arguments are required by default. If you want to have a default for a required argument make it `optional`:
+
+```ruby
+argument :foo do
+  optional
+  default "bar"
+  desc "Some description"
+end
+```
+
+The default will be automatically displayed in the usage information:
+
+```
+Usage: foobar [OPTIONS] [FOO]
+
+Arguments:
+  foo  Some description (default "bar")
+```
+
+#### 2.5.4 desc(ription)
+
+To provide a synopsis for a parameter use the `description` or shorter `desc` setting. This information is used by the [help](#29-help) method to produce usage information:
+
+```ruby
+option :foo do
+  desc "Some description"
+end
+```
+
+The above will result in:
+
+```
+Usage: foobar [OPTIONS]
+
+Options:
+  --foo  Some description
+```
 
 #### 2.5.5 hidden
 
+To hide a parameter from display in the usage information use the `hidden` setting:
+
+```ruby
+argument :foo
+
+argument :bar do
+  hidden
+end
+```
+
+The above will hide the `:bar` parameter from the usage:
+
+```
+Usage: foobar FOO
+```
+
 #### 2.5.6 optional
+
+Apart from the positional argument, all other parameters are optional. To mark an argument as optional use similar naming `optional` setting:
+
+```ruby
+argument :foo do
+  desc "Foo arg description"
+end
+
+argument :bar do
+  optional
+  desc "Bar arg description"
+end
+```
+
+The optional argument will be surrounded by brackets in the usage display:
+
+```
+Usage: foobar [OPTIONS] FOO [BAR]
+
+Arguments:
+  bar  Bar arg description
+  foo  Foo arg description
+```
 
 #### 2.5.7 permit
 
-The `permit` setting allows you to restrict an input to a set of possible values:
+The `permit` setting allows you to restrict an input to a set of possible values.
+
+For example, let's restrict option to only `"bar"` and `"baz"` strings:
 
 ```ruby
 option :foo do
@@ -724,14 +838,15 @@ Will populate parameters value:
 params[:foo] # => "bar"
 ```
 
-Attempting to parse not permitted value will raise an error:
+Attempting to parse not permitted value:
 
 ```
 --foo qux
-# raises TTY::Option::UnpermitedArgument
 ```
 
-Permitted values are checked after applying conversion:
+Will internally produce a `TTY::Option::UnpermittedArgument` error and make the `params` invalid.
+
+Permitted values are checked after applying conversion. Because of this, you need to provide the expected type for the `permit` setting:
 
 ```ruby
 option :foo do
@@ -741,17 +856,62 @@ option :foo do
 end
 ```
 
-Then parsing:
+Then parsing an unpermitted value:
 
 ```
 --foo 14
-# raises TTY::Option::UnpermittedArgument
 ```
+
+Will invalidate `params` and collect the `TTY::Option::UnpermittedArgument` error.
+
+The permitted values are automatically appended to the parameter synopsis when displayed in the usage information. For example, given an option:
+
+```ruby
+option :foo do
+  short "-f"
+  long "--foo string"
+  permit %w[a b c d]
+  desc "Some description"
+end
+```
+
+Then the usage information for the option would be:
+
+```
+Usage: foobar [OPTIONS]
+
+Options:
+  -f, --foo string  Some description (permitted: a,b,c,d)
+```
+
 #### 2.5.8 required
+
+Only arguments are required. Any other parameters like options, keywords and environment variables are optional. To force parameter presence in input use `required` setting.
+
+```ruby
+keyword :foo do
+  required
+  desc "Foo keyword description"
+end
+
+keyword :bar do
+  desc "Bar keyword description"
+end
+```
+
+Because `foo` keyword is required it won't have brackets around the parameter in the usage display:
+
+```
+Usage: foobar FOO=FOO [BAR=BAR]
+
+Keywords:
+  foo=foo  Foo keyword description
+  bar=bar  Bar keyword description
+```
 
 #### 2.5.9 validate
 
-Use the `validate` setting if you wish to ensure only valid inputs are allowed.
+Use the `validate` setting if you wish to ensure only inputs matching filter criteria are allowed.
 
 You can use a string or regular expression to describe your validation rule:
 
@@ -768,7 +928,7 @@ Then parsing:
 --foo bar
 ```
 
-Will internally cause an exception `TTY::Option::InvalidArgument` that will be stored in the `errors` list and make `params` invalid.
+Will internally cause an exception `TTY::Option::InvalidArgument` that will make `params` invalid.
 
 You can also express a validation rule with a `proc` object:
 
@@ -944,7 +1104,7 @@ Errors:
 
 If, on the other hand, you prefer to raise errors, you can do so using the `:raise_on_parse_error` keyword:
 
-```
+```ruby
 parse(raise_on_parse_error: true)
 ```
 
@@ -956,7 +1116,7 @@ Users can provide any input, including parameters you didn't expect or arguments
 
 Let's assume that user provided `--unknown` option that we didn't expect. Inspecting the `remaining` parameters, we get:
 
-```
+```ruby
 params.remaining
 # => ["--unknown"]
 ```
@@ -973,7 +1133,7 @@ You can use this to decide how to deal with parsing errors and what exit status 
 
 For example, you can decide to implement a command method like this:
 
-```
+```ruby
 if params.valid?
   # ... process params
 else
