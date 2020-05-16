@@ -23,8 +23,8 @@
 ## Features
 
 * Support for parsing of **positional arguments**, **keyword arguments**, **flags**, **options** and **environment variables**.
-* A convenient way to declare parsed parameters via DSL with a fallback to **hash-like syntax**.
-* Parsing is flexible and **doesn't force any order for the parameters**. Options can be inserted anywhere between positional or keyword arguments.
+* A convenient way to declare parsed parameters via **DSL** with a fallback to **hash-like syntax**.
+* Flexible parsing that **doesn't force any order for the parameters**.
 * Handling of complex option and keyword argument inputs like **lists** and **maps**.
 * Many **conversions types** provided out of the box, from basic integer to more complex hash structures.
 * Automatic **help generation** that can be customised with **usage** helpers like banner, examples and more.
@@ -837,11 +837,169 @@ Parameter parsing stops after the `--` terminator is found. The leftover inputs 
 
 ### 2.7 params
 
+Once all parameters are defined, they are accessible via the `params` instance method.
+
+The `params` behaves like a hash with an indifferent access. It doesn't distinguish between arguments, keywords or options. Each parameter needs to have a unique identifier.
+
+For example, given a command with all parameter definitions:
+
+```ruby
+class Command
+  include TTY::Option
+
+  argument :foo
+
+  keyword :bar
+
+  option :baz
+
+  env :qux
+
+  def run
+    print params[:foo]
+    print params["bar"]
+    print params["baz"]
+    print params[:qux]
+  end
+end
+```
+
+Then parsing the command:
+
+```ruby
+cmd = Command.new
+cmd.parse
+```
+
+With the command-line input:
+
+```
+a bar=b --baz c QUX=d
+```
+
+And running the command:
+
+```ruby
+cmd.run
+```
+
+Will output:
+
+```
+abcd
+```
+
 #### 2.7.1 errors
+
+Only configuration errors are raised. The parsing errors are not raised by default. Instead any parse error is made available via the `errors` method on the `params` object:
+
+```ruby
+params.errors
+# => AggregateErors
+````
+
+The returned `AggregateErrors` object is an `Enumerable` that allows you to iterate over all of the errors.
+
+It has also a convenience methods like:
+
+* `messages` - access all error messages as an array
+* `summary` - a string of nicely formatted error messages ready to display in terminal
+
+For example, let's say we have an argument definition that requires at least 2 occurrences on the command line:
+
+```ruby
+argument :foo do
+  arity at_least(2)
+end
+```
+
+And only one argument is provided in the input. Then output summary:
+
+```ruby
+puts params.errors.summary
+````
+
+Would result in the following being printed:
+
+```
+Error: argument 'foo' should appear at least 2 times but appeared 1 time
+```
+
+Let's change the previous example and add conversion to the mix:
+
+```ruby
+argument :foo do
+  arity at_least(2)
+  convert :int
+end
+````
+
+And provided only one argument string "zzz", the summary would be:
+
+```
+Errors:
+  1) Argument 'foo' should appear at least 2 times but appeared 1 time
+  2) Cannot convert value of `zzz` into 'int' type for 'foo' argument
+```
+
+If, on the other hand, you prefer to raise errors, you can do so using the `:raise_on_parse_error` keyword:
+
+```
+parse(raise_on_parse_error: true)
+```
+
+This way any attempt at parsing invalid input will raise to the terminal.
 
 #### 2.7.2 remaining
 
+Users can provide any input, including parameters you didn't expect or arguments after the `--` terminator. All of these will be left alone during the parsing process and collected. You can access them on the `params` instance with the `remaining` method.
+
+Let's assume that user provided `--unknown` option that we didn't expect. Inspecting the `remaining` parameters, we get:
+
+```
+params.remaining
+# => ["--unknown"]
+```
+
 #### 2.7.3 valid?
+
+Once parsing of the command-line input is done, you can check if all the conditions defined by the parameters are met with the `valid?` method.
+
+```ruby
+params.valid?
+```
+
+You can use this to decide how to deal with parsing errors and what exit status to use.
+
+For example, you can decide to implement a command method like this:
+
+```
+if params.valid?
+  # ... process params
+else
+  puts params.errors.summary
+  exit
+end
+```
+
+You can combine errors reporting with existing with the [tty-exit](https://github.com/piotrmurach/tty-exit) module.
+
+The `TTY::Exit` module exposes the `exit_with` method and can be used like this:
+
+```ruby
+class Command
+  include TTY::Exit
+  include TTY::Option
+
+  def run
+    if params.valid?
+      # ... process params
+    else
+      exit_with(:usage_error, params.errors.summary)
+    end
+  end
+end
+```
 
 ### 2.8 usage
 
