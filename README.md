@@ -79,12 +79,10 @@ Or install it yourself as:
     * [2.8.6 example](#286-examples)
     * [2.8.7 footer](#287-footer)
   * [2.9 help](#29-help)
-    * [2.9.1 add_before|after](#291-add_beforeafter)
-    * [2.9.2 delete](#292-delete)
-    * [2.9.3 replace](#293-replace)
-    * [2.9.4 :order](#294-order)
-    * [2.9.5 :param_display](#295-param_display)
-    * [2.9.6 :width](#296-width)
+    * [2.9.1 sections](#291-sections)
+    * [2.9.2 :order](#292-order)
+    * [2.9.3 :param_display](#293-param_display)
+    * [2.9.4 :width](#294-width)
 
 ## 1. Usage
 
@@ -1403,15 +1401,121 @@ end
 
 ### 2.9 help
 
-With the `help` method you can generate usage information.
+With the `help` instance method you can generate usage information from the defined parameters and the usage. The [usage](#28-usage) describes how to add different sections to the help display.
 
-#### 2.9.1 add_before|after
+Let's assume you have the following command with a run method that prints help:
 
-#### 2.9.2 delete
 
-#### 2.9.3 replace
+```ruby
+class Command
+  include TTY::Option
 
-#### 2.9.4 :order
+  usage do
+    program "foobar",
+    header  "foobar CLI"
+    desc    "Some foobar description"
+    example "Some example"
+    footer  "Run --help to see more info"
+  end
+
+  argument :bar, desc: "Some argument description"
+  keyword :baz, desc: "Some keyword description"
+  env :fum, desc: "Some env description"
+
+  flag :help do
+    short "-h"
+    long  "--help"
+    desc "Print usage"
+  end
+
+  def run
+    if params[:help]
+      print help
+      exit
+    end
+  end
+end
+```
+
+Running the command with `--help` flag:
+
+```ruby
+cmd = Command.new
+cmd.parse(%w[--help])
+cmd.run
+```
+
+Will produce:
+
+```
+foobar CLI
+
+Usage: foobar [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
+
+Some foobar description
+
+Arguments:
+  bar  Some argument description
+
+Keywords:
+  baz=baz  Some keyword description
+
+Options:
+  -h, --help Print usage
+
+Envrionment:
+  FUM  Some env description
+
+Examples:
+  Some example
+
+Run --help to see more info
+```
+
+#### 2.9.1 sections
+
+It is possible to change the usage content by passing a block to `help`. The `help` method yields an object that contains all the sections and provides a hash-like access to each of its sections.
+
+The following are the names for all supported sections:
+
+* `:header`
+* `:banner`
+* `:description`
+* `:arguments`
+* `:keywords`
+* `:options`
+* `:environments`
+* `:exmaples`
+* `:footer`
+
+You can use `add_before`, `add_after`, `delete` and `replace` to modify currently existing sections or add new ones.
+
+For example, to remove a header section do:
+
+```ruby
+help do |sections|
+  sections.delete :header
+end
+```
+
+To insert a new section after `:arguments` called `:commands` do:
+
+```ruby
+help do |sections|
+  sections.add_after :arguments, :commands,
+                     "\nCommands:\n  create  A command description"
+end
+```
+
+To replace a section's content use `replace`:
+
+```ruby
+help do |sections|
+  sections.replace :footer, "\nGoodbye"
+end
+```
+
+#### 2.9.2 :order
 
 All parameters are alphabetically ordered in their respective sections. To change this default behaviour use the `:order` keyword when invoking `help`.
 
@@ -1421,7 +1525,7 @@ The `:order` expects a `Proc` object. For example, to remove any ordering and pr
 help(order: ->(params) { params })
 ````
 
-#### 2.9.5 :param_display
+#### 2.9.3 :param_display
 
 By default banner positional and keyword arguments are displayed with all letters uppercased.
 
@@ -1460,7 +1564,7 @@ This will produce the following output:
 Usage: run [<options>] <foo> <bar>=<uri>
 ```
 
-#### 2.9.6 :width
+#### 2.9.4 :width
 
 By default the help information is wrapped at `80` columns. If this is not what you want you can change it with `:width` keyword.
 
