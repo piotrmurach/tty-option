@@ -228,8 +228,8 @@ Usage: dock run [OPTIONS] IMAGE [COMMAND] [RESTART=RESTART]
 Run a command in a new container
 
 Arguments:
-  command  The command to run inside the image
   image    The name of the image to use
+  command  The command to run inside the image
 
 Keywords:
   restart=restart  Restart policy to apply when a container exits (permitted:
