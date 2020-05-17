@@ -39,6 +39,7 @@ module TTY
         @order = order
         @width = width
         @indent = indent
+        @space_indent = SPACE * indent
         @param_indent = indent + 2
         @section_names = {
           usage: "Usage:",
@@ -90,7 +91,7 @@ module TTY
       end
 
       def help_header
-        format_multiline(@usage.header, 0) + NEWLINE
+        "#{format_multiline(@usage.header, @indent)}#{NEWLINE}"
       end
 
       def help_banner
@@ -98,33 +99,36 @@ module TTY
       end
 
       def help_description
-        NEWLINE + format_description
+        "#{NEWLINE}#{format_description}"
       end
 
       def help_arguments
-        NEWLINE + @section_names[:arguments] +
-          NEWLINE + format_section(:arguments)
+        "#{NEWLINE}#{@space_indent}#{@section_names[:arguments]}#{NEWLINE}" +
+          format_section(:arguments)
       end
 
       def help_keywords
-        NEWLINE + @section_names[:keywords] + NEWLINE +
+        "#{NEWLINE}#{@space_indent}#{@section_names[:keywords]}#{NEWLINE}" +
           format_section(:keywords, ->(param) { kwarg_param_display(param) })
       end
 
       def help_options
-        NEWLINE + @section_names[:options] + NEWLINE + format_options
+        "#{NEWLINE}#{@space_indent}#{@section_names[:options]}#{NEWLINE}" +
+          format_options
       end
 
       def help_environments
-        NEWLINE + @section_names[:env] + NEWLINE + format_section(:environments)
+        "#{NEWLINE}#{@space_indent}#{@section_names[:env]}#{NEWLINE}" +
+          format_section(:environments)
       end
 
       def help_examples
-        NEWLINE + @section_names[:examples] + NEWLINE + format_examples
+        "#{NEWLINE}#{@space_indent}#{@section_names[:examples]}#{NEWLINE}" +
+          format_examples
       end
 
       def help_footer
-        NEWLINE + format_multiline(@usage.footer, 0)
+        "#{NEWLINE}#{format_multiline(@usage.footer, @indent)}"
       end
 
       private
@@ -133,7 +137,7 @@ module TTY
       #
       # @api private
       def format_usage
-        usage = @section_names[:usage] + SPACE
+        usage = @space_indent + @section_names[:usage] + SPACE
         output = []
         output << @usage.program
         output << " #{@usage.commands.join(" ")}" if @usage.command?
@@ -254,10 +258,10 @@ module TTY
         param_name = name_selector.(param)
 
         if param.desc?
-          line << format("%s%-#{longest_param}s", " " * @param_indent, param_name)
+          line << format("%s%-#{longest_param}s", SPACE * @param_indent, param_name)
           desc << "  #{param.desc}"
         else
-          line << format("%s%s", " " * @param_indent, param_name)
+          line << format("%s%s", SPACE * @param_indent, param_name)
         end
 
         if param.permit?
@@ -276,7 +280,7 @@ module TTY
       #
       # @api private
       def format_description
-        format_multiline(@usage.desc, 0)
+        format_multiline(@usage.desc, @indent)
       end
 
       # Returns all the options formatted to fit 80 columns
@@ -302,9 +306,9 @@ module TTY
       #
       # @api private
       def format_option(option, longest_length, any_short)
-        line = []
+        line = [@space_indent]
         desc = []
-        indent = 0
+        indent = @indent
 
         if any_short
           short_option = option.short? ? option.short_name : SPACE
