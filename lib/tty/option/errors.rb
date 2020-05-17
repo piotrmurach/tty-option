@@ -32,7 +32,7 @@ module TTY
 
     # Raised when parameter argument doesn't match expected value
     class InvalidArgument < ParseError
-      MESSAGE = "value of `%<value>s` fails validation for %<name>s %<type>s"
+      MESSAGE = "value of `%<value>s` fails validation for '%<name>s' %<type>s"
 
       def initialize(param_or_message, value = nil)
         if param_or_message.is_a?(Parameter)
@@ -40,7 +40,7 @@ module TTY
 
           message = format(MESSAGE,
                            value: value,
-                           name: param.variable.inspect,
+                           name: param.variable,
                            type: param.to_sym)
         else
           message = param_or_message

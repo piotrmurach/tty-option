@@ -81,7 +81,7 @@ RSpec.describe TTY::Option::AggregateErrors do
 
       expect(errors.summary).to eq unindent(<<-EOS).chomp
       Errors:
-        1) Value of `zzz` fails validation for "--foo" option
+        1) Value of `zzz` fails validation for '--foo' option
         2) Argument 'bar' should appear at least 1 time but appeared 0 times
       EOS
     end
