@@ -80,9 +80,10 @@ Or install it yourself as:
     * [2.8.7 footer](#287-footer)
   * [2.9 help](#29-help)
     * [2.9.1 sections](#291-sections)
-    * [2.9.2 :order](#292-order)
-    * [2.9.3 :param_display](#293-param_display)
-    * [2.9.4 :width](#294-width)
+    * [2.9.2 :indent](#292-indent)
+    * [2.9.3 :order](#293-order)
+    * [2.9.4 :param_display](#294-param_display)
+    * [2.9.5 :width](#295-width)
 
 ## 1. Usage
 
@@ -1515,7 +1516,17 @@ help do |sections|
 end
 ```
 
-#### 2.9.2 :order
+#### 2.9.2 :indent
+
+By default has not indentation for any of the sections bar parameters.
+
+To change the indentation for the entire usage information use `:indent` keyword:
+
+```
+help(indent: 2)
+```
+
+#### 2.9.3 :order
 
 All parameters are alphabetically ordered in their respective sections. To change this default behaviour use the `:order` keyword when invoking `help`.
 
@@ -1525,7 +1536,7 @@ The `:order` expects a `Proc` object. For example, to remove any ordering and pr
 help(order: ->(params) { params })
 ````
 
-#### 2.9.3 :param_display
+#### 2.9.4 :param_display
 
 By default banner positional and keyword arguments are displayed with all letters uppercased.
 
@@ -1564,7 +1575,7 @@ This will produce the following output:
 Usage: run [<options>] <foo> <bar>=<uri>
 ```
 
-#### 2.9.4 :width
+#### 2.9.5 :width
 
 By default the help information is wrapped at `80` columns. If this is not what you want you can change it with `:width` keyword.
 
