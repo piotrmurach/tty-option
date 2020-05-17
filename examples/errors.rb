@@ -7,6 +7,7 @@ class Command
 
   argument :foo do
     arity at_least(2)
+    convert :int
   end
 
   option :bar do
