@@ -2,10 +2,13 @@
 
 require "forwardable"
 
+require_relative "usage_wrapper"
+
 module TTY
   module Option
     class AggregateErrors
       include Enumerable
+      include UsageWrapper
       extend Forwardable
 
       def_delegators :@errors, :size, :empty?, :any?, :clear
@@ -60,10 +63,13 @@ module TTY
       #   # =>
       #   # Error: invalid argument
       #
+      # @param [Integer] :width
+      # @param [Integer] :indent
+      #
       # @return [String]
       #
       # @api public
-      def summary
+      def summary(width: 80, indent: 5)
         return "" if count.zero?
 
         output = []
@@ -72,7 +78,9 @@ module TTY
         else
           output << "Errors:"
           messages.each_with_index do |message, num|
-            output << "  #{num+1}) #{message.capitalize}"
+            entry = "#{num + 1}) "
+            output << " " * (indent - entry.length) + entry +
+                      wrap(message.capitalize, indent: indent, width: width)
           end
         end
         output.join("\n")

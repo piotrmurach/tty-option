@@ -84,8 +84,23 @@ RSpec.describe TTY::Option::AggregateErrors do
       EOS
     end
 
-    it "formats majority of errors" do
+    it "wraps multiple error messages at given width" do
+      errors = described_class.new
 
+      errors.add TTY::Option::InvalidConversionArgument.new(
+        new_parameter(:option, :foo, convert: :int), "zzz")
+      errors.add TTY::Option::InvalidArity.new(
+        new_parameter(:argument, :bar, arity: 2), 1)
+
+      expect(errors.summary(width: 30, indent: 7)).to eq unindent(<<-EOS).chomp
+      Errors:
+          1) Cannot convert value of
+             `zzz` into 'int' type
+             for '--foo' option
+          2) Argument 'bar' should
+             appear 2 times but
+             appeared 1 time
+      EOS
     end
   end
 end
