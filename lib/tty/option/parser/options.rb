@@ -76,7 +76,7 @@ module TTY
             opt, value = next_option
             if !opt.nil?
               @required_check.delete(opt)
-              @arities[opt.name] += 1
+              @arities[opt.key] += 1
 
               if block_given?
                 yield(opt, value)
@@ -247,14 +247,14 @@ module TTY
           value = @pipeline.(opt, val)
 
           if opt.multiple?
-            allowed = opt.arity < 0 || @arities[opt.name] <= opt.arity
+            allowed = opt.arity < 0 || @arities[opt.key] <= opt.arity
             if allowed
               case value
               when Hash
-                (@parsed[opt.name] ||= {}).merge!(value)
+                (@parsed[opt.key] ||= {}).merge!(value)
               else
                 Array(value).each do |v|
-                  (@parsed[opt.name] ||= []) << v
+                  (@parsed[opt.key] ||= []) << v
                 end
               end
             else
@@ -262,7 +262,7 @@ module TTY
               @remaining << value
             end
           else
-            @parsed[opt.name] = value
+            @parsed[opt.key] = value
           end
         end
       end # Options

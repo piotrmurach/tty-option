@@ -237,6 +237,18 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:bar]).to eq("12")
     end
 
+    it "changes keyword name" do
+      cmd = new_command do
+        keyword :foo do
+          name "fum"
+        end
+      end
+
+      cmd.parse(%w[fum=x])
+
+      expect(cmd.params[:foo]).to eq("x")
+    end
+
     it "collects multiple keyword occurences" do
       cmd = new_command do
         keyword :foo, arity: 2
@@ -319,7 +331,7 @@ RSpec.describe TTY::Option do
         env(:bar) { convert :bools }
 
         env(:baz) do
-          var "FOOBAR"
+          name "FOOBAR"
           convert :sym
         end
 
@@ -343,7 +355,7 @@ RSpec.describe TTY::Option do
 
         env :bar, convert: list_of(:bool)
 
-        env :baz, variable: "FOOBAR", convert: :sym
+        env :baz, name: "FOOBAR", convert: :sym
       end
 
       cmd.parse([], {"FOO" => "12", "BAR" => "t,f,t", "FOOBAR" => "foobar"})

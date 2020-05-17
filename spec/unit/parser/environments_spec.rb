@@ -26,7 +26,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
   it "parses an env var with custom name" do
     envs = []
-    envs << env(:foo, variable: "FOO_BAR")
+    envs << env(:foo, name: "FOO_BAR")
     params, rest = parse(%w[FOO_BAR=baz], {}, envs)
 
     expect(params[:foo]).to eq("baz")
@@ -35,8 +35,8 @@ RSpec.describe TTY::Option::Parser::Environments do
 
   it "parses different env vars" do
     envs = []
-    envs << env(:foo, variable: "FOO_ENV")
-    envs << env(:bar, variable: "BAR_ENV" )
+    envs << env(:foo, name: "FOO_ENV")
+    envs << env(:bar, name: "BAR_ENV" )
     envs << env(:baz)
     params, rest = parse(%w[FOO_ENV=a BAZ=b BAR_ENV=c], {}, envs)
 
@@ -86,7 +86,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
   it "parses unrecognized env vars and collects error" do
     envs = []
-    envs << env(:foo, variable: "FOO_ENV")
+    envs << env(:foo, name: "FOO_ENV")
     params, rest, errors = parse(%w[FOO_ENV=a WRONG=d], {}, envs)
 
     expect(params[:foo]).to eq("a")
@@ -96,7 +96,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
   it "parses unrecognized env vars and doesn't check invalid parameter" do
     envs = []
-    envs << env(:foo, variable: "FOO_ENV")
+    envs << env(:foo, name: "FOO_ENV")
     params, rest, errors = parse(%w[FOO_ENV=a WRONG=d], {}, envs,
                                  check_invalid_params: false)
 

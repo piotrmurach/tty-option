@@ -35,7 +35,7 @@ module TTY
           @arities = Hash.new(0)
 
           @keywords.each do |kwarg|
-            @names[kwarg.var.to_s] = kwarg
+            @names[kwarg.name] = kwarg
             @arity_check << kwarg if kwarg.multiple?
 
             if kwarg.default?
@@ -61,7 +61,7 @@ module TTY
             kwarg, value = next_keyword
             if !kwarg.nil?
               @required_check.delete(kwarg)
-              @arities[kwarg.name] += 1
+              @arities[kwarg.key] += 1
 
               if block_given?
                 yield(kwarg, value)
@@ -133,21 +133,21 @@ module TTY
           value = @pipeline.(kwarg, val)
 
           if kwarg.multiple?
-            allowed = kwarg.arity < 0 || @arities[kwarg.name] <= kwarg.arity
+            allowed = kwarg.arity < 0 || @arities[kwarg.key] <= kwarg.arity
             if allowed
               case value
               when Hash
-                (@parsed[kwarg.name] ||= {}).merge!(value)
+                (@parsed[kwarg.key] ||= {}).merge!(value)
               else
                 Array(value).each do |v|
-                  (@parsed[kwarg.name] ||=  []) << v
+                  (@parsed[kwarg.key] ||=  []) << v
                 end
               end
             else
               @remaining << "#{kwarg.name}=#{value}"
             end
           else
-            @parsed[kwarg.name] = value
+            @parsed[kwarg.key] = value
           end
         end
       end # Keywords

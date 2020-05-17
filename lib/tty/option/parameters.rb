@@ -47,7 +47,7 @@ module TTY
         @options = []
         @list = []
 
-        @registered_names = Set.new
+        @registered_keys = Set.new
         @registered_shorts = Set.new
         @registered_longs = Set.new
       end
@@ -58,7 +58,7 @@ module TTY
       #
       # @api public
       def <<(parameter)
-        check_name_uniqueness!(parameter.name)
+        check_key_uniqueness!(parameter.key)
 
         if parameter.to_sym == :option
           check_short_option_uniqueness!(parameter.short_name)
@@ -77,18 +77,18 @@ module TTY
       # @example
       #   delete(:foo, :bar, :baz)
       #
-      # @param [Array<Symbol>] names
-      #   the names to delete
+      # @param [Array<Symbol>] keys
+      #   the keys to delete
       #
       # @api public
-      def delete(*names)
+      def delete(*keys)
         deleted = []
-        @list.delete_if { |p| names.include?(p.name) && (deleted << p) }
+        @list.delete_if { |p| keys.include?(p.key) && (deleted << p) }
         deleted.each do |param|
           params_list = instance_variable_get("@#{param.to_sym}s")
           params_list.delete(param)
         end
-        @registered_names.subtract(names)
+        @registered_keys.subtract(keys)
         @registered_shorts.replace(@options.map(&:short))
         @registered_longs.replace(@options.map(&:long))
         deleted
@@ -120,12 +120,12 @@ module TTY
       private
 
       # @api private
-      def check_name_uniqueness!(name)
-        if @registered_names.include?(name)
+      def check_key_uniqueness!(key)
+        if @registered_keys.include?(key)
           raise ParameterConflict,
-                "already registered parameter #{name.inspect}"
+                "already registered parameter #{key.inspect}"
         else
-          @registered_names << name
+          @registered_keys << key
         end
       end
 

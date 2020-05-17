@@ -308,26 +308,25 @@ RSpec.describe TTY::Option::Parameter::Argument do
     end
   end
 
-  context "variable setting" do
-    it "defaults a variable to a parameter name with dashes" do
+  context "name setting" do
+    it "defaults a name to a parameter key with dashes" do
       arg = described_class.new(:foo_bar)
 
-      expect(arg.variable).to eq("foo-bar")
+      expect(arg.name).to eq("foo-bar")
     end
 
-    it "sets a custom variable name via setting" do
-      arg = described_class.new(:foo, variable: "foo-bar")
+    it "sets a custom name via setting" do
+      arg = described_class.new(:foo, name: "foo-bar")
 
-      expect(arg.variable).to eq("foo-bar")
+      expect(arg.name).to eq("foo-bar")
     end
 
-    it "sets a custom variable name via method" do
+    it "sets a custom name via method" do
       arg = described_class.new(:foo)
 
-      arg.variable "foo-bar"
+      arg.name "foo-bar"
 
-      expect(arg.variable).to eq("foo-bar")
-      expect(arg.var).to eq("foo-bar")
+      expect(arg.name).to eq("foo-bar")
     end
   end
 
@@ -402,7 +401,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
   context "to_h" do
     it "returns all settings as hash" do
       param = described_class.new(:foo) do
-        variable "Variable"
+        name "Name"
         optional
         arity 2
         convert :int
@@ -419,16 +418,16 @@ RSpec.describe TTY::Option::Parameter::Argument do
         default: 11,
         desc: "Description",
         hidden: true,
+        name: "Name",
         permit: [11, 12, 13],
         required: false,
-        validate: Regexp.new("\d+"),
-        var: "Variable"
+        validate: Regexp.new("\d+")
       })
     end
 
     it "transforms hash via a block" do
       param = described_class.new(:foo) do
-        variable "Variable"
+        name "Name"
         optional
         arity 2
         convert :int
@@ -447,10 +446,10 @@ RSpec.describe TTY::Option::Parameter::Argument do
         "default" => 11,
         "desc" => "Description",
         "hidden" => true,
+        "name" => "Name",
         "permit" => [11, 12, 13],
         "required" => false,
-        "validate" => Regexp.new("\d+"),
-        "var" => "Variable"
+        "validate" => Regexp.new("\d+")
       })
     end
   end

@@ -32,9 +32,9 @@ module TTY
             if arg.default?
               case arg.default
               when Proc
-                @defaults[arg.name] = arg.default.()
+                @defaults[arg.key] = arg.default.()
               else
-                @defaults[arg.name] = arg.default
+                @defaults[arg.key] = arg.default
               end
             elsif arg.required?
               @required_check << arg
@@ -96,7 +96,7 @@ module TTY
           end
 
           if 0 < values.size && values.size < arg.arity &&
-              Array(@defaults[arg.name]).size < arg.arity
+              Array(@defaults[arg.key]).size < arg.arity
             @error_aggregator.(InvalidArity.new(arg, values.size))
           end
 
@@ -126,7 +126,7 @@ module TTY
             end
           end
 
-          if values.size < arity && Array(@defaults[arg.name]).size < arity
+          if values.size < arity && Array(@defaults[arg.key]).size < arity
             @error_aggregator.(InvalidArity.new(arg, values.size))
           end
 
@@ -145,9 +145,9 @@ module TTY
                   if arg.default?
                     case arg.default
                     when Proc
-                      @defaults[arg.name]
+                      @defaults[arg.key]
                     else
-                      @defaults[arg.name]
+                      @defaults[arg.key]
                     end
                   end
                 when 1
@@ -156,7 +156,7 @@ module TTY
                   values
                 end
 
-          @parsed[arg.name] = @pipeline.(arg, val)
+          @parsed[arg.key] = @pipeline.(arg, val)
         end
       end # Arguments
     end # Parser

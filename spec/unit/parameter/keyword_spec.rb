@@ -10,28 +10,25 @@ RSpec.describe TTY::Option::Parameter::Keyword do
     end
   end
 
-  context "variable" do
-    it "infers keyword var from the param name" do
+  context "name" do
+    it "infers keyword name from the param key" do
       kwarg = described_class.new(:foo_bar)
 
-      expect(kwarg.variable).to eq("foo-bar")
-      expect(kwarg.var).to eq("foo-bar")
+      expect(kwarg.name).to eq("foo-bar")
     end
 
-    it "specifies custom keyword var name via a setting" do
-      kwarg = described_class.new(:foo, variable: "foo-bar")
+    it "specifies custom keyword name via a setting" do
+      kwarg = described_class.new(:foo, name: "foo-bar")
 
-      expect(kwarg.variable).to eq("foo-bar")
-      expect(kwarg.var).to eq("foo-bar")
+      expect(kwarg.name).to eq("foo-bar")
     end
 
-    it "specifies custom keywrod var name via a method" do
+    it "specifies custom keywrod name via a method" do
       kwarg = described_class.new(:foo)
 
-      kwarg.variable "foo-bar"
+      kwarg.name "foo-bar"
 
-      expect(kwarg.variable).to eq("foo-bar")
-      expect(kwarg.var).to eq("foo-bar")
+      expect(kwarg.name).to eq("foo-bar")
     end
   end
 end

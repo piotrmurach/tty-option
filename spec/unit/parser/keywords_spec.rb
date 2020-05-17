@@ -41,8 +41,8 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
   it "parses keywords with custom names" do
     keywords = []
-    keywords << keyword(:foo, variable: "fum-var")
-    keywords << keyword(:bar, variable: "qux-var")
+    keywords << keyword(:foo, name: "fum-var")
+    keywords << keyword(:bar, name: "qux-var")
 
     params, rest = parse(%w[fum-var=a qux-var=b -wrong=c], keywords)
 

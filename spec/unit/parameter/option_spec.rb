@@ -4,7 +4,7 @@ RSpec.describe TTY::Option::Parameter::Option do
   it "generates a default optional long name" do
     option = described_class.new(:foo)
 
-    expect(option.name).to eq(:foo)
+    expect(option.key).to eq(:foo)
     expect(option.short).to eq(nil)
     expect(option.short?).to eq(false)
     expect(option.long).to eq("--foo")
@@ -69,7 +69,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short name without argument" do
       option = described_class.new(:foo, short: "-f")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f")
       expect(option.short?).to eq(true)
       expect(option.long).to eq(nil)
@@ -85,7 +85,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short name with argument" do
       option = described_class.new(:foo, short: "-f string")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f string")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -102,7 +102,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short name with argument glued together" do
       option = described_class.new(:foo, short: "-fstring")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-fstring")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -119,7 +119,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short name with an optional argument" do
       option = described_class.new(:foo, short: "-f [string]")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f [string]")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -135,7 +135,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short name with an optional argument glued together" do
       option = described_class.new(:foo, short: "-f[string]")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f[string]")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -153,7 +153,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a long name without argument" do
       option = described_class.new(:foo, long: "--foo")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq(nil)
       expect(option.short?).to eq(false)
       expect(option.long).to eq("--foo")
@@ -169,7 +169,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a long name with argument" do
       option = described_class.new(:foo, long: "--foo string")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq(nil)
       expect(option.short_name).to eq("")
       expect(option.short?).to eq(false)
@@ -186,7 +186,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a long name with argument separted with =" do
       option = described_class.new(:foo, long: "--foo=string")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq(nil)
       expect(option.short_name).to eq("")
       expect(option.short?).to eq(false)
@@ -203,7 +203,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a long name with an optional argument" do
       option = described_class.new(:foo, long: "--foo [string]")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq(nil)
       expect(option.short_name).to eq("")
       expect(option.short?).to eq(false)
@@ -220,7 +220,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short name with an optional argument glued together" do
       option = described_class.new(:foo, long: "--foo[string]")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq(nil)
       expect(option.short_name).to eq("")
       expect(option.short?).to eq(false)
@@ -239,7 +239,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short & long name with a required argument for long option" do
       option = described_class.new(:foo, short: "-f", long: "--foo string")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -256,7 +256,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short & long name with a required argument for short option" do
       option = described_class.new(:foo, short: "-f string", long: "--foo")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f string")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -273,7 +273,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short & long name with an optional argument for long option" do
       option = described_class.new(:foo, short: "-f", long: "--foo [string]")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -290,7 +290,7 @@ RSpec.describe TTY::Option::Parameter::Option do
     it "extracts a short & long name with an optional argument for short option" do
       option = described_class.new(:foo, short: "-f [string]", long: "--foo")
 
-      expect(option.name).to eq(:foo)
+      expect(option.key).to eq(:foo)
       expect(option.short).to eq("-f [string]")
       expect(option.short_name).to eq("-f")
       expect(option.short?).to eq(true)
@@ -305,29 +305,29 @@ RSpec.describe TTY::Option::Parameter::Option do
     end
   end
 
-  context "variable setting" do
-    it "defaults option's variable to a generated long name" do
+  context "name setting" do
+    it "defaults option's name to a generated long name" do
       option = described_class.new(:foo)
 
-      expect(option.variable).to eq("--foo")
+      expect(option.name).to eq("--foo")
     end
 
-    it "returns a short name as variable" do
+    it "returns a short name as name" do
       option = described_class.new(:foo, short: "-f string")
 
-      expect(option.variable).to eq("-f")
+      expect(option.name).to eq("-f")
     end
 
-    it "returns a long name as variable" do
+    it "returns a long name as name" do
       option = described_class.new(:foo, long: "--foo string")
 
-      expect(option.variable).to eq("--foo")
+      expect(option.name).to eq("--foo")
     end
 
-    it "returns long name for variable when both short & long present" do
+    it "returns long name for name when both short & long present" do
       option = described_class.new(:foo, short: "-f", long: "--foo string")
 
-      expect(option.variable).to eq("--foo")
+      expect(option.name).to eq("--foo")
     end
   end
 

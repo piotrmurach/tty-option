@@ -19,7 +19,7 @@ module TTY
         # Return long name if present, otherwise short name
         #
         # @api private
-        def default_variable_name
+        def default_name
           [long_name, short_name].reject(&:empty?).first
         end
 
@@ -51,7 +51,7 @@ module TTY
         end
 
         def default_long
-          "--#{name.to_s.gsub("_", "-")}" unless short?
+          "--#{key.to_s.gsub("_", "-")}" unless short?
         end
 
         def long?

@@ -142,21 +142,21 @@ RSpec.describe TTY::Option::Formatter do
     it "wraps long arguments and descriptions to fit the width" do
       cmd = new_command do
         argument :foo do
-          var "foo-long-argument-name"
+          name "foo-long-argument-name"
           arity 2
           desc "Some multiline\n description with newlines"
         end
 
         argument :bar do
           optional
-          var "bar-super-long-argument-name"
+          name "bar-super-long-argument-name"
           default "default-is-way-too-long-as-well"
           desc "Some description that goes on and on and never finishes explaining"
         end
 
         argument :qux do
           optional
-          var "qux-long-name"
+          name "qux-long-name"
           desc "Some description that\nbreaks into multiline\n on newlines"
           default "some long default on many lines"
           permit %w[one two three four five six]
@@ -218,13 +218,13 @@ RSpec.describe TTY::Option::Formatter do
     it "formats banner with custom argument names" do
       cmd = new_command do
         argument :foo do
-          variable "foo-bar"
+          name "foo-bar"
           arity 2
           desc "Foo arg description"
         end
 
         argument :bar do
-          variable "barred"
+          name "barred"
           optional
           desc "Bar arg description"
         end
@@ -289,7 +289,7 @@ RSpec.describe TTY::Option::Formatter do
         program "foo"
 
         keyword :foo do
-          variable "foo-bar"
+          name "foo-bar"
           required
           arity 2
           desc "Some keyword description"
@@ -297,14 +297,14 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         keyword :bar do
-          variable "barred"
+          name "barred"
           optional
           arity 2
           desc "Some keyword description"
         end
 
         keyword :baz do
-          variable "bazzed"
+          name "bazzed"
           arity one_or_more
           desc "Some keyword description"
           convert :list
@@ -328,7 +328,7 @@ RSpec.describe TTY::Option::Formatter do
       cmd = new_command do
         keyword :foo do
           required
-          var "foo-long-name"
+          name "foo-long-name"
           convert :float
           arity 2
           desc "Some multiline\n description with newlines"
@@ -336,14 +336,14 @@ RSpec.describe TTY::Option::Formatter do
 
         keyword :bar do
           optional
-          var "bar-super-long-keyword-name"
+          name "bar-super-long-keyword-name"
           convert :list
           default "default-is-way-too-long-as-well"
           desc "Some description that goes on and on and never finishes explaining"
         end
 
         keyword :qux do
-          var "qux-long-name"
+          name "qux-long-name"
           convert :int
           desc "Some description that\nbreaks into multiline\n on newlines"
           default "some long default on many lines"
@@ -573,24 +573,24 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         env :bar do
-          var "BARRRRR_VAR"
+          name "BARRRRR_VAR"
           default "some"
           desc "Some description"
         end
 
         env :baz do
-          var "BAZ_VAR"
+          name "BAZ_VAR"
           desc "Some description"
           permit %w[a b c]
         end
 
         env :qux_var do
-          var "A_VAR"
+          name "A_VAR"
           desc "Some description"
         end
 
         env :fum do
-          var "FUM_VAR"
+          name "FUM_VAR"
         end
 
         env :quuz do

@@ -35,7 +35,7 @@ module TTY
           @arities = Hash.new(0)
 
           @environments.each do |env_arg|
-            @names[env_arg.var.to_s] = env_arg
+            @names[env_arg.name] = env_arg
             @arity_check << env_arg if env_arg.multiple?
 
             if env_arg.default?
@@ -65,7 +65,7 @@ module TTY
             env_var, value = next_envvar
             if !env_var.nil?
               @required_check.delete(env_var)
-              @arities[env_var.name] += 1
+              @arities[env_var.key] += 1
 
               if block_given?
                 yield(env_var, value)
@@ -76,9 +76,9 @@ module TTY
           end
 
           @environments.each do |env_arg|
-            if (value = env[env_arg.var])
+            if (value = env[env_arg.name])
               @required_check.delete(env_arg)
-              @arities[env_arg.name] += 1
+              @arities[env_arg.key] += 1
               assign_envvar(env_arg, value)
             end
           end
@@ -144,21 +144,21 @@ module TTY
           value = @pipeline.(env_arg, val)
 
           if env_arg.multiple?
-            allowed = env_arg.arity < 0 || @arities[env_arg.name] <= env_arg.arity
+            allowed = env_arg.arity < 0 || @arities[env_arg.key] <= env_arg.arity
             if allowed
               case value
               when Hash
-                (@parsed[env_arg.name] ||=  {}).merge!(value)
+                (@parsed[env_arg.key] ||=  {}).merge!(value)
               else
                 Array(value).each do |v|
-                  (@parsed[env_arg.name] ||=  []) << v
+                  (@parsed[env_arg.key] ||=  []) << v
                 end
               end
             else
-              @remaining << "#{env_arg.var}=#{value}"
+              @remaining << "#{env_arg.name}=#{value}"
             end
           else
-            @parsed[env_arg.name] = value
+            @parsed[env_arg.key] = value
           end
         end
       end # Environments

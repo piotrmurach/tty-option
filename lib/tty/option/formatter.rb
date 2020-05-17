@@ -17,7 +17,7 @@ module TTY
       DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
       DEFAULT_ORDER = ->(params) { params.sort }
       NOOP_PROC = ->(param) { param }
-      DEFAULT_NAME_SELECTOR = ->(param) { param.variable }
+      DEFAULT_NAME_SELECTOR = ->(param) { param.name }
 
       # @api public
       def self.help(parameters, usage, **config, &block)
@@ -165,7 +165,7 @@ module TTY
       #
       # @api private
       def format_argument_usage(arg)
-        arg_name = @param_display.(arg.variable)
+        arg_name = @param_display.(arg.name)
         format_parameter_usage(arg, arg_name)
       end
 
@@ -212,7 +212,7 @@ module TTY
       #
       # @api private
       def kwarg_param_display(kwarg, param_display = NOOP_PROC)
-        kwarg_name = param_display.(kwarg.variable)
+        kwarg_name = param_display.(kwarg.name)
         conv_name = case kwarg.convert
                     when Proc, NilClass
                       kwarg_name
@@ -229,7 +229,7 @@ module TTY
       #   the name of parameter type
       #
       # @param [Proc] name_selector
-      #   selects a name from the parameter, by defeault the variable
+      #   selects a name from the parameter, by defeault the name
       #
       # @return [String]
       #

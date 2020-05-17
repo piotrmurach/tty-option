@@ -14,17 +14,23 @@ module TTY
       # A parameter factory
       #
       # @api public
-      def self.create(name, **settings, &block)
-        new(name, **settings, &block)
+      def self.create(key, **settings, &block)
+        new(key, **settings, &block)
       end
 
-      attr_reader :name
+      # The key under which this parameter is registered
+      #
+      # @api public
+      attr_reader :key
 
       # Create a parameter
       #
+      # @param [Symbol] key
+      #   the key to register this param under
+      #
       # @api private
-      def initialize(name, **settings, &block)
-        @name = name
+      def initialize(key, **settings, &block)
+        @key = key
         @settings = {}
         settings.each do |key, val|
           case key.to_sym
@@ -38,8 +44,6 @@ module TTY
             val = check_permitted(val)
           when :validate
             val = check_validation(val)
-          when :variable, :var
-            key = :var
           end
           @settings[key.to_sym] = val
         end
@@ -159,17 +163,16 @@ module TTY
         @settings.key?(:permit) && !@settings[:permit].nil?
       end
 
-      def variable(value = (not_set = true))
+      def name(value = (not_set = true))
         if not_set
-          @settings.fetch(:var) { default_variable_name }
+          @settings.fetch(:name) { default_name }
         else
-          @settings[:var] = value
+          @settings[:name] = value
         end
       end
-      alias var variable
 
-      def default_variable_name
-        name.to_s.tr("_", "-")
+      def default_name
+        key.to_s.tr("_", "-")
       end
 
       def validate(value = (not_set = true))
@@ -232,7 +235,7 @@ module TTY
       # @api public
       def dup
         super.tap do |param|
-          param.instance_variable_set(:@name, DeepDup.deep_dup(@name))
+          param.instance_variable_set(:@key, DeepDup.deep_dup(@key))
           param.instance_variable_set(:@settings, DeepDup.deep_dup(@settings))
         end
       end
@@ -243,7 +246,7 @@ module TTY
       def check_arity(value)
         if value.nil?
           raise ConfigurationError,
-                "#{to_sym} '#{variable}' arity needs to be an Integer"
+                "#{to_sym} '#{name}' arity needs to be an Integer"
         end
 
         case value.to_s
@@ -253,7 +256,7 @@ module TTY
         end
 
         if value.zero?
-          raise ConfigurationError, "#{to_sym} '#{variable}' arity cannot be zero"
+          raise ConfigurationError, "#{to_sym} '#{name}' arity cannot be zero"
         end
         value
       end
@@ -264,14 +267,14 @@ module TTY
           value
         else
           raise ConfigurationError,
-                "#{to_sym} '#{variable}' permitted value needs to be an Array"
+                "#{to_sym} '#{name}' permitted value needs to be an Array"
         end
       end
 
       def check_default(value)
         if !value.nil? && required?
           raise ConfigurationError,
-                "#{to_sym} '#{variable}' cannot have default value and be required"
+                "#{to_sym} '#{name}' cannot have default value and be required"
         else
           value
         end
@@ -281,7 +284,7 @@ module TTY
       def check_required(value)
         if value && default?
           raise ConfigurationError,
-                "#{to_sym} '#{variable}' cannot be required and have default value"
+                "#{to_sym} '#{name}' cannot be required and have default value"
         else
           value
         end
@@ -292,14 +295,14 @@ module TTY
         case value
         when NilClass
           raise ConfigurationError,
-                "#{to_sym} '#{variable}' validation needs to be a Proc or a Regexp"
+                "#{to_sym} '#{name}' validation needs to be a Proc or a Regexp"
         when Proc
           value
         when Regexp, String
           Regexp.new(value.to_s)
         else
           raise ConfigurationError,
-                "#{to_sym} '#{variable}' validation can only be a Proc or a Regexp"
+                "#{to_sym} '#{name}' validation can only be a Proc or a Regexp"
         end
       end
     end # Parameter

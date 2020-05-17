@@ -21,7 +21,7 @@ module TTY
         # @api private
         def call(arities)
           @multiplies.each do |param|
-            arity = arities[param.name]
+            arity = arities[param.key]
 
             if arity < param.min_arity
               @error_aggregator.(InvalidArity.new(param, arity))

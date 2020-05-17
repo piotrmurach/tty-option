@@ -40,7 +40,7 @@ module TTY
 
           message = format(MESSAGE,
                            value: value,
-                           name: param.variable,
+                           name: param.name,
                            type: param.to_sym)
         else
           message = param_or_message
@@ -62,7 +62,7 @@ module TTY
 
           message = format(MESSAGE,
                            type: param.to_sym,
-                           name: param.variable,
+                           name: param.name,
                            expect: prefix + pluralize("time", expected_arity),
                            actual: pluralize("time", arity))
         else
@@ -88,7 +88,7 @@ module TTY
       def initialize(param, value)
         @param = param
         message = format(MESSAGE, value: value, cast: param.convert,
-                          name: param.variable, type: param.to_sym)
+                          name: param.name, type: param.to_sym)
         super(message)
       end
     end
@@ -99,7 +99,7 @@ module TTY
 
       def initialize(param)
         @param = param
-        message = format(MESSAGE, type: param.to_sym, name: param.variable)
+        message = format(MESSAGE, type: param.to_sym, name: param.name)
         super(message)
       end
     end
@@ -111,7 +111,7 @@ module TTY
       def initialize(param_or_message)
         if param_or_message.is_a?(Parameter)
           @param = param_or_message
-          message = format(MESSAGE, name: param.variable, type: param.to_sym)
+          message = format(MESSAGE, name: param.name, type: param.to_sym)
         else
           message = param_or_message
         end
@@ -129,7 +129,7 @@ module TTY
           @param = param_or_message
           message = format(MESSAGE,
                            value: value,
-                           name: param.variable,
+                           name: param.name,
                            type: param.to_sym)
         else
           message = param_or_message
