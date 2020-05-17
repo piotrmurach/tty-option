@@ -15,7 +15,7 @@ class Command
     long "--foo list"
     convert map_of(Integer)
   end
-  
+
   def run
     p params[:bar]
     p params[:foo]
@@ -24,6 +24,6 @@ end
 
 cmd = Command.new
 
-cmd.parse(%w[arg1 arg2 -f a:1 b:2 --foo c=3&d=4])
+cmd.parse(%w[arg1 -f a:1 b:2 --foo c=3&d=4 arg2])
 
 cmd.run
