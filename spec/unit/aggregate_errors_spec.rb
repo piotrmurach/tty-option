@@ -74,13 +74,15 @@ RSpec.describe TTY::Option::AggregateErrors do
     it "formats multiple error messages for display in terminal" do
       errors = described_class.new
 
-      errors.add TTY::Option::InvalidArgument.new("invalid argument")
-      errors.add TTY::Option::InvalidArity.new("invalid arity")
+      errors.add TTY::Option::InvalidArgument.new(
+        new_parameter(:option, :foo, validate: /\d+/), "zzz")
+      errors.add TTY::Option::InvalidArity.new(
+        new_parameter(:argument, :bar, arity: "+"), 0)
 
       expect(errors.summary).to eq unindent(<<-EOS).chomp
       Errors:
-        1) Invalid argument
-        2) Invalid arity
+        1) Value of `zzz` fails validation for "--foo" option
+        2) Argument 'bar' should appear at least 1 time but appeared 0 times
       EOS
     end
 
