@@ -24,8 +24,6 @@ module TTY
         new(parameters, usage, **config).help(&block)
       end
 
-      attr_reader :indentation
-
       attr_reader :width
 
       # Create a help formatter
@@ -33,14 +31,15 @@ module TTY
       # @param [Parameters]
       #
       # @api public
-      def initialize(parameters, usage, **config)
+      def initialize(parameters, usage, param_display: DEFAULT_PARAM_DISPLAY,
+                     width: DEFAULT_WIDTH, order: DEFAULT_ORDER, indent: 0)
         @parameters = parameters
         @usage = usage
-        @param_display = config.fetch(:param_display) { DEFAULT_PARAM_DISPLAY }
-        @order = config.fetch(:order) { DEFAULT_ORDER }
-        @width = config.fetch(:width) { DEFAULT_WIDTH }
-        @indent = 2
-        @indentation = " " * 2
+        @param_display = param_display
+        @order = order
+        @width = width
+        @indent = indent
+        @param_indent = indent + 2
         @section_names = {
           usage: "Usage:",
           arguments: "Arguments:",
@@ -251,14 +250,14 @@ module TTY
       def format_section_parameter(param, longest_param, name_selector)
         line = []
         desc = []
-        indent = @indent + longest_param + 2
+        indent = @param_indent + longest_param + 2
         param_name = name_selector.(param)
 
         if param.desc?
-          line << format("%s%-#{longest_param}s", indentation, param_name)
+          line << format("%s%-#{longest_param}s", " " * @param_indent, param_name)
           desc << "  #{param.desc}"
         else
-          line << format("%s%s", indentation, param_name)
+          line << format("%s%s", " " * @param_indent, param_name)
         end
 
         if param.permit?
@@ -363,7 +362,7 @@ module TTY
       #
       # @api private
       def format_examples
-        format_multiline(@usage.example, @indent)
+        format_multiline(@usage.example, @param_indent)
       end
 
       # Format multiline content
