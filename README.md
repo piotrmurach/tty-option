@@ -61,10 +61,11 @@ Or install it yourself as:
     * [2.5.3 default](#253-default)
     * [2.5.4 description](#254-description)
     * [2.5.5 hidden](#255-hidden)
-    * [2.5.6 optional](#256-optional)
-    * [2.5.7 permit](#257-permit)
-    * [2.5.8 required](#258-required)
-    * [2.5.9 validate](#259-validate)
+    * [2.5.6 name](#256-name)
+    * [2.5.7 optional](#257-optional)
+    * [2.5.8 permit](#258-permit)
+    * [2.5.9 required](#259-required)
+    * [2.5.10 validate](#2510-validate)
   * [2.6 parse](#26-parse)
   * [2.7 params](#27-params)
     * [2.7.1 errors](#271-errors)
@@ -731,6 +732,15 @@ When no option `--foo` is parsed, then the `params` will be populated:
 params[:foo] # => "bar"
 ```
 
+The default can also be specified with a `proc` object:
+
+```ruby
+option :foo do
+  long "--foo string"
+  default -> { "bar" }
+end
+```
+
 A parameter cannot be both required and have default value. Specifying both will raise `ConfigurationError`. For example, all positional arguments are required by default. If you want to have a default for a required argument make it `optional`:
 
 ```ruby
@@ -787,7 +797,57 @@ The above will hide the `:bar` parameter from the usage:
 Usage: foobar FOO
 ```
 
-#### 2.5.6 optional
+#### 2.5.6 name
+
+By default the parameter key will be used to match command-line input arguments.
+
+This means that a key `:foo_bar` will match `"foo-bar"` parameter name. For example, given a keyword:
+
+```ruby
+keyword :foo_bar
+```
+
+And then command-line input:
+
+```
+foo-bar=baz
+```
+
+The parsed result will be:
+
+```ruby
+params[:foo_bar] # => "baz"
+```
+
+To change the parameter name to a custom one, use the `name` setting:
+
+```ruby
+keywor :foo_bar do
+  name "fum"
+end
+```
+
+Then parsing:
+
+```
+fum=baz
+```
+
+Will result in:
+
+```
+params[:foo] # => "baz"
+````
+
+For environment variables use the upper case when changing name:
+
+```ruby
+env :foo do
+  name "FOO_VAR"
+end
+```
+
+#### 2.5.7 optional
 
 Apart from the positional argument, all other parameters are optional. To mark an argument as optional use similar naming `optional` setting:
 
@@ -812,7 +872,7 @@ Arguments:
   foo  Foo arg description
 ```
 
-#### 2.5.7 permit
+#### 2.5.8 permit
 
 The `permit` setting allows you to restrict an input to a set of possible values.
 
@@ -883,7 +943,7 @@ Options:
   -f, --foo string  Some description (permitted: a,b,c,d)
 ```
 
-#### 2.5.8 required
+#### 2.5.9 required
 
 Only arguments are required. Any other parameters like options, keywords and environment variables are optional. To force parameter presence in input use `required` setting.
 
@@ -908,7 +968,7 @@ Keywords:
   bar=bar  Bar keyword description
 ```
 
-#### 2.5.9 validate
+#### 2.5.10 validate
 
 Use the `validate` setting if you wish to ensure only inputs matching filter criteria are allowed.
 
@@ -1522,7 +1582,7 @@ By default has not indentation for any of the sections bar parameters.
 
 To change the indentation for the entire usage information use `:indent` keyword:
 
-```
+```ruby
 help(indent: 2)
 ```
 
