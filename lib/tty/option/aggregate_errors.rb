@@ -69,18 +69,23 @@ module TTY
       # @return [String]
       #
       # @api public
-      def summary(width: 80, indent: 5)
+      def summary(width: 80, indent: 0)
         return "" if count.zero?
 
         output = []
+        space_indent = " " * indent
         if messages.count == 1
-          output << "Error: #{messages.first}"
+          message = messages.first
+          label = "Error: "
+          output << "#{space_indent}#{label}" \
+                    "#{wrap(message, indent: indent + label.length, width: width)}"
         else
-          output << "Errors:"
+          output << space_indent + "Errors:"
           messages.each_with_index do |message, num|
-            entry = "#{num + 1}) "
-            output << " " * (indent - entry.length) + entry +
-                      wrap(message.capitalize, indent: indent, width: width)
+            entry = "  #{num + 1}) "
+            output << "#{space_indent}#{entry}" \
+                      "#{wrap(message.capitalize, indent: indent + entry.length,
+                                                  width: width)}"
           end
         end
         output.join("\n")
