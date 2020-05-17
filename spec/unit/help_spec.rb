@@ -129,8 +129,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS] FOO FOO [BAR]
 
       Arguments:
-        bar  Bar arg description (default "fum")
         foo  Foo arg description (permitted: 10, 11, 12)
+        bar  Bar arg description (default "fum")
 
       Options:
         --baz  Some description
@@ -168,11 +168,11 @@ RSpec.describe TTY::Option::Formatter do
              [BAR-SUPER-LONG-ARGUMENT-NAME] [QUX-LONG-NAME]
 
       Arguments:
+        foo-long-argument-name        Some multiline
+                                      description with newlines
         bar-super-long-argument-name  Some description that goes on and on and
                                       never finishes explaining (default
                                       "default-is-way-too-long-as-well")
-        foo-long-argument-name        Some multiline
-                                      description with newlines
         qux-long-name                 Some description that
                                       breaks into multiline
                                       on newlines (permitted: one, two, three,
@@ -234,8 +234,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command FOO-BAR FOO-BAR [BARRED]
 
       Arguments:
-        barred   Bar arg description
         foo-bar  Foo arg description
+        barred   Bar arg description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -316,9 +316,9 @@ RSpec.describe TTY::Option::Formatter do
              BAZZED=LIST [BAZZED=LIST...]
 
       Keywords:
+        foo-bar=int    Some keyword description
         barred=barred  Some keyword description
         bazzed=list    Some keyword description
-        foo-bar=int    Some keyword description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -356,11 +356,11 @@ RSpec.describe TTY::Option::Formatter do
              [BAR-SUPER-LONG-KEYWORD-NAME=LIST] [QUX-LONG-NAME=INT]
 
       Keywords:
+        foo-long-name=float               Some multiline
+                                          description with newlines
         bar-super-long-keyword-name=list  Some description that goes on and on and
                                           never finishes explaining (default
                                           "default-is-way-too-long-as-well")
-        foo-long-name=float               Some multiline
-                                          description with newlines
         qux-long-name=int                 Some description that
                                           breaks into multiline
                                           on newlines (permitted: one, two, three,

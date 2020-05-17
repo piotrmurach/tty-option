@@ -104,12 +104,12 @@ module TTY
 
       def help_arguments
         "#{NEWLINE}#{@space_indent}#{@section_names[:arguments]}#{NEWLINE}" +
-          format_section(:arguments)
+          format_section(@parameters.arguments)
       end
 
       def help_keywords
         "#{NEWLINE}#{@space_indent}#{@section_names[:keywords]}#{NEWLINE}" +
-          format_section(:keywords, ->(param) { kwarg_param_display(param) })
+          format_section(@parameters.keywords, ->(param) { kwarg_param_display(param) })
       end
 
       def help_options
@@ -119,7 +119,7 @@ module TTY
 
       def help_environments
         "#{NEWLINE}#{@space_indent}#{@section_names[:env]}#{NEWLINE}" +
-          format_section(:environments)
+          format_section(@order.(@parameters.environments))
       end
 
       def help_examples
@@ -234,12 +234,10 @@ module TTY
       # @return [String]
       #
       # @api private
-      def format_section(parameters_name, name_selector = DEFAULT_NAME_SELECTOR)
-        params = @parameters.public_send(parameters_name)
+      def format_section(params, name_selector = DEFAULT_NAME_SELECTOR)
         longest_param = params.map(&name_selector).compact.max_by(&:length).length
-        ordered_params = @order.(params)
 
-        ordered_params.reduce([]) do |acc, param|
+        params.reduce([]) do |acc, param|
           next acc if param.hidden?
 
           acc << format_section_parameter(param, longest_param, name_selector)
