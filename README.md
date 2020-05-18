@@ -229,11 +229,11 @@ Usage: dock run [OPTIONS] IMAGE [COMMAND] [RESTART=RESTART]
 Run a command in a new container
 
 Arguments:
-  image    The name of the image to use
-  command  The command to run inside the image
+  IMAGE    The name of the image to use
+  COMMAND  The command to run inside the image
 
 Keywords:
-  restart=restart  Restart policy to apply when a container exits (permitted:
+  RESTART=RESTART  Restart policy to apply when a container exits (permitted:
                    no, on-failure, always, unless-stopped) (default "no")
 
 Options:
@@ -758,7 +758,7 @@ The default will be automatically displayed in the usage information:
 Usage: foobar [OPTIONS] [FOO]
 
 Arguments:
-  foo  Some description (default "bar")
+  FOO  Some description (default "bar")
 ```
 
 #### 2.5.4 desc(ription)
@@ -869,8 +869,8 @@ The optional argument will be surrounded by brackets in the usage display:
 Usage: foobar [OPTIONS] FOO [BAR]
 
 Arguments:
-  bar  Bar arg description
-  foo  Foo arg description
+  FOO  Foo arg description
+  BAR  Bar arg description
 ```
 
 #### 2.5.8 permit
@@ -965,8 +965,8 @@ Because `foo` keyword is required it won't have brackets around the parameter in
 Usage: foobar FOO=FOO [BAR=BAR]
 
 Keywords:
-  foo=foo  Foo keyword description
-  bar=bar  Bar keyword description
+  FOO=FOO  Foo keyword description
+  BAR=BAR  Bar keyword description
 ```
 
 #### 2.5.10 validate
@@ -1537,10 +1537,10 @@ Usage: foobar [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
 Some foobar description
 
 Arguments:
-  bar  Some argument description
+  BAR  Some argument description
 
 Keywords:
-  baz=baz  Some keyword description
+  BAZ=BAZ  Some keyword description
 
 Options:
   -h, --help Print usage
