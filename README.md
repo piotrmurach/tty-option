@@ -68,6 +68,7 @@ Or install it yourself as:
     * [2.5.10 validate](#2510-validate)
   * [2.6 parse](#26-parse)
     * [2.6.1 :raise_on_parse_error](#261-raise_on_parse_error)
+    * [2.6.2 :check_invalid_params](#262-check_invalid_params)
   * [2.7 params](#27-params)
     * [2.7.1 errors](#271-errors)
     * [2.7.2 remaining](#272-remaining)
@@ -554,7 +555,9 @@ These settings are supported by all parameter types with the exception of `short
 
 #### 2.5.1 arity
 
-To describe how many times a given parameter may appear in the command line use the `arity` setting. By default every parameter is assumed to appear only once. Any other occurrence will be disregarded and included in the remaining parameters list.
+To describe how many times a given parameter may appear in the command line use the `arity` setting.
+
+By default every parameter is assumed to appear only once. Any other occurrence will be disregarded and included in the remaining parameters list.
 
 For example, to match argument exactly 2 times do:
 
@@ -969,6 +972,8 @@ Keywords:
   BAR=BAR  Bar keyword description
 ```
 
+Note: Using required options is rather discouraged as these are typically expected to be optional.
+
 #### 2.5.10 validate
 
 Use the `validate` setting if you wish to ensure only inputs matching filter criteria are allowed.
@@ -1074,6 +1079,20 @@ rescue TTY::Option::ParseError => err
   # do something here
 end
 ```
+
+#### 2.6.2 :check_invalid_params
+
+Users can provide any input, including parameters you didn't expect and define.
+
+By default, when unknown parameter is found in the input, an `TTY::Option::InvalidParameter` error will be raised internally and collected in the `errors` list.
+
+If, on the other hand, you want to ignore unknown parameters and instead leave them alone during the parsing use the `:check_invalid_params` option like so:
+
+```ruby
+parse(check_invalid_params: false)
+```
+
+This way all the unrecognized parameters will be collected into a [remaining](#272-remaining) list accessible on the `params` instance.
 
 ### 2.7 params
 
@@ -1192,14 +1211,25 @@ This way any attempt at parsing invalid input will raise to the terminal.
 
 #### 2.7.2 remaining
 
-Users can provide any input, including parameters you didn't expect or arguments after the `--` terminator. All of these will be left alone during the parsing process and collected. You can access them on the `params` instance with the `remaining` method.
+Users can provide any input, including parameters you didn't expect and define.
 
-Let's assume that user provided `--unknown` option that we didn't expect. Inspecting the `remaining` parameters, we get:
+By default, when unknown parameter is found in the input, an `TTY::Option::InvalidParameter` error will be raised internally and collected in the `errors` list.
+
+If, on the other hand, you want to ignore unknown parameters and instead leave them alone during the parsing use the `:check_invalid_params` option like so:
 
 ```ruby
-params.remaining
-# => ["--unknown"]
+parse(check_invalid_params: true)
 ```
+
+This way all the unrecognized parameters will be collected into a list. You can access them on the `params` instance with the `remaining` method.
+
+For example, let's assume that user provided `--unknown` option that we didn't expect. Inspecting the `remaining` parameters, we would get:
+
+```ruby
+params.remaining # => ["--unknown"]
+```
+
+Any parameters after the `--` terminator will be left alone during the parsing process and collected into the `remaining` list. This is useful in situations when you want to pass parameters over to another command-line applications.
 
 #### 2.7.3 valid?
 
