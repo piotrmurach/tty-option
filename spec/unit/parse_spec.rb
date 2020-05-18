@@ -204,7 +204,8 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[14], raise_on_parse_error:  true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
-                      "unpermitted value `14` for 'foo' argument")
+                      "unpermitted value `14` for 'foo' argument: "\
+                      "choose from 11, 12, 13")
     end
 
     it "doesn't raise on an unpermitted value and reads error message" do
@@ -218,7 +219,7 @@ RSpec.describe TTY::Option do
       cmd.parse(%w[14])
 
       expect(cmd.params.errors.messages).to eq([
-        "unpermitted value `14` for 'foo' argument"
+        "unpermitted value `14` for 'foo' argument: choose from 11, 12, 13"
       ])
     end
   end
@@ -306,7 +307,8 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[foo=14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
-                      "unpermitted value `14` for 'foo' keyword")
+                      "unpermitted value `14` for 'foo' keyword: " \
+                      "choose from 11, 12, 13")
     end
 
     it "requires a keyword presence" do
@@ -390,7 +392,8 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[FOO=14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
-                      "unpermitted value `14` for 'FOO' environment")
+                      "unpermitted value `14` for 'FOO' environment: " \
+                      "choose from 11, 12, 13")
     end
 
     it "requires an env variable presence" do
@@ -613,7 +616,8 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo 14], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::UnpermittedArgument,
-                        "unpermitted value `14` for '--foo' option")
+                        "unpermitted value `14` for '--foo' option: " \
+                        "choose from 11, 12, 13")
       end
     end
 

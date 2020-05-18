@@ -122,7 +122,8 @@ module TTY
 
     # Raised when argument value isn't permitted
     class UnpermittedArgument < ParseError
-      MESSAGE = "unpermitted value `%<value>s` for '%<name>s' %<type>s"
+      MESSAGE = "unpermitted value `%<value>s` for '%<name>s' %<type>s: " \
+                "choose from %<choices>s"
 
       def initialize(param_or_message, value = nil)
         if param_or_message.is_a?(Parameter)
@@ -130,7 +131,8 @@ module TTY
           message = format(MESSAGE,
                            value: value,
                            name: param.name,
-                           type: param.to_sym)
+                           type: param.to_sym,
+                           choices: param.permit.join(", "))
         else
           message = param_or_message
         end
