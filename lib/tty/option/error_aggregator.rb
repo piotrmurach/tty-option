@@ -10,9 +10,9 @@ module TTY
       # Collected errors
       attr_reader :errors
 
-      def initialize(errors = [], **config)
+      def initialize(errors = [], raise_on_parse_error: false)
         @errors = errors
-        @raise_on_parsing_error = config.fetch(:raise_on_parse_error) { false }
+        @raise_on_parse_error = raise_on_parse_error
       end
 
       # Record or raise an error
@@ -26,7 +26,7 @@ module TTY
           error = message.nil? ? error.new : error.new(message)
         end
 
-        raise(error) if @raise_on_parsing_error
+        raise(error) if @raise_on_parse_error
 
         @errors << error
       end

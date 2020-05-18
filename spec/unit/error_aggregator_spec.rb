@@ -9,7 +9,7 @@ RSpec.describe TTY::Option::ErrorAggregator do
   end
 
   it "collects errors as classes with custom messages" do
-    aggregator = described_class.new(raise_on_parsing_error: false)
+    aggregator = described_class.new
 
     aggregator.(TTY::Option::MissingParameter, "foo boom")
     aggregator.(TTY::Option::MissingParameter, "bar boom")

@@ -19,9 +19,11 @@ module TTY
         #   the configuration settings
         #
         # @api public
-        def initialize(arguments, **config)
+        def initialize(arguments, check_invalid_params: true,
+                       raise_on_parse_error: false)
           @arguments = arguments
-          @error_aggregator = ErrorAggregator.new(**config)
+          @error_aggregator =
+            ErrorAggregator.new(raise_on_parse_error: raise_on_parse_error)
           @required_check = RequiredCheck.new(@error_aggregator)
           @pipeline = Pipeline.new(@error_aggregator)
           @parsed = {}
