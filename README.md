@@ -67,6 +67,7 @@ Or install it yourself as:
     * [2.5.9 required](#259-required)
     * [2.5.10 validate](#2510-validate)
   * [2.6 parse](#26-parse)
+    * [2.6.1 :raise_on_parse_error](#261-raise_on_parse_error)
   * [2.7 params](#27-params)
     * [2.7.1 errors](#271-errors)
     * [2.7.2 remaining](#272-remaining)
@@ -1053,6 +1054,26 @@ It handles parsing of compacted shorthand options that start with a single dash.
 ```
 
 Parameter parsing stops after the `--` terminator is found. The leftover inputs are collected and accessible via the `remaining` method.
+
+#### 2.6.1 :raise_on_parse_error
+
+By default no parse errors are raised. Why? Users do not appreciate Ruby errors in their terminal output. Instead, parsing errors are made accessible on the `params` object with the [errors](#271-errors) method.
+
+However, if you prefer to handle parsing errors yourself, you can do so with `:raise_on_parse_error` keyword:
+
+```ruby
+parse(raise_on_parse_error: true)
+```
+
+Then in your code you may want to surround your `parse` call with a rescue clause:
+
+```ruby
+begin
+  parse(raise_on_parse_error: true)
+rescue TTY::Option::ParseError => err
+  # do something here
+end
+```
 
 ### 2.7 params
 
