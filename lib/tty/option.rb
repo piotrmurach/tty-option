@@ -46,8 +46,11 @@ module TTY
       #   the hash of environment variables
       #
       # @api public
-      def parse(argv = ARGV, env = ENV, **config)
-        parser = Parser.new(self.class.parameters, **config)
+      def parse(argv = ARGV, env = ENV, check_invalid_params: true,
+                raise_on_parse_error: false)
+        parser = Parser.new(self.class.parameters,
+                            check_invalid_params: check_invalid_params,
+                            raise_on_parse_error: raise_on_parse_error)
         @__params = Params.create(*parser.parse(argv, env))
         self
       end
