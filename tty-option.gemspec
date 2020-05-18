@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Piotr Murach"]
   spec.email         = ["piotr@piotrmurach.com"]
   spec.summary       = %q{An intuitive and flexible command line parser}
-  spec.description   = %q{Parser for command line arguments, keywords, options and environment variables.}
+  spec.description   = %q{Parser for command line arguments, keywords, flags, options and environment variables.}
   spec.homepage      = "https://ttytoolkit.org"
   spec.license       = "MIT"
 
