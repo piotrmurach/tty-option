@@ -81,7 +81,7 @@ cmd.parse(%w[restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4 bas
 cmd.run
 
 # show help
-cmd.parse(%w[--help], raise_on_parsing_error: false)
+cmd.parse(%w[--help])
 cmd.run
 
 # show errors
