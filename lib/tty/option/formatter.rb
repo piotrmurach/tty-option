@@ -104,12 +104,16 @@ module TTY
 
       def help_arguments
         "#{NEWLINE}#{@space_indent}#{@section_names[:arguments]}#{NEWLINE}" +
-          format_section(@parameters.arguments)
+          format_section(@parameters.arguments, ->(param) do
+            @param_display.(param.name)
+          end)
       end
 
       def help_keywords
         "#{NEWLINE}#{@space_indent}#{@section_names[:keywords]}#{NEWLINE}" +
-          format_section(@parameters.keywords, ->(param) { kwarg_param_display(param) })
+          format_section(@parameters.keywords, ->(param) do
+            kwarg_param_display(param).split("=").map(&@param_display).join("=")
+          end)
       end
 
       def help_options

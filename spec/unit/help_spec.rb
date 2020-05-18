@@ -129,8 +129,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS] FOO FOO [BAR]
 
       Arguments:
-        foo  Foo arg description (permitted: 10, 11, 12)
-        bar  Bar arg description (default "fum")
+        FOO  Foo arg description (permitted: 10, 11, 12)
+        BAR  Bar arg description (default "fum")
 
       Options:
         --baz  Some description
@@ -168,12 +168,12 @@ RSpec.describe TTY::Option::Formatter do
              [BAR-SUPER-LONG-ARGUMENT-NAME] [QUX-LONG-NAME]
 
       Arguments:
-        foo-long-argument-name        Some multiline
+        FOO-LONG-ARGUMENT-NAME        Some multiline
                                       description with newlines
-        bar-super-long-argument-name  Some description that goes on and on and
+        BAR-SUPER-LONG-ARGUMENT-NAME  Some description that goes on and on and
                                       never finishes explaining (default
                                       "default-is-way-too-long-as-well")
-        qux-long-name                 Some description that
+        QUX-LONG-NAME                 Some description that
                                       breaks into multiline
                                       on newlines (permitted: one, two, three,
                                       four, five, six) (default "some long
@@ -234,8 +234,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command FOO-BAR FOO-BAR [BARRED]
 
       Arguments:
-        foo-bar  Foo arg description
-        barred   Bar arg description
+        FOO-BAR  Foo arg description
+        BARRED   Bar arg description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -277,8 +277,8 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo command BAR=URI [BAZ=BAZ]
 
       Keywords:
-        bar=uri  Bar keyword description
-        baz=baz  Baz keyword description (default "fum")
+        BAR=URI  Bar keyword description
+        BAZ=BAZ  Baz keyword description (default "fum")
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -316,9 +316,9 @@ RSpec.describe TTY::Option::Formatter do
              BAZZED=LIST [BAZZED=LIST...]
 
       Keywords:
-        foo-bar=int    Some keyword description
-        barred=barred  Some keyword description
-        bazzed=list    Some keyword description
+        FOO-BAR=INT    Some keyword description
+        BARRED=BARRED  Some keyword description
+        BAZZED=LIST    Some keyword description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -356,12 +356,12 @@ RSpec.describe TTY::Option::Formatter do
              [BAR-SUPER-LONG-KEYWORD-NAME=LIST] [QUX-LONG-NAME=INT]
 
       Keywords:
-        foo-long-name=float               Some multiline
+        FOO-LONG-NAME=FLOAT               Some multiline
                                           description with newlines
-        bar-super-long-keyword-name=list  Some description that goes on and on and
+        BAR-SUPER-LONG-KEYWORD-NAME=LIST  Some description that goes on and on and
                                           never finishes explaining (default
                                           "default-is-way-too-long-as-well")
-        qux-long-name=int                 Some description that
+        QUX-LONG-NAME=INT                 Some description that
                                           breaks into multiline
                                           on newlines (permitted: one, two, three,
                                           four, five, six) (default "some long
@@ -403,14 +403,18 @@ RSpec.describe TTY::Option::Formatter do
       cmd = new_command do
         program "foo"
 
+        argument :fum do
+          desc "Foo arg description"
+        end
+
         keyword :bar do
           required
           convert :uri
         end
 
-        keyword :baz
-
-        argument :fum
+        keyword :baz do
+          desc "Baz keyword description"
+        end
 
         option :qux do
           desc "Some description"
@@ -423,6 +427,13 @@ RSpec.describe TTY::Option::Formatter do
 
       expected_output = unindent(<<-EOS)
       Usage: foo command [<options>] [<environment>] <fum> <bar>=<uri> [<baz>=<baz>]
+
+      Arguments:
+        <fum>  Foo arg description
+
+      Keywords:
+        <bar>=<uri>
+        <baz>=<baz>  Baz keyword description
 
       Options:
         --qux  Some description
@@ -706,10 +717,10 @@ RSpec.describe TTY::Option::Formatter do
       Some foo app description
 
       Arguments:
-        bar  Some argument description
+        BAR  Some argument description
 
       Keywords:
-        baz=baz  Some keyword description
+        BAZ=BAZ  Some keyword description
 
       Options:
         --qux  Some option description
@@ -763,10 +774,10 @@ RSpec.describe TTY::Option::Formatter do
       Some foo app description
 
       Arguments:
-        bar  Some argument description
+        BAR  Some argument description
 
       Keywords:
-        baz=baz  Some keyword description
+        BAZ=BAZ  Some keyword description
 
       Options:
         --qux  Some option description
@@ -823,11 +834,11 @@ RSpec.describe TTY::Option::Formatter do
   description
 
   Arguments:
-    bar  Some argument
+    BAR  Some argument
          description
 
   Keywords:
-    baz=baz  Some keyword
+    BAZ=BAZ  Some keyword
              description
 
   Options:
@@ -874,14 +885,14 @@ RSpec.describe TTY::Option::Formatter do
       Usage: foo command [OPTIONS] [ENVIRONMENT] Z D F [ZZ=ZZ] [DD=DD] [FF=FF]
 
       Arguments:
-        z  Some argument description
-        d  Some argument description
-        f  Some argument description
+        Z  Some argument description
+        D  Some argument description
+        F  Some argument description
 
       Keywords:
-        zz=zz  Some keyword description
-        dd=dd  Some keyword description
-        ff=ff  Some keyword description
+        ZZ=ZZ  Some keyword description
+        DD=DD  Some keyword description
+        FF=FF  Some keyword description
 
       Options:
         --zzz
@@ -924,8 +935,8 @@ RSpec.describe TTY::Option::Formatter do
         [:header, "CLI foo app\n"],
         [:banner, "Usage: foo command [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]"],
         [:description, "\nSome foo app description"],
-        [:arguments, "\nArguments:\n  bar  Some argument description"],
-        [:keywords, "\nKeywords:\n  baz=baz  Some keyword description"],
+        [:arguments, "\nArguments:\n  BAR  Some argument description"],
+        [:keywords, "\nKeywords:\n  BAZ=BAZ  Some keyword description"],
         [:options, "\nOptions:\n  --qux  Some option description"],
         [:environments, "\nEnvironment:\n  FUM  Some env description"],
         [:examples, "\nExamples:\n  Some example\n  on multiline"],
@@ -959,7 +970,7 @@ RSpec.describe TTY::Option::Formatter do
       Some foo app description
 
       Arguments:
-        bar  Some argument description
+        BAR  Some argument description
 
       Commands:
         create  A command description
