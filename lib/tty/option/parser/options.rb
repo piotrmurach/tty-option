@@ -24,9 +24,9 @@ module TTY
         #   the configuration settings
         #
         # @api public
-        def initialize(options, **config)
+        def initialize(options, check_invalid_params: true, **config)
           @options = options
-          @check_invalid_params = config.fetch(:check_invalid_params) { true }
+          @check_invalid_params = check_invalid_params
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)

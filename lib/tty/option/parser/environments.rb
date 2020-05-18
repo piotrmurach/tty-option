@@ -22,9 +22,9 @@ module TTY
         #   the configuration settings
         #
         # @api public
-        def initialize(environments, **config)
+        def initialize(environments, check_invalid_params: true, **config)
           @environments = environments
-          @check_invalid_params = config.fetch(:check_invalid_params) { true }
+          @check_invalid_params = check_invalid_params
           @error_aggregator = ErrorAggregator.new(**config)
           @required_check = RequiredCheck.new(@error_aggregator)
           @arity_check = ArityCheck.new(@error_aggregator)

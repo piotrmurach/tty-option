@@ -745,7 +745,7 @@ RSpec.describe TTY::Option do
       expect(cmd.params.errors.to_a).to eq([])
     end
 
-    it "adds unparsed arumguments to remaining" do
+    it "adds unparsed arguments to remaining" do
       cmd = new_command do
         argument :foo
       end
@@ -754,6 +754,17 @@ RSpec.describe TTY::Option do
 
       expect(cmd.params[:foo]).to eq("a")
       expect(cmd.params.remaining).to eq(%w[b c])
+    end
+
+    it "adds unknown options to remaining when :check_invalid_params disabled" do
+      cmd = new_command do
+        option :foo
+      end
+
+      cmd.parse(%w[--foo --bar -c], check_invalid_params: false)
+
+      expect(cmd.params[:foo]).to eq(true)
+      expect(cmd.params.remaining).to eq(%w[--bar -c])
     end
   end
 
