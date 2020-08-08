@@ -280,7 +280,7 @@ argument :foo do
   required                   # a default
   variable "foo(int)"        # name for the usage display
   arity one_or_more          # how many times to occur
-  convert :int               # values converted to intenger
+  convert :int               # values converted to integer
   validate -> { |v| v < 14 } # validation rule
   desc "Some foo desc"       # description for the usage display
 end
@@ -338,7 +338,7 @@ A more involved example to parse multiple keyword arguments requires use of help
 keyword :foo do
   required                   # by default keywrod is not required
   arity one_or_more          # how many times to occur
-  convert :int               # values converted to intenger
+  convert :int               # values converted to integer
   validate -> { |v| v < 14 } # validation rule
   desc "Some foo desc"       # description for the usage display
 end
@@ -362,7 +362,7 @@ You can also specify for the keyword argument to accept a list type:
 keyword :foo do
   required                   # by default keyword is not required
   arity one_or_more          # how many times to occur
-  convert :int_list          # input can be a list of intengers
+  convert :int_list          # input can be a list of integers
   validate -> { |v| v < 14 } # validation rule
   desc "Some foo desc"       # description for the usage display
 end
@@ -453,7 +453,7 @@ option :foo do
   arity one_or_more          # how many times option can occur
   short "-f"                 # declares a short flag name
   long  "--foo list"         # declares a long flag with a required argument
-  convert :int_list          # input can be a list of intengers
+  convert :int_list          # input can be a list of integers
   validate -> { |v| v < 14 } # validation rule
   desc "Some foo desc"       # description for the usage display
 end
