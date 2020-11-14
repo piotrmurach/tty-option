@@ -3,6 +3,8 @@
 require "date"
 
 RSpec.describe TTY::Option::Conversions do
+  let(:undefined) { TTY::Option::Const::Undefined }
+
   context ":bool" do
     {
       "yes" => true,
@@ -24,10 +26,11 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     it "fails to convert" do
-      expect {
-        described_class[:bool].("tak")
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of \"tak\" for :bool conversion")
+      expect(described_class[:bool].("tak")).to eq(TTY::Option::Const::Undefined)
+    end
+
+    it "fails to convert nil" do
+      expect(described_class[:bool].(nil)).to eq(TTY::Option::Const::Undefined)
     end
   end
 
@@ -43,17 +46,11 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     it "fails to convert" do
-      expect {
-        described_class[:date].("invalid")
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of \"invalid\" for :date conversion")
+      expect(described_class[:date].("invalid")).to eq(undefined)
     end
 
     it "fails to convert nil" do
-      expect {
-        described_class[:date].(nil)
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of nil for :date conversion")
+      expect(described_class[:date].(nil)).to eq(undefined)
     end
   end
 
@@ -69,17 +66,11 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     it "fails to convert string" do
-      expect {
-        described_class[:float].("invalid")
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of \"invalid\" for :float conversion")
+      expect(described_class[:float].("invalid")).to eq(undefined)
     end
 
     it "fails to convert nil" do
-      expect {
-        described_class[:float].(nil)
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of nil for :float conversion")
+      expect(described_class[:float].(nil)).to eq(undefined)
     end
   end
 
@@ -95,17 +86,11 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     it "fails to convert string" do
-      expect {
-        described_class[:int].("invalid")
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of \"invalid\" for :integer conversion")
+      expect(described_class[:int].("invalid")).to eq(undefined)
     end
 
     it "fails to convert nil" do
-      expect {
-        described_class[:integer].(nil)
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of nil for :integer conversion")
+      expect(described_class[:integer].(nil)).to eq(undefined)
     end
   end
 
@@ -131,10 +116,7 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     it "fails to convert" do
-      expect {
-        described_class[:regexp].([])
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of \[\] for :regexp conversion")
+      expect(described_class[:regexp].([])).to eq(undefined)
     end
   end
 
@@ -160,10 +142,7 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     it "fails to convert" do
-      expect {
-        described_class[:uri][123]
-      }.to raise_error(TTY::Option::ConversionError,
-                       "invalid value of 123 for :uri conversion")
+      expect(described_class[:uri][123]).to eq(undefined)
     end
   end
 

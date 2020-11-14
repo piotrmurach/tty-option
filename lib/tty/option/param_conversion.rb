@@ -10,20 +10,22 @@ module TTY
       #
       # @example
       #   param = Parameter::Argument.create(:foo, convert: :int)
-      #   ParamConversion[param, "12"] # => 12
+      #   result = ParamConversion[param, "12"]
+      #   result.value # => 12
       #
       # @api public
       def call(param, value)
         return Result.success(value) unless param.convert?
 
-        case cast = param.convert
-        when Proc
-          Result.success(cast.(value))
+        cast = param.convert
+        cast = cast.is_a?(Proc) ? cast : Conversions[cast]
+        converted = cast.(value)
+
+        if converted == Const::Undefined
+          Result.failure(InvalidConversionArgument.new(param, value))
         else
-          Result.success(Conversions[cast].(value))
+          Result.success(converted)
         end
-      rescue ConversionError
-        Result.failure(InvalidConversionArgument.new(param, value))
       end
       module_function :call
 

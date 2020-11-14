@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "const"
 require_relative "converter"
 
 module TTY
@@ -10,13 +11,6 @@ module TTY
       TRUE_VALUES = /^(true|y(es)?|t|1)$/i.freeze
       FALSE_VALUES = /^(false|n(o)?|f|0)$/i.freeze
 
-      # @api public
-      def self.raise_invalid_argument(conv_name, val)
-        raise ConversionError,
-              format("invalid value of %<value>s for %<conv>s conversion",
-                     value: val.inspect, conv: conv_name.inspect)
-      end
-
       convert :bool, :boolean do |val|
         case val.to_s
         when TRUE_VALUES
@@ -24,7 +18,7 @@ module TTY
         when FALSE_VALUES
           false
         else
-          raise_invalid_argument(:bool, val)
+          Const::Undefined
         end
       end
 
@@ -33,7 +27,7 @@ module TTY
           require "date" unless defined?(::Date)
           ::Date.parse(val)
         rescue ArgumentError, TypeError
-          raise_invalid_argument(:date, val)
+          Const::Undefined
         end
       end
 
@@ -41,7 +35,7 @@ module TTY
         begin
           Float(val)
         rescue ArgumentError, TypeError
-          raise_invalid_argument(:float, val)
+          Const::Undefined
         end
       end
 
@@ -49,7 +43,7 @@ module TTY
         begin
           Float(val).to_i
         rescue ArgumentError, TypeError
-          raise_invalid_argument(:integer, val)
+          Const::Undefined
         end
       end
 
@@ -62,7 +56,7 @@ module TTY
         begin
           Regexp.new(val.to_s)
         rescue TypeError, RegexpError
-          raise_invalid_argument(:regexp, val)
+          Const::Undefined
         end
       end
 
@@ -70,7 +64,7 @@ module TTY
         begin
           String(val).to_sym
         rescue ArgumentError
-          raise_invalid_argument(:symbol, val)
+          Const::Undefined
         end
       end
 
@@ -79,7 +73,7 @@ module TTY
           require "uri"
           ::URI.parse(val)
         rescue ::URI::InvalidURIError
-          raise_invalid_argument(:uri, val)
+          Const::Undefined
         end
       end
 
