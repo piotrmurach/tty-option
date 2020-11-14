@@ -14,13 +14,14 @@ module TTY
       def wrap(text, width: 80, indent: 2, indent_first: false)
         wrap = width - indent
         lines = []
+        indentation = " " * indent
 
         line, rest = *next_line(text, wrap: wrap)
-        lines << (indent_first ? " " * indent : "") + line
+        lines << (indent_first ? indentation : "") + line
 
         while !rest.nil?
           line, rest = *next_line(rest, wrap: wrap)
-          lines << " " * indent + line.strip
+          lines << indentation + line.strip
         end
 
         lines.join("\n")
