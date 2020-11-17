@@ -28,7 +28,7 @@ module TTY
       # @api public
       def usage(**properties, &block)
         @usage ||= Usage.create(**properties, &block).tap do |usage|
-                    if usage.command.empty?
+                    unless usage.command?
                       usage.command(dasherize(demodulize(self.name)))
                     end
                   end

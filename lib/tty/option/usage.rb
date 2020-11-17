@@ -63,6 +63,11 @@ module TTY
         @properties[:command] = []
       end
 
+      # Check for command definition
+      #
+      # @return [Boolean]
+      #
+      # @api public
       def command?
         @properties.key?(:command) && !@properties[:command].empty?
       end
