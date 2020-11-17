@@ -1,5 +1,13 @@
 # Change log
 
+## [v0.2.0] - unreleased
+
+### Changed
+* Change Conversions to stop raising error and return Undefined value instead
+
+### Fixed
+* Fix #no_command to correctly mark command as not present
+
 ## [v0.1.0] - 2020-05-18
 
 * Initial implementation and release
