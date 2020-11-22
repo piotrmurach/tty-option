@@ -32,20 +32,20 @@ module TTY
       def initialize(key, **settings, &block)
         @key = key
         @settings = {}
-        settings.each do |key, val|
-          case key.to_sym
+        settings.each do |name, val|
+          case name.to_sym
           when :arity
             val = check_arity(val)
           when :default
             val = check_default(val)
           when :optional
-            key, val = :required, check_required(!val)
+            name, val = :required, check_required(!val)
           when :permit
             val = check_permitted(val)
           when :validate
             val = check_validation(val)
           end
-          @settings[key.to_sym] = val
+          @settings[name.to_sym] = val
         end
 
         instance_eval(&block) if block_given?

@@ -75,10 +75,10 @@ module TTY
         output = []
         space_indent = " " * indent
         if messages.count == 1
-          message = messages.first
+          msg = messages.first
           label = "Error: "
           output << "#{space_indent}#{label}" \
-                    "#{wrap(message, indent: indent + label.length, width: width)}"
+                    "#{wrap(msg, indent: indent + label.length, width: width)}"
         else
           output << space_indent + "Errors:"
           messages.each_with_index do |message, num|
