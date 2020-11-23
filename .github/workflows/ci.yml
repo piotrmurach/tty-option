@@ -18,7 +18,7 @@ on:
 jobs:
   tests:
     name: Ruby ${{ matrix.ruby }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -30,12 +30,15 @@ jobs:
           - 2.5
           - 2.6
           - 2.7
-          - ruby-head
           - jruby-9.2.13.0
-          - jruby-head
-          - truffleruby-head
-        os:
-          - ubuntu-latest
+        allow_failure: [false]
+        include:
+          - ruby: ruby-head
+            allow_failure: true
+          - ruby: jruby-head
+            allow_failure: true
+          - ruby: truffleruby-head
+            allow_failure: true
     continue-on-error: ${{ endsWith(matrix.ruby, 'head') }}
     steps:
       - uses: actions/checkout@v2
@@ -48,4 +51,4 @@ jobs:
       - name: Install dependencies
         run: bundle install --jobs 4 --retry 3
       - name: Run tests
-        run: bundle exec rake ci
+        run: bundle exec rake ci || ${{ matrix.allow_failure }}
