@@ -1,18 +1,18 @@
 <div align="center">
-  <a href="https://piotrmurach.github.io/tty" target="_blank"><img width="130" src="https://github.com/piotrmurach/tty/raw/master/images/tty.png" alt="tty logo" /></a>
+  <a href="https://ttytoolkit.org"><img width="130" src="https://github.com/piotrmurach/tty/raw/master/images/tty.png" alt="TTY Toolkit logo"/></a>
 </div>
 
 # TTY::Option
 
 [![Gem Version](https://badge.fury.io/rb/tty-option.svg)][gem]
-[![Build Status](https://secure.travis-ci.org/piotrmurach/tty-option.svg?branch=master)][travis]
+[![Actions CI](https://github.com/piotrmurach/tty-option/workflows/CI/badge.svg?branch=master)][gh_actions_ci]
 [![Build status](https://ci.appveyor.com/api/projects/status/gxml9ttyvgpeasy5?svg=true)][appveyor]
 [![Maintainability](https://api.codeclimate.com/v1/badges/1083a2fd114d6faf5d65/maintainability)][codeclimate]
 [![Coverage Status](https://coveralls.io/repos/github/piotrmurach/tty-option/badge.svg)][coverage]
 [![Inline docs](http://inch-ci.org/github/piotrmurach/tty-option.svg?branch=master)][inchpages]
 
 [gem]: http://badge.fury.io/rb/tty-option
-[travis]: http://travis-ci.org/piotrmurach/tty-option
+[gh_actions_ci]: https://github.com/piotrmurach/tty-option/actions?query=workflow%3ACI
 [appveyor]: https://ci.appveyor.com/project/piotrmurach/tty-option
 [codeclimate]: https://codeclimate.com/github/piotrmurach/tty-option/maintainability
 [coverage]: https://coveralls.io/github/piotrmurach/tty-option
