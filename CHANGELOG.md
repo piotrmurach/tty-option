@@ -7,6 +7,7 @@
 
 ### Fixed
 * Fix #no_command to correctly mark command as not present
+* Fix warnings about shadowing local variables
 
 ## [v0.1.0] - 2020-05-18
 
