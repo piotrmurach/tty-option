@@ -14,6 +14,9 @@ RSpec.describe TTY::Option::Parameters do
 
       expect(param_list.arguments?).to eq(true)
       expect(param_list.arguments).to eq([argument_foo, argument_bar])
+      expect(param_list.argument?(:foo)).to eq(true)
+      expect(param_list.argument?(:bar)).to eq(true)
+      expect(param_list.argument?(:baz)).to eq(false)
     end
 
     it "provides access to stored keywords" do
@@ -27,6 +30,9 @@ RSpec.describe TTY::Option::Parameters do
 
       expect(param_list.keywords?).to eq(true)
       expect(param_list.keywords).to eq([keyword_foo, keyword_bar])
+      expect(param_list.keyword?(:foo)).to eq(true)
+      expect(param_list.keyword?(:bar)).to eq(true)
+      expect(param_list.keyword?(:baz)).to eq(false)
     end
 
     it "provides access to stored options" do
@@ -40,6 +46,9 @@ RSpec.describe TTY::Option::Parameters do
 
       expect(param_list.options?).to eq(true)
       expect(param_list.options).to eq([option_foo, option_bar])
+      expect(param_list.option?(:foo)).to eq(true)
+      expect(param_list.option?(:bar)).to eq(true)
+      expect(param_list.option?(:baz)).to eq(false)
     end
 
     it "provides access to stored environments" do
@@ -53,6 +62,9 @@ RSpec.describe TTY::Option::Parameters do
 
       expect(param_list.environments?).to eq(true)
       expect(param_list.environments).to eq([env_foo, env_bar])
+      expect(param_list.environment?(:foo)).to eq(true)
+      expect(param_list.environment?(:bar)).to eq(true)
+      expect(param_list.environment?(:baz)).to eq(false)
     end
   end
 

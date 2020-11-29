@@ -2,6 +2,9 @@
 
 ## [v0.2.0] - unreleased
 
+### Added
+* Add predicate methods for checking if a given parameter is supported
+
 ### Changed
 * Change Conversions to stop raising error and return Undefined value instead
 
@@ -13,4 +16,5 @@
 
 * Initial implementation and release
 
+[v0.2.0]: https://github.com/piotrmurach/tty-option/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/piotrmurach/tty-option/compare/v0.1.0

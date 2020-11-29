@@ -13,7 +13,16 @@ module TTY
       # @api private
       def self.define_query(name)
         define_method(:"#{name}?") do
-          !self.public_send(name).empty?
+          !public_send(name).empty?
+        end
+      end
+
+      # Define a predicate method to check if a parameter is supported
+      #
+      # @api private
+      def self.define_param_query(name)
+        define_method(:"#{name}?") do |param|
+          public_send(:"#{name}s").map(&:key).include?(param)
         end
       end
 
@@ -36,6 +45,11 @@ module TTY
       define_query :keywords
       define_query :options
       define_query :environments
+
+      define_param_query :argument
+      define_param_query :keyword
+      define_param_query :option
+      define_param_query :environment
 
       # A parameters list
       #
