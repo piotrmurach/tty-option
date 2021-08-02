@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc "Measure code coverage"
 task :coverage do
   begin
