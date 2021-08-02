@@ -23,6 +23,8 @@ RSpec.describe TTY::Option::Usage do
     it "changes command via property" do
       usage = described_class.new(command: "foo")
       expect(usage.command).to eq("foo")
+      expect(usage.command?).to eq(true)
+      expect(usage.no_command?).to eq(false)
     end
 
     it "changes command via method" do
@@ -33,6 +35,7 @@ RSpec.describe TTY::Option::Usage do
 
       expect(usage.command).to eq(["foo"])
       expect(usage.command?).to eq(true)
+      expect(usage.no_command?).to eq(false)
     end
 
     it "configures many commands via method" do
@@ -43,6 +46,7 @@ RSpec.describe TTY::Option::Usage do
 
       expect(usage.command).to eq(%w[foo bar baz])
       expect(usage.command?).to eq(true)
+      expect(usage.no_command?).to eq(false)
     end
 
     it "configures no command via method" do
@@ -53,6 +57,7 @@ RSpec.describe TTY::Option::Usage do
 
       expect(usage.command).to eq([])
       expect(usage.command?).to eq(false)
+      expect(usage.no_command?).to eq(true)
     end
   end
 

@@ -17,6 +17,7 @@ module TTY
       # @api public
       def initialize(**properties, &block)
         @properties = {}
+        @no_command = false
         properties.each do |key, val|
           case key.to_sym
           when :desc, :description
@@ -60,7 +61,17 @@ module TTY
       #
       # @api public
       def no_command
+        @no_command = true
         @properties[:command] = []
+      end
+
+      # Whether or not to show command in usage
+      #
+      # @retrun [Boolean]
+      #
+      # @api public
+      def no_command?
+        @no_command
       end
 
       # Check for command definition
