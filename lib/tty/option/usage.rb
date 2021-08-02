@@ -20,6 +20,8 @@ module TTY
         @no_command = false
         properties.each do |key, val|
           case key.to_sym
+          when :command
+            key, val = :command, Array(val)
           when :desc, :description
             key, val = :desc, [Array(val)]
           when :header, :footer

@@ -22,7 +22,7 @@ RSpec.describe TTY::Option::Usage do
   context "command" do
     it "changes command via property" do
       usage = described_class.new(command: "foo")
-      expect(usage.command).to eq("foo")
+      expect(usage.command).to eq(["foo"])
       expect(usage.command?).to eq(true)
       expect(usage.no_command?).to eq(false)
     end
