@@ -37,8 +37,10 @@ module TTY
 
       # Program name for display in help and error messages
       #
+      # @param [String] name
+      #
       # @api public
-      def program(name = (not_set = true), &block)
+      def program(name = (not_set = true))
         if not_set
           @properties.fetch(:program) { ::File.basename($0, ".*") }
         else
@@ -47,6 +49,8 @@ module TTY
       end
 
       # Action name for display in help and error messages
+      #
+      # @param [Array<String>] values
       #
       # @api public
       def command(*values)
@@ -87,6 +91,8 @@ module TTY
 
       # Display info before anything else in the usage help
       #
+      # @param [Array<String>] values
+      #
       # @api public
       def header(*values)
         if values.empty?
@@ -96,11 +102,18 @@ module TTY
         end
       end
 
+      # Whether or not to show header in usage
+      #
+      # @return [Boolean]
+      #
+      # @api public
       def header?
         @properties.key?(:header) && !@properties[:header].empty?
       end
 
       # Main way to show how all parameters can be used
+      #
+      # @param [String] value
       #
       # @api public
       def banner(value = (not_set = true))
@@ -111,11 +124,18 @@ module TTY
         end
       end
 
+      # Whether or not to show banner in usage
+      #
+      # @return [Boolean]
+      #
+      # @api public
       def banner?
         @properties.key?(:banner) && !@properties[:banner].nil?
       end
 
       # Description
+      #
+      # @param [Array<String>] values
       #
       # @api public
       def desc(*values)
@@ -127,12 +147,19 @@ module TTY
       end
       alias description desc
 
+      # Whether or not to show description in usage
+      #
+      # @return [Boolean]
+      #
+      # @api public
       def desc?
         @properties.key?(:desc) && !@properties[:desc].empty?
       end
       alias description? desc?
 
       # Collects usage examples
+      #
+      # @param [Array<String>] values
       #
       # @api public
       def example(*values)
@@ -144,12 +171,19 @@ module TTY
       end
       alias examples example
 
+      # Whether or not to show example in usage
+      #
+      # @return [Boolean]
+      #
+      # @api public
       def example?
         @properties.key?(:example) && !@properties[:example].empty?
       end
       alias examples? example?
 
       # Display info after everyting else in the usage help
+      #
+      # @param [Array<String>] values
       #
       # @api public
       def footer(*values)
@@ -160,6 +194,11 @@ module TTY
         end
       end
 
+      # Whether or not to show footer in usage
+      #
+      # @return [Boolean]
+      #
+      # @api public
       def footer?
         @properties.key?(:footer) && !@properties[:footer].empty?
       end
