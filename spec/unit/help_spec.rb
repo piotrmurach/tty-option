@@ -183,6 +183,25 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help(width: 75)).to eq(expected_output)
     end
 
+    it "formats banner with arguments but no command" do
+      cmd = new_command do
+        usage do
+          program "foo"
+
+          no_command
+        end
+
+        argument :bar
+        argument :baz
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: foo BAR BAZ
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
     it "formats banner with any arguments and options" do
       cmd = new_command do
         program "foo"
@@ -742,6 +761,7 @@ RSpec.describe TTY::Option::Formatter do
       cmd = new_command do
         usage do
           program "foo"
+          command "cmd"
           header  "CLI foo app"
           desc    "Some foo app description"
           example "Some example", "on multiline"
@@ -769,7 +789,7 @@ RSpec.describe TTY::Option::Formatter do
       expected_output = unindent(<<-EOS)
       CLI foo app
 
-      Usage: foo command [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
+      Usage: foo cmd [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
 
       Some foo app description
 

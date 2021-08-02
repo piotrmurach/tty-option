@@ -28,10 +28,10 @@ module TTY
       # @api public
       def usage(**properties, &block)
         @usage ||= Usage.create(**properties, &block).tap do |usage|
-                    unless usage.command?
-                      usage.command(dasherize(demodulize(self.name)))
-                    end
-                  end
+                     unless usage.command? || usage.no_command?
+                       usage.command(dasherize(demodulize(self.name)))
+                     end
+                   end
       end
 
       # Specify an argument
