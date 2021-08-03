@@ -109,7 +109,7 @@ module TTY
           values = []
           arity = arg.arity.abs - 1
 
-          arity.times do |i|
+          arity.times do
             break if @argv.empty?
             value = @argv.shift
             if argument?(value)

@@ -11,7 +11,7 @@ module TTY
         ParamConversion,
         ParamPermitted,
         ParamValidation
-      ]
+      ].freeze
 
       # Create a param processing pipeline
       #

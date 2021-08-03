@@ -142,7 +142,7 @@ module TTY
       end
 
       def required?
-        @settings.fetch(:required) { false }
+        @settings.fetch(:required, false)
       end
 
       def hidden
@@ -150,7 +150,7 @@ module TTY
       end
 
       def hidden?
-        @settings.fetch(:hidden) { false }
+        @settings.fetch(:hidden, false)
       end
 
       def display?
@@ -209,6 +209,7 @@ module TTY
       # @api public
       def ==(other)
         return false unless instance_of?(other.class)
+
         name == other.name && to_h == other.to_h
       end
 
@@ -217,6 +218,7 @@ module TTY
       # @api public
       def eql?(other)
         return false unless instance_of?(other.class)
+
         name.eql?(other.name) && to_h.eql?(other.to_h)
       end
 

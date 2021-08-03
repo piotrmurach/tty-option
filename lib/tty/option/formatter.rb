@@ -53,10 +53,12 @@ module TTY
 
       # A formatted help usage information
       #
+      # @yieldparam [TTY::Option::Sections] sections
+      #
       # @return [String]
       #
       # @api public
-      def help(&block)
+      def help
         sections = Sections.new
 
         sections.add(:header, help_header) if @usage.header?
@@ -82,9 +84,7 @@ module TTY
         sections.add(:examples, help_examples) if @usage.example?
         sections.add(:footer, help_footer) if @usage.footer?
 
-        if block_given?
-          yield(sections)
-        end
+        yield(sections) if block_given?
 
         formatted = sections.reject(&:empty?).join(NEWLINE)
         formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
@@ -182,7 +182,7 @@ module TTY
           args << "[" if param.optional?
           args << param_name
           (param.arity - 1).times { args << " #{param_name}" }
-          args. << "]" if param.optional?
+          args << "]" if param.optional?
           args.join
         else
           (param.arity.abs - 1).times { args << param_name }

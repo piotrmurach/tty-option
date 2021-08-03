@@ -15,7 +15,7 @@ module TTY
         keywords: TTY::Option::Parser::Keywords,
         arguments: TTY::Option::Parser::Arguments,
         environments: TTY::Option::Parser::Environments
-      }
+      }.freeze
 
       ARGUMENT_SEPARATOR = /^-{2,}$/.freeze
 

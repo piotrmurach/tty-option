@@ -32,7 +32,7 @@ module TTY
         names.each do |name|
           if contain?(name)
             raise ConversionAlreadyDefined,
-                "conversion #{name.inspect} is already defined"
+                  "conversion #{name.inspect} is already defined"
           end
           conversions[name] = block
         end
@@ -56,7 +56,7 @@ module TTY
       # @api public
       def raise_unsupported_error(conv_name)
         raise UnsupportedConversion,
-             "unsupported conversion type #{conv_name.inspect}"
+              "unsupported conversion type #{conv_name.inspect}"
       end
     end # Converter
   end # Option

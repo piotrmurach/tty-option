@@ -12,7 +12,7 @@ module TTY
         def add(param)
           @required << param
         end
-        alias :<< :add
+        alias << add
 
         def delete(param)
           @required.delete(param)

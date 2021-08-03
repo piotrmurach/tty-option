@@ -142,7 +142,7 @@ module TTY
                 (@parsed[kwarg.key] ||= {}).merge!(value)
               else
                 Array(value).each do |v|
-                  (@parsed[kwarg.key] ||=  []) << v
+                  (@parsed[kwarg.key] ||= []) << v
                 end
               end
             else

@@ -41,7 +41,7 @@ module TTY
       end
       module_function :call
 
-      alias :[] :call
+      alias [] call
       module_function :[]
     end # ParamValidation
   end # Option

@@ -69,7 +69,7 @@ module TTY
       #
       # @api public
       def flag(name, **settings, &block)
-        defaults = { default: false }
+        defaults = {default: false}
         option(name, **defaults.merge(settings), &block)
       end
 

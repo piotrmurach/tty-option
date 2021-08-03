@@ -150,10 +150,10 @@ module TTY
             if allowed
               case value
               when Hash
-                (@parsed[env_arg.key] ||=  {}).merge!(value)
+                (@parsed[env_arg.key] ||= {}).merge!(value)
               else
                 Array(value).each do |v|
-                  (@parsed[env_arg.key] ||=  []) << v
+                  (@parsed[env_arg.key] ||= []) << v
                 end
               end
             else

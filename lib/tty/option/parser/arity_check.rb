@@ -12,7 +12,7 @@ module TTY
         def add(param)
           @multiplies << param
         end
-        alias :<< :add
+        alias << add
 
         # Check if parameter matches arity
         #

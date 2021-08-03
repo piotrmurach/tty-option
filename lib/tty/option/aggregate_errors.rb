@@ -80,7 +80,7 @@ module TTY
           output << "#{space_indent}#{label}" \
                     "#{wrap(msg, indent: indent + label.length, width: width)}"
         else
-          output << space_indent + "Errors:"
+          output << "#{space_indent}Errors:"
           messages.each_with_index do |message, num|
             entry = "  #{num + 1}) "
             output << "#{space_indent}#{entry}" \
