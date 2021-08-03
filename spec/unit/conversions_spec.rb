@@ -26,11 +26,11 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     it "fails to convert" do
-      expect(described_class[:bool].("tak")).to eq(TTY::Option::Const::Undefined)
+      expect(described_class[:bool].("tak")).to eq(undefined)
     end
 
     it "fails to convert nil" do
-      expect(described_class[:bool].(nil)).to eq(TTY::Option::Const::Undefined)
+      expect(described_class[:bool].(nil)).to eq(undefined)
     end
   end
 
@@ -175,10 +175,19 @@ RSpec.describe TTY::Option::Conversions do
         expect(described_class[type].(input)).to eq(obj)
       end
     end
+
+    it "fails to convert string to integer array" do
+      expect(described_class[:int_list].("a,b,c")).to eq(undefined)
+    end
+
+    it "fails to convert string to boolean array" do
+      expect(described_class[:bools].("tak,nie,tak")).to eq(undefined)
+    end
   end
 
   context ":map" do
     {
+      "" => {},
       "a=1" => {a: "1"},
       "a=1&b=2" => {a: "1", b: "2"},
       "a=&b=2" => {a: "", b: "2"},
@@ -203,6 +212,14 @@ RSpec.describe TTY::Option::Conversions do
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[type].(input)).to eq(obj)
       end
+    end
+
+    it "fails to convert string to hash with integer values" do
+      expect(described_class[:int_map].("a:a b:b")).to eq(undefined)
+    end
+
+    it "fails to convert string to hash with boolean values" do
+      expect(described_class[:bool_map].("a:tak b:tak")).to eq(undefined)
     end
   end
 end

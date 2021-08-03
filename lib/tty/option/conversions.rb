@@ -102,7 +102,9 @@ module TTY
         [:"#{type}_list", :"#{type}_array", :"#{type}s"].each do |new_type|
           convert new_type do |val|
             conversions[:list].(val).map do |obj|
-              conversions[type].(obj)
+              converted = conversions[type].(obj)
+              break converted if converted == Const::Undefined
+              converted
             end
           end
         end
@@ -110,7 +112,9 @@ module TTY
         [:"#{type}_map", :"#{type}_hash"].each do |new_type|
           convert new_type do |val|
             conversions[:map].(val).each_with_object({}) do |(k, v), h|
-              h[k] = conversions[type].(v)
+              converted = conversions[type].(v)
+              break converted if converted == Const::Undefined
+              h[k] = converted
             end
           end
         end
