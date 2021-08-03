@@ -36,7 +36,7 @@ RSpec.describe TTY::Option::Parser::Environments do
   it "parses different env vars" do
     envs = []
     envs << env(:foo, name: "FOO_ENV")
-    envs << env(:bar, name: "BAR_ENV" )
+    envs << env(:bar, name: "BAR_ENV")
     envs << env(:baz)
     params, rest = parse(%w[FOO_ENV=a BAZ=b BAR_ENV=c], {}, envs)
 
@@ -57,7 +57,7 @@ RSpec.describe TTY::Option::Parser::Environments do
     expect {
       parse([], {}, env(:foo, required: true), raise_on_parse_error: true)
     }.to raise_error(TTY::Option::MissingParameter,
-                    "environment 'FOO' must be provided")
+                     "environment 'FOO' must be provided")
   end
 
   it "checks for required env var in env hash" do
@@ -154,8 +154,8 @@ RSpec.describe TTY::Option::Parser::Environments do
       expect {
         parse(%w[FOO=a], {}, env(:foo, arity: 2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "environment 'FOO' should appear 2 times but " \
-                      "appeared 1 time")
+                       "environment 'FOO' should appear 2 times but " \
+                       "appeared 1 time")
     end
 
     it "parses minimum number of env vars to satisfy at least arity" do
@@ -168,8 +168,8 @@ RSpec.describe TTY::Option::Parser::Environments do
       expect {
         parse(%w[FOO=a], {}, env(:foo, arity: -3), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "environment 'FOO' should appear at least 2 times but " \
-                      "appeared 1 time")
+                       "environment 'FOO' should appear at least 2 times but " \
+                       "appeared 1 time")
     end
 
     it "doesn't find any env vars to match at least arity" do
@@ -245,7 +245,7 @@ RSpec.describe TTY::Option::Parser::Environments do
     it "parses a space delimited arguments as a map" do
       params, rest = parse(%w[FOO=a:1 b:2 c:3], {}, env(:foo, convert: :map))
 
-      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:foo]).to eq({a: "1", b: "2", c: "3"})
       expect(rest).to eq([])
     end
 
@@ -256,8 +256,8 @@ RSpec.describe TTY::Option::Parser::Environments do
 
       params, rest = parse(%w[FOO=a:1 b:2 c:3 BAR=x:1 y:2], {}, envs)
 
-      expect(params[:foo]).to eq({a:1, b:2, c:3})
-      expect(params[:bar]).to eq({x:1, y:2})
+      expect(params[:foo]).to eq({a: 1, b: 2, c: 3})
+      expect(params[:bar]).to eq({x: 1, y: 2})
       expect(rest).to eq([])
     end
 
@@ -267,7 +267,7 @@ RSpec.describe TTY::Option::Parser::Environments do
 
       params, rest = parse(%w[FOO=a:1 b:2 FOO=c:3 d:4], {}, envs)
 
-      expect(params[:foo]).to eq({a:1, b:2, c:3, d: 4})
+      expect(params[:foo]).to eq({a: 1, b: 2, c: 3, d: 4})
       expect(rest).to eq([])
     end
   end

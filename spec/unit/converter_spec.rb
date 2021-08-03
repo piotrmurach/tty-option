@@ -28,15 +28,15 @@ RSpec.describe TTY::Option::Converter do
     converter.convert(:foo) { "bar" }
 
     expect {
-      converter.convert(:foo) { }
+      converter.convert(:foo) { "baz" }
     }.to raise_error(TTY::Option::ConversionAlreadyDefined,
-                    "conversion :foo is already defined")
+                     "conversion :foo is already defined")
   end
 
   it "reads unsupported conversion" do
     expect {
       converter[:unknown]
     }.to raise_error(TTY::Option::UnsupportedConversion,
-                    "unsupported conversion type :unknown")
+                     "unsupported conversion type :unknown")
   end
 end

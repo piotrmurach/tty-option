@@ -12,10 +12,10 @@ RSpec.describe TTY::Option::UsageWrapper do
     text = "Some description that\nbreaks into multiline\n on newlines"
     wrapped = described_class.wrap(text, width: 80, indent: 4)
 
-    expect(wrapped).to eq <<-EOS.chomp
-Some description that
-    breaks into multiline
-    on newlines
+    expect(wrapped).to eq unindent(<<-EOS.chomp)
+    Some description that
+        breaks into multiline
+        on newlines
     EOS
   end
 
@@ -35,13 +35,13 @@ Some description that
 
     wrapped = described_class.wrap(text, width: 30, indent: 2)
 
-    expect(wrapped).to eq <<-EOS.chomp
-There is no steady
-  unretracing progress in
-  this life; we do not
-  advance through fixed
-  gradations, and at the last
-  one pause
+    expect(wrapped).to eq unindent(<<-EOS.chomp)
+    There is no steady
+      unretracing progress in
+      this life; we do not
+      advance through fixed
+      gradations, and at the last
+      one pause
     EOS
   end
 
@@ -50,13 +50,13 @@ There is no steady
 
     wrapped = described_class.wrap(text, width: 30, indent: 2)
 
-    expect(wrapped).to eq <<-EOS.chomp
-There is no steady
-  unretracing progress in
-  this life;
-  we do not advance through
-  fixed gradations,
-  and at the last one pause
+    expect(wrapped).to eq unindent(<<-EOS.chomp)
+    There is no steady
+      unretracing progress in
+      this life;
+      we do not advance through
+      fixed gradations,
+      and at the last one pause
     EOS
   end
 
@@ -65,11 +65,11 @@ There is no steady
 
     wrapped = described_class.wrap(text, width: 30, indent: 2)
 
-    expect(wrapped).to eq <<-EOS.chomp
-Thereisnosteadyunretracingpr
-  ogressinthislife;wedonotadva
-  ncethroughfixedgradations,an
-  datthelastonepause
+    expect(wrapped).to eq unindent(<<-EOS.chomp)
+    Thereisnosteadyunretracingpr
+      ogressinthislife;wedonotadva
+      ncethroughfixedgradations,an
+      datthelastonepause
     EOS
   end
 end

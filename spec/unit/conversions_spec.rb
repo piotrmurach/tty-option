@@ -168,7 +168,7 @@ RSpec.describe TTY::Option::Conversions do
       [:floats, "1,2,3"] => [1.0, 2.0, 3.0],
       [:bool_list, "t,t,f"] => [true, true, false],
       [:bools, "t,t,f"] => [true, true, false],
-      [:symbols, "a,b,c"] => [:a, :b, :c],
+      [:symbols, "a,b,c"] => %i[a b c],
       [:regexps, "a,b,c"] => [/a/, /b/, /c/]
     }.each do |(type, input), obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
@@ -182,11 +182,11 @@ RSpec.describe TTY::Option::Conversions do
       "a=1" => {a: "1"},
       "a=1&b=2" => {a: "1", b: "2"},
       "a=&b=2" => {a: "", b: "2"},
-      "a=1&b=2&a=3" => {a: ["1", "3"], b: "2"},
+      "a=1&b=2&a=3" => {a: %w[1 3], b: "2"},
       "a:1 b:2" => {a: "1", b: "2"},
-      "a:1 b:2 a:3" => {a: ["1", "3"], b: "2"},
+      "a:1 b:2 a:3" => {a: %w[1 3], b: "2"},
       %w[a:1 b:2 c:3] => {a: "1", b: "2", c: "3"},
-      %w[a=1 b=2 c=3] => {a: "1", b: "2", c: "3"},
+      %w[a=1 b=2 c=3] => {a: "1", b: "2", c: "3"}
     }.each do |input, obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[:map].(input)).to eq(obj)

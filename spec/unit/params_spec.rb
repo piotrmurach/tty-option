@@ -102,7 +102,7 @@ RSpec.describe TTY::Option::Params do
     it "returns an array of the keys for the params" do
       params = described_class.new({a: 1, b: 2, c: 3})
 
-      expect(params.keys).to eq([:a, :b, :c])
+      expect(params.keys).to eq(%i[a b c])
     end
   end
 
@@ -124,13 +124,13 @@ RSpec.describe TTY::Option::Params do
 
   context "to_s/inspect" do
     it "returns string representation of internal parameters" do
-      params = described_class.new({a: 1, b:2, c: 3})
+      params = described_class.new({a: 1, b: 2, c: 3})
 
       expect(params.to_s).to eq("{:a=>1, :b=>2, :c=>3}")
     end
 
     it "returns string representation of the class" do
-      params = described_class.new({a: 1, b:2, c: 3})
+      params = described_class.new({a: 1, b: 2, c: 3})
 
       expect(params.inspect).to eq("#<TTY::Option::Params{:a=>1, :b=>2, :c=>3}>")
     end

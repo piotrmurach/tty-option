@@ -95,7 +95,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
   it "collects unrecognized options when :check_invalid_params is false" do
     params, rest, errors = parse(%w[-b --bar], option(:foo, short: "-f"),
-                                  check_invalid_params: false)
+                                 check_invalid_params: false)
 
     expect(params[:foo]).to eq(false)
     expect(rest).to eq(%w[-b --bar])
@@ -237,7 +237,7 @@ RSpec.describe TTY::Option::Parser::Options do
     options << option(:foo, long: "--foobaz")
 
     expect {
-      parse(%w[--foob ], options, raise_on_parse_error: true)
+      parse(%w[--foob], options, raise_on_parse_error: true)
     }.to raise_error(TTY::Option::AmbiguousOption, "option '--foob' is ambiguous")
   end
 
@@ -247,7 +247,7 @@ RSpec.describe TTY::Option::Parser::Options do
     options << option(:bar, short: "-b")
 
     params, rest = parse(%w[arg1 --foo baz arg2 --bar arg3 -b], options,
-                        check_invalid_params: false)
+                         check_invalid_params: false)
 
     expect(params[:foo]).to eq("baz")
     expect(params[:bar]).to eq(true)
@@ -401,7 +401,7 @@ RSpec.describe TTY::Option::Parser::Options do
     it "fails to match required arity for short flag" do
       expect {
         parse(%w[-f 1], option(:foo, short: "-f int", arity: 2),
-             raise_on_parse_error: true)
+              raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "option '-f' should appear 2 times but appeared 1 time")
     end
@@ -409,7 +409,7 @@ RSpec.describe TTY::Option::Parser::Options do
     it "doesn't find enough options to match at least arity for short flag" do
       expect {
         parse(%w[-f 1], option(:foo, short: "-f int", arity: -3),
-             raise_on_parse_error: true)
+              raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "option '-f' should appear at least 2 times but " \
                        "appeared 1 time")
@@ -418,7 +418,7 @@ RSpec.describe TTY::Option::Parser::Options do
     it "doesn't find any options to match at least arity for short flag" do
       expect {
         parse([], option(:foo, short: "-f int", arity: -2),
-             raise_on_parse_error: true)
+              raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
                        "option '-f' should appear at least 1 time but " \
                        "appeared 0 times")
@@ -612,7 +612,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
       params, = parse(%w[-f a:1 b:2 c:3 -b], options)
 
-      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:foo]).to eq({a: "1", b: "2", c: "3"})
       expect(params[:bar]).to eq(true)
     end
 
@@ -626,7 +626,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
       expect(params[:foo]).to eq(true)
       expect(params[:bar]).to eq(true)
-      expect(params[:qux]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:qux]).to eq({a: "1", b: "2", c: "3"})
     end
 
     it "parses compacted short options with a map argument glued together" do
@@ -639,7 +639,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
       expect(params[:foo]).to eq(true)
       expect(params[:bar]).to eq(true)
-      expect(params[:qux]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:qux]).to eq({a: "1", b: "2", c: "3"})
     end
 
     it "parses long option with a map argument delimited by space" do
@@ -649,7 +649,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
       params, rest = parse(%w[--foo a:1 b:2 c:3 --bar], options)
 
-      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:foo]).to eq({a: "1", b: "2", c: "3"})
       expect(params[:bar]).to eq(true)
       expect(rest).to eq([])
     end
@@ -661,7 +661,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
       params, rest = parse(%w[--foo a:1&b:2&c:3 --bar], options)
 
-      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:foo]).to eq({a: "1", b: "2", c: "3"})
       expect(params[:bar]).to eq(true)
       expect(rest).to eq([])
     end
@@ -672,7 +672,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
       params, = parse(%w[--foo=a:1 b:2 c:3], options)
 
-      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:foo]).to eq({a: "1", b: "2", c: "3"})
     end
 
     it "doesn't mix maps from other long options" do
@@ -682,8 +682,8 @@ RSpec.describe TTY::Option::Parser::Options do
 
       params, rest = parse(%w[--foo a:1 b:2 c:3 --bar x:1 y:2], options)
 
-      expect(params[:foo]).to eq({a:1, b:2, c:3})
-      expect(params[:bar]).to eq({x:1, y:2})
+      expect(params[:foo]).to eq({a: 1, b: 2, c: 3})
+      expect(params[:bar]).to eq({x: 1, y: 2})
       expect(rest).to eq([])
     end
 
@@ -693,7 +693,7 @@ RSpec.describe TTY::Option::Parser::Options do
 
       params, rest = parse(%w[-f a:1 b:2 -f c:3 d:4], options)
 
-      expect(params[:foo]).to eq({a:1, b:2, c:3, d: 4})
+      expect(params[:foo]).to eq({a: 1, b: 2, c: 3, d: 4})
       expect(rest).to eq([])
     end
 

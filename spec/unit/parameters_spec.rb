@@ -82,7 +82,7 @@ RSpec.describe TTY::Option::Parameters do
       param_list << option
       param_list << env
 
-      expect(param_list.map(&:key)).to eq([:foo, :bar, :baz, :qux])
+      expect(param_list.map(&:key)).to eq(%i[foo bar baz qux])
     end
 
     it "returns enumerable without a block" do
@@ -171,10 +171,9 @@ RSpec.describe TTY::Option::Parameters do
       dupped_list << option2
       dupped_list << env2
 
-      expect(param_list.map(&:key)).to eq([:foo, :bar, :baz, :qux])
-      expect(dupped_list.map(&:key)).to eq([:foo, :bar, :baz, :qux,
-                                            :foo2, :bar2, :baz2, :qux2])
-
+      expect(param_list.map(&:key)).to eq(%i[foo bar baz qux])
+      expect(dupped_list.map(&:key)).to eq(%i[foo bar baz qux
+                                              foo2 bar2 baz2 qux2])
     end
   end
 end

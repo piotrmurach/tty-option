@@ -50,8 +50,8 @@ RSpec.describe TTY::Option do
     expect(parent_cmd.params[:bar]).to eq(nil)
     expect(parent_cmd.params.remaining).to eq(%w[--bar b])
 
-    expect(child_class.parameters.map(&:key)).to eq([:foo, :bar])
-    expect(child_class.parameters.options.map(&:key)).to eq([:foo, :bar])
+    expect(child_class.parameters.map(&:key)).to eq(%i[foo bar])
+    expect(child_class.parameters.options.map(&:key)).to eq(%i[foo bar])
     expect(child_cmd.params[:foo]).to eq("aa")
     expect(child_cmd.params[:bar]).to eq("bb")
     expect(child_cmd.params.remaining).to eq([])
@@ -112,13 +112,13 @@ RSpec.describe TTY::Option do
     child_cmd.parse(%w[--foo aa --bar bb --baz cc], check_invalid_params: false)
     parent_cmd.parse(%w[--foo a --bar b --baz c], check_invalid_params: false)
 
-    expect(parent_class.parameters.map(&:key)).to eq([:foo, :bar])
+    expect(parent_class.parameters.map(&:key)).to eq(%i[foo bar])
     expect(parent_cmd.params[:foo]).to eq("a")
     expect(parent_cmd.params[:bar]).to eq("b")
     expect(parent_cmd.params[:baz]).to eq(nil)
     expect(parent_cmd.params.remaining).to eq(%w[--baz c])
 
-    expect(child_class.parameters.map(&:key)).to eq([:foo, :baz])
+    expect(child_class.parameters.map(&:key)).to eq(%i[foo baz])
     expect(child_cmd.params[:foo]).to eq("aa")
     expect(child_cmd.params[:bar]).to eq(nil)
     expect(child_cmd.params[:baz]).to eq("cc")

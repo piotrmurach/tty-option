@@ -40,7 +40,7 @@ RSpec.describe TTY::Option::Sections do
 
     sections.add_before(:foo, :bar, "Bar content")
 
-    expect(sections.map(&:name)).to eq([:bar, :foo])
+    expect(sections.map(&:name)).to eq(%i[bar foo])
   end
 
   it "adds after existing section" do
@@ -50,7 +50,7 @@ RSpec.describe TTY::Option::Sections do
 
     sections.add_after(:foo, :qux, "Qux content")
 
-    expect(sections.map(&:name)).to eq([:foo, :qux, :bar])
+    expect(sections.map(&:name)).to eq(%i[foo qux bar])
   end
 
   it "fails add for non-existing section" do

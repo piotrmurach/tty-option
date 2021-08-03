@@ -6,9 +6,9 @@ require "set"
 RSpec.describe TTY::Option::DeepDup do
   [
     "foo",
-    ["foo", "bar"],
+    %w[foo bar],
     {"foo" => "bar"},
-    Set.new(["foo", "bar"]),
+    Set.new(%w[foo bar])
   ].each do |obj|
     it "duplicates #{obj}" do
       dupped_obj = described_class.deep_dup(obj)

@@ -95,7 +95,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect {
         arg.default 1
       }.to raise_error(TTY::Option::ConfigurationError,
-                      "argument 'foo' cannot have default value and be required")
+                       "argument 'foo' cannot have default value and be required")
     end
   end
 
@@ -174,9 +174,9 @@ RSpec.describe TTY::Option::Parameter::Argument do
     it "cannot be both required and default" do
       arg = described_class.new(:foo, required: false, default: 1)
       expect {
-         arg.required
+        arg.required
       }.to raise_error(TTY::Option::ConfigurationError,
-                      "argument 'foo' cannot be required and have default value")
+                       "argument 'foo' cannot be required and have default value")
     end
   end
 
@@ -241,7 +241,7 @@ RSpec.describe TTY::Option::Parameter::Argument do
     end
 
     it "returns validation value as proc" do
-      validator = ->(val) { true }
+      validator = ->(_val) { true }
       arg = described_class.new(:foo, validate: validator)
 
       expect(arg.validate).to eq(validator)

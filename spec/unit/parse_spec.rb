@@ -10,7 +10,7 @@ RSpec.describe TTY::Option do
           keyword :foo
         end
       }.to raise_error(TTY::Option::ParameterConflict,
-                      "already registered parameter :foo")
+                       "already registered parameter :foo")
     end
 
     it "reads a single argument" do
@@ -131,8 +131,8 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[x y], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "argument 'foo' should appear at least 3 times but " \
-                      "appeared 2 times")
+                       "argument 'foo' should appear at least 3 times but " \
+                       "appeared 2 times")
     end
 
     it "reads two or more value and converts to map" do
@@ -160,7 +160,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[a:1 b:2 c:3], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
-                "value of `[:c, 3]` fails validation for 'foo' argument")
+                       "value of `[:c, 3]` fails validation for 'foo' argument")
     end
 
     it "doesn't raise on a validation rule failure and reads an error message" do
@@ -202,10 +202,10 @@ RSpec.describe TTY::Option do
       end
 
       expect {
-        cmd.parse(%w[14], raise_on_parse_error:  true)
+        cmd.parse(%w[14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
-                      "unpermitted value `14` for 'foo' argument: "\
-                      "choose from 11, 12, 13")
+                       "unpermitted value `14` for 'foo' argument: "\
+                       "choose from 11, 12, 13")
     end
 
     it "doesn't raise on an unpermitted value and reads error message" do
@@ -293,7 +293,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[foo=11 foo=13], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
-                "value of `13` fails validation for 'foo' keyword")
+                       "value of `13` fails validation for 'foo' keyword")
     end
 
     it "doesn't permit a value" do
@@ -307,8 +307,8 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[foo=14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
-                      "unpermitted value `14` for 'foo' keyword: " \
-                      "choose from 11, 12, 13")
+                       "unpermitted value `14` for 'foo' keyword: " \
+                       "choose from 11, 12, 13")
     end
 
     it "requires a keyword presence" do
@@ -378,7 +378,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[FOO=10,12,14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
-                      "value of `14` fails validation for 'FOO' environment")
+                       "value of `14` fails validation for 'FOO' environment")
     end
 
     it "doesn't permit a value" do
@@ -392,8 +392,8 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[FOO=14], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::UnpermittedArgument,
-                      "unpermitted value `14` for 'FOO' environment: " \
-                      "choose from 11, 12, 13")
+                       "unpermitted value `14` for 'FOO' environment: " \
+                       "choose from 11, 12, 13")
     end
 
     it "requires an env variable presence" do
@@ -430,7 +430,7 @@ RSpec.describe TTY::Option do
 
       cmd.parse(%w[--bar baz -b qux])
 
-      expect(cmd.params[:foo]).to eq(["baz", "qux"])
+      expect(cmd.params[:foo]).to eq(%w[baz qux])
     end
 
     it "doens't require options by default" do
@@ -489,7 +489,7 @@ RSpec.describe TTY::Option do
           option :fum, short: "-f"
         end
       }.to raise_error(TTY::Option::ParameterConflict,
-                      "already registered short option -f")
+                       "already registered short option -f")
     end
 
     it "doesn't accept duplicate long option" do
@@ -499,7 +499,7 @@ RSpec.describe TTY::Option do
           option :fum, long: "--foo"
         end
       }.to raise_error(TTY::Option::ParameterConflict,
-                      "already registered long option --foo")
+                       "already registered long option --foo")
     end
 
     context "default" do
@@ -534,7 +534,7 @@ RSpec.describe TTY::Option do
 
           option :bar, long: "--bar VAL", convert: :bool
 
-          option :baz, long: "--baz VAL", convert: -> (val) { val.to_s.upcase }
+          option :baz, long: "--baz VAL", convert: ->(val) { val.to_s.upcase }
 
           option :qux, long: "--qux VAL", convert: :list
 
@@ -547,7 +547,7 @@ RSpec.describe TTY::Option do
         expect(cmd.params[:bar]).to eq(true)
         expect(cmd.params[:baz]).to eq("FOO")
         expect(cmd.params[:qux]).to eq(%w[a b c])
-        expect(cmd.params[:fum]).to eq([1,2,3])
+        expect(cmd.params[:fum]).to eq([1, 2, 3])
       end
 
       it "handles option maps with & connector" do
@@ -565,7 +565,7 @@ RSpec.describe TTY::Option do
 
         cmd.parse(%w[--foo a=1&b=2&a=3 --bar c:1&d:2])
 
-        expect(cmd.params[:foo]).to eq({a: ["1", "3"], b: "2"})
+        expect(cmd.params[:foo]).to eq({a: %w[1 3], b: "2"})
         expect(cmd.params[:bar]).to eq({c: 1, d: 2})
       end
 
@@ -584,7 +584,7 @@ RSpec.describe TTY::Option do
 
         cmd.parse(%w[--foo a=1 b=2 a=3 --bar c:1 d:2])
 
-        expect(cmd.params[:foo]).to eq({a: ["1", "3"], b: "2"})
+        expect(cmd.params[:foo]).to eq({a: %w[1 3], b: "2"})
         expect(cmd.params[:bar]).to eq({c: 1, d: 2})
       end
     end
@@ -595,7 +595,7 @@ RSpec.describe TTY::Option do
           option :foo do
             long "--foo VAL"
             convert :sym
-            permit [:bar, :baz, :qux]
+            permit %i[bar baz qux]
           end
         end
 
@@ -616,8 +616,8 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo 14], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::UnpermittedArgument,
-                        "unpermitted value `14` for '--foo' option: " \
-                        "choose from 11, 12, 13")
+                         "unpermitted value `14` for '--foo' option: " \
+                         "choose from 11, 12, 13")
       end
     end
 
@@ -627,14 +627,14 @@ RSpec.describe TTY::Option do
           option :foo do
             long "--foo VAL"
             convert Integer
-            validate -> (val) { val == 12 }
+            validate ->(val) { val == 12 }
           end
         end
 
         expect {
           cmd.parse(%w[--foo 13], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                        "value of `13` fails validation for '--foo' option")
+                         "value of `13` fails validation for '--foo' option")
       end
 
       it "validates an option with a string as regex" do
@@ -648,7 +648,7 @@ RSpec.describe TTY::Option do
         expect {
           cmd.parse(%w[--foo bar], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
-                        "value of `bar` fails validation for '--foo' option")
+                         "value of `bar` fails validation for '--foo' option")
       end
 
       it "validates an option with a multiple argument" do
@@ -656,7 +656,7 @@ RSpec.describe TTY::Option do
           option :foo do
             long "--foo VAL"
             convert :int_list
-            validate -> (val) { val < 12 }
+            validate ->(val) { val < 12 }
           end
         end
 
@@ -720,7 +720,10 @@ RSpec.describe TTY::Option do
 
         keyword(:bar) { required }
 
-        option(:baz) { required; long "--baz string" }
+        option(:baz) do
+          required
+          long "--baz string"
+        end
 
         env(:qux) { required }
       end
@@ -797,7 +800,7 @@ RSpec.describe TTY::Option do
 
   context "stops parsing on --" do
     it "doesn't include arguments -- split" do
-      cmd = new_command { }
+      cmd = new_command
 
       cmd.parse(%w[--])
 
@@ -806,7 +809,7 @@ RSpec.describe TTY::Option do
     end
 
     it "doesn't include arguments after --- split" do
-      cmd = new_command { }
+      cmd = new_command
 
       cmd.parse(%w[--- a b])
 

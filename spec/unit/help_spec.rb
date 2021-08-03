@@ -461,7 +461,7 @@ RSpec.describe TTY::Option::Formatter do
         QUUX  Some description
       EOS
 
-      param_display = ->(str) { "<#{str.downcase}>"}
+      param_display = ->(str) { "<#{str.downcase}>" }
 
       expect(cmd.help(param_display: param_display)).to eq(expected_output)
     end
@@ -487,7 +487,7 @@ RSpec.describe TTY::Option::Formatter do
         option :qux do
           long "--qux-long ints"
           desc "Some description"
-          default [1,2,3]
+          default [1, 2, 3]
         end
 
         option :quux do
@@ -978,8 +978,8 @@ RSpec.describe TTY::Option::Formatter do
       output = cmd.help do |sections|
         sections.delete :header
 
-        sections.add_after :arguments,
-          :commands, "\nCommands:\n  create  A command description"
+        sections.add_after :arguments, :commands,
+                           "\nCommands:\n  create  A command description"
 
         sections.replace :footer, "\nGoodbye"
       end

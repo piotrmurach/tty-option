@@ -147,8 +147,8 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect {
         parse(%w[foo=1], keyword(:foo, arity: 2), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "keyword 'foo' should appear 2 times but " \
-                      "appeared 1 time")
+                       "keyword 'foo' should appear 2 times but " \
+                       "appeared 1 time")
     end
 
     it "parses minimum number of keywords to satisfy at least arity" do
@@ -161,8 +161,8 @@ RSpec.describe TTY::Option::Parser::Keywords do
       expect {
         parse(%w[foo=1], keyword(:foo, arity: -3), raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArity,
-                      "keyword 'foo' should appear at least 2 times but " \
-                      "appeared 1 time")
+                       "keyword 'foo' should appear at least 2 times but " \
+                       "appeared 1 time")
     end
 
     it "doesn't find any keywords to match at least arity" do
@@ -238,7 +238,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
     it "parses a space delimited arguments as a map" do
       params, rest = parse(%w[foo=a:1 b:2 c:3], keyword(:foo, convert: :map))
 
-      expect(params[:foo]).to eq({a:"1", b:"2", c:"3"})
+      expect(params[:foo]).to eq({a: "1", b: "2", c: "3"})
       expect(rest).to eq([])
     end
 
@@ -249,8 +249,8 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
       params, rest = parse(%w[foo=a:1 b:2 c:3 bar=x:1 y:2], keywords)
 
-      expect(params[:foo]).to eq({a:1, b:2, c:3})
-      expect(params[:bar]).to eq({x:1, y:2})
+      expect(params[:foo]).to eq({a: 1, b: 2, c: 3})
+      expect(params[:bar]).to eq({x: 1, y: 2})
       expect(rest).to eq([])
     end
 
@@ -260,7 +260,7 @@ RSpec.describe TTY::Option::Parser::Keywords do
 
       params, rest = parse(%w[foo=a:1 b:2 foo=c:3 d:4], keywords)
 
-      expect(params[:foo]).to eq({a:1, b:2, c:3, d: 4})
+      expect(params[:foo]).to eq({a: 1, b: 2, c: 3, d: 4})
       expect(rest).to eq([])
     end
   end

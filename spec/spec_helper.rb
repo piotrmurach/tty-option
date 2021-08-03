@@ -19,8 +19,8 @@ require "bundler/setup"
 require "tty/option"
 
 module Helpers
-  def unindent(s)
-    s.gsub(/^#{s.scan(/^[ \t]+(?=\S)/).min}/, "")
+  def unindent(text)
+    text.gsub(/^#{text.scan(/^[ \t]+(?=\S)/).min}/, "")
   end
 
   def new_parameter(type, name, **settings)
