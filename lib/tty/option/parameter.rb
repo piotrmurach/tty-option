@@ -11,6 +11,12 @@ module TTY
       include DSL::Arity
       include DSL::Conversion
 
+      # Zero or more parameter arity pattern
+      ZERO_OR_MORE_ARITY = /\*|any/.freeze
+
+      # One or more parameter arity pattern
+      ONE_OR_MORE_ARITY = /\+/.freeze
+
       # A parameter factory
       #
       # @api public
@@ -250,15 +256,14 @@ module TTY
         end
 
         case value.to_s
-        when %r{\*|any} then value = -1
-        when %r{\+}     then value = -2
-        else value = value.to_i
+        when ZERO_OR_MORE_ARITY then -1
+        when ONE_OR_MORE_ARITY then -2
+        else value.to_i
+        end.tap do |val|
+          if val.zero?
+            raise ConfigurationError, "#{to_sym} '#{name}' arity cannot be zero"
+          end
         end
-
-        if value.zero?
-          raise ConfigurationError, "#{to_sym} '#{name}' arity cannot be zero"
-        end
-        value
       end
 
       # @api private
