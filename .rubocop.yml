@@ -1,14 +1,31 @@
 AllCops:
   NewCops: enable
 
+Layout/FirstArrayElementIndentation:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
+  Enabled: false
+
+Layout/HashAlignment:
+  Enabled: false
+
 Layout/LineLength:
   Max: 80
+  Exclude:
+    - "spec/**/*"
+
+Layout/MultilineMethodCallBraceLayout:
+  EnforcedStyle: same_line
+
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
 
 Lint/AssignmentInCondition:
   Enabled: false
 
 Metrics/AbcSize:
-  Max: 30
+  Max: 35
 
 Metrics/BlockLength:
   CountComments: true
@@ -29,21 +46,46 @@ Metrics/MethodLength:
 Naming/BinaryOperatorParameterName:
   Enabled: false
 
+Naming/FileName:
+  Exclude:
+    - "lib/tty-option.rb"
+
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+
+Style/AccessorGrouping:
+  Enabled: false
+
+Style/ArgumentsForwarding:
+  Enabled: false
+
 Style/AsciiComments:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
+
+Style/CommentedKeyword:
+  Enabled: false
+
+Style/HashTransformKeys:
   Enabled: false
 
 Style/LambdaCall:
   EnforcedStyle: braces
 
+Style/ParallelAssignment:
+  Enabled: false
+
+Style/PreferredHashMethods:
+  Exclude:
+    - "spec/**/*"
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
 Style/TrivialAccessors:
-  Enabled: false
-
-# { ... } for multi-line blocks is okay
-Style/BlockDelimiters:
-  Enabled: false
-
-Style/CommentedKeyword:
   Enabled: false
