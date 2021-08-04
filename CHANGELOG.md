@@ -1,6 +1,6 @@
 # Change log
 
-## [v0.2.0] - unreleased
+## [v0.2.0] - 2021-08-04
 
 ### Added
 * Add predicate methods for checking if a given parameter is supported
@@ -17,4 +17,4 @@
 * Initial implementation and release
 
 [v0.2.0]: https://github.com/piotrmurach/tty-option/compare/v0.1.0...v0.2.0
-[v0.1.0]: https://github.com/piotrmurach/tty-option/compare/v0.1.0
+[v0.1.0]: https://github.com/piotrmurach/tty-option/compare/95179f0...v0.1.0
