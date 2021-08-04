@@ -83,6 +83,19 @@ RSpec.describe TTY::Option do
                        "argument 'foo' arity cannot be zero")
     end
 
+    it "fails to parse no argument when requiring exactly two" do
+      cmd = new_command do
+        argument(:foo) { arity 2 }
+
+        argument :bar
+      end
+
+      expect {
+        cmd.parse(%w[], raise_on_parse_error: true)
+      }.to raise_error(TTY::Option::MissingParameter,
+                       "argument 'foo' must be provided")
+    end
+
     it "reads zero or more values with zero_or_more arity" do
       cmd = new_command do
         argument :foo, arity: zero_or_more
@@ -133,6 +146,34 @@ RSpec.describe TTY::Option do
       }.to raise_error(TTY::Option::InvalidArity,
                        "argument 'foo' should appear at least 3 times but " \
                        "appeared 2 times")
+    end
+
+    it "reads no argument for zero_or_more arity and list conversion" do
+      cmd = new_command do
+        argument(:foo) do
+          arity zero_or_more
+          convert :list
+        end
+      end
+
+      cmd.parse([], raise_on_parse_error: true)
+
+      expect(cmd.params[:foo]).to eq(nil)
+    end
+
+    it "fails to parse no argument for one_or_more arity and list conversion" do
+      cmd = new_command do
+        argument(:foo) do
+          arity one_or_more
+          convert :list
+        end
+      end
+
+      expect {
+        cmd.parse([], raise_on_parse_error: true)
+      }.to raise_error(TTY::Option::InvalidArity,
+                       "argument 'foo' should appear at least 1 time but " \
+                       "appeared 0 times")
     end
 
     it "reads two or more value and converts to map" do

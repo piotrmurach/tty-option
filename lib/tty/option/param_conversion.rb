@@ -15,7 +15,7 @@ module TTY
       #
       # @api public
       def call(param, value)
-        return Result.success(value) unless param.convert?
+        return Result.success(value) if !param.convert? || value.nil?
 
         cast = param.convert
         cast = cast.is_a?(Proc) ? cast : Conversions[cast]

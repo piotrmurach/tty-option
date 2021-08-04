@@ -7,6 +7,7 @@
 
 ### Changed
 * Change Conversions to stop raising error and return Undefined value instead
+* Change to skip conversion of parameters with nil value
 
 ### Fixed
 * Fix conversion of nil into array or hash to stop raising an error
