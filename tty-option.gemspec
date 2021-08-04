@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.version       = TTY::Option::VERSION
   spec.authors       = ["Piotr Murach"]
   spec.email         = ["piotr@piotrmurach.com"]
-  spec.summary       = %q{An intuitive and flexible command line parser}
-  spec.description   = %q{Parser for command line arguments, keywords, flags, options and environment variables.}
+  spec.summary       = "An intuitive and flexible command line parser."
+  spec.description   = "Parser for command line arguments, keywords, flags, options and environment variables."
   spec.homepage      = "https://ttytoolkit.org"
   spec.license       = "MIT"
 
@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["lib/**/*"]
   spec.extra_rdoc_files = ["README.md", "CHANGELOG.md", "LICENSE.txt"]
   spec.require_paths = ["lib"]
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.0.0")
+  spec.required_ruby_version = ">= 2.0.0"
 
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec", ">= 3.0"
