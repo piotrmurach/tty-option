@@ -78,13 +78,17 @@ module TTY
       end
 
       convert :list, :array do |val|
-        (val.respond_to?(:to_a) ? val : val.split(/(?<!\\),/))
+        next Const::Undefined if val.nil?
+
+        (val.respond_to?(:map) ? val : val.to_s.split(/(?<!\\),/))
           .map { |v| v.strip.gsub(/\\,/, ",") }
           .reject(&:empty?)
       end
 
       convert :map, :hash do |val|
-        values = val.respond_to?(:to_a) ? val : val.split(/[& ]/)
+        next Const::Undefined if val.nil?
+
+        values = val.respond_to?(:each) ? val : val.to_s.split(/[& ]/)
         values.each_with_object({}) do |pair, pairs|
           key, value = pair.split(/[=:]/, 2)
           if (current = pairs[key.to_sym])
@@ -101,7 +105,10 @@ module TTY
 
         [:"#{type}_list", :"#{type}_array", :"#{type}s"].each do |new_type|
           convert new_type do |val|
-            conversions[:list].(val).map do |obj|
+            list_conversion = conversions[:list].(val)
+            next list_conversion if list_conversion == Const::Undefined
+
+            list_conversion.map do |obj|
               converted = conversions[type].(obj)
               break converted if converted == Const::Undefined
               converted
@@ -111,6 +118,9 @@ module TTY
 
         [:"#{type}_map", :"#{type}_hash"].each do |new_type|
           convert new_type do |val|
+            map_conversion = conversions[:map].(val)
+            next map_conversion if map_conversion == Const::Undefined
+
             conversions[:map].(val).each_with_object({}) do |(k, v), h|
               converted = conversions[type].(v)
               break converted if converted == Const::Undefined

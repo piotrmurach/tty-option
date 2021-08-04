@@ -161,6 +161,10 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
+    it "fails to convert nil to array" do
+      expect(described_class[:list].(nil)).to eq(undefined)
+    end
+
     {
       [:int_list, "1,2,3"] => [1, 2, 3],
       [:ints, "1,2,3"] => [1, 2, 3],
@@ -174,6 +178,10 @@ RSpec.describe TTY::Option::Conversions do
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[type].(input)).to eq(obj)
       end
+    end
+
+    it "fails to convert nil to integer array" do
+      expect(described_class[:int_list].(nil)).to eq(undefined)
     end
 
     it "fails to convert string to integer array" do
@@ -202,6 +210,10 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
+    it "fails to convert nil to hash" do
+      expect(described_class[:map].(nil)).to eq(undefined)
+    end
+
     {
       [:int_map, "a:1 b:2 c:3"] =>  {a: 1, b: 2, c: 3},
       [:float_map, "a:1 b:2 c:3"] =>  {a: 1.0, b: 2.0, c: 3.0},
@@ -212,6 +224,10 @@ RSpec.describe TTY::Option::Conversions do
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[type].(input)).to eq(obj)
       end
+    end
+
+    it "fails to convert nil to hash with integer values" do
+      expect(described_class[:int_map].(nil)).to eq(undefined)
     end
 
     it "fails to convert string to hash with integer values" do

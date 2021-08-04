@@ -9,6 +9,7 @@
 * Change Conversions to stop raising error and return Undefined value instead
 
 ### Fixed
+* Fix conversion of nil into array or hash to stop raising an error
 * Fix #no_command to correctly mark command as not present
 * Fix warnings about shadowing local variables
 
