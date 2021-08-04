@@ -14,7 +14,6 @@ module TTY
       # @api public
       def self.deep_dup(object)
         case object
-        when String then object.dup
         when *NONDUPLICATABLE then object
         when Hash   then deep_dup_hash(object)
         when Array  then deep_dup_array(object)
