@@ -263,6 +263,19 @@ RSpec.describe TTY::Option do
         "unpermitted value `14` for 'foo' argument: choose from 11, 12, 13"
       ])
     end
+
+    it "doesn't check permitted values when optional and no value is provided" do
+      cmd = new_command do
+        argument :foo do
+          optional
+          permit %w[bar baz]
+        end
+      end
+
+      cmd.parse([], raise_on_parse_error: true)
+
+      expect(cmd.params[:foo]).to eq(nil)
+    end
   end
 
   context "keyword" do
@@ -659,6 +672,19 @@ RSpec.describe TTY::Option do
         }.to raise_error(TTY::Option::UnpermittedArgument,
                          "unpermitted value `14` for '--foo' option: " \
                          "choose from 11, 12, 13")
+      end
+
+      it "permits no value" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            permit %w[bar baz qux]
+          end
+        end
+
+        cmd.parse([], raise_on_parse_error: true)
+
+        expect(cmd.params[:foo]).to eq(nil)
       end
     end
 

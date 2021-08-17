@@ -1,5 +1,10 @@
 # Change log
 
+## [v0.2.1] - unreleased
+
+### Fixed
+* Fix argument check against permitted values to allow nil value when optional
+
 ## [v0.2.0] - 2021-08-04
 
 ### Added
@@ -18,5 +23,6 @@
 
 * Initial implementation and release
 
+[v0.2.1]: https://github.com/piotrmurach/tty-option/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/piotrmurach/tty-option/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/piotrmurach/tty-option/compare/95179f0...v0.1.0

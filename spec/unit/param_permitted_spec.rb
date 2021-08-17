@@ -7,13 +7,22 @@ RSpec.describe TTY::Option::ParamPermitted do
     expect(described_class[param, "a"].value).to eq("a")
   end
 
+  it "skips checking nil value" do
+    param = TTY::Option::Parameter::Option.create(:foo, permit: %w[a b c])
+
+    result = described_class[param, nil]
+
+    expect(result.value).to eq(nil)
+    expect(result.error).to eq(nil)
+  end
+
   it "permits an option argument" do
     param = TTY::Option::Parameter::Option.create(:foo, permit: %w[a b c])
 
     expect(described_class[param, "a"].value).to eq("a")
   end
 
-  it "doesn't permit an option arguemnt" do
+  it "doesn't permit an option argument" do
     param = TTY::Option::Parameter::Option.create(:foo, permit: %w[a b c])
 
     result = described_class[param, "d"]

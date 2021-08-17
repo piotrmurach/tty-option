@@ -13,7 +13,7 @@ module TTY
       #
       # @api public
       def call(param, value)
-        return Result.success(value) unless param.permit?
+        return Result.success(value) if !param.permit? || value.nil?
 
         if param.permit.include?(value)
           Result.success(value)
