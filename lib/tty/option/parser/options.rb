@@ -175,7 +175,12 @@ module TTY
                 @remaining << long
               end
             elsif matching_options == 1
-              value = long[opt.long_name.size..-1]
+              # option stuck together with the argument
+              if sep.nil? && rest.empty?
+                value = long[opt.long_name.size..-1]
+              else
+                value = rest
+              end
             else
               @error_aggregator.(AmbiguousOption.new("option '#{long}' is ambiguous"))
             end
