@@ -7,6 +7,16 @@ RSpec.describe TTY::Option::ParamValidation do
     expect(described_class[param, "12"].value).to eq("12")
   end
 
+  it "skips validation when the value is nil" do
+    param = TTY::Option::Parameter::Option.create(:foo, validate: /^\d+$/)
+
+    result = described_class[param, nil]
+
+    expect(result).to be_an_instance_of(TTY::Option::Result::Success)
+    expect(result.value).to eq(nil)
+    expect(result.error).to eq(nil)
+  end
+
   it "accepts an option parameter as valid" do
     param = TTY::Option::Parameter::Option.create(:foo, validate: /\d+/)
 

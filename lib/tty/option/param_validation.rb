@@ -13,7 +13,7 @@ module TTY
       #
       # @api public
       def call(param, values)
-        return Result.success(values) unless param.validate?
+        return Result.success(values) if !param.validate? || values.nil?
 
         errors = []
 

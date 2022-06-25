@@ -219,6 +219,20 @@ RSpec.describe TTY::Option do
       ])
     end
 
+    it "doesn't validate the optional argument when no value is provided" do
+      cmd = new_command do
+        argument :foo do
+          optional
+          validate ->(val) { val == "bar" }
+        end
+      end
+
+      cmd.parse([])
+
+      expect(cmd.params[:foo]).to eq(nil)
+      expect(cmd.params.errors.messages).to eq([])
+    end
+
     it "doesn't raise on a conversion failure and reads an error message" do
       cmd = new_command do
         argument :foo do
