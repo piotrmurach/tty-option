@@ -4,6 +4,7 @@
 
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional
+* Fix parsing values provided with abbreviated long option names
 
 ## [v0.2.0] - 2021-08-04
 
