@@ -224,6 +224,12 @@ RSpec.describe TTY::Option::Parser::Options do
     expect(params[:foo]).to eq("bar")
   end
 
+  it "parses long option abbreviated and defined with =" do
+    params, = parse(%w[--fo=bar], option(:foo, long: "--foo=string"))
+
+    expect(params[:foo]).to eq("bar")
+  end
+
   it "raises if long option isn't defined" do
     expect {
       parse(%w[--foo --bar], option(:foo, long: "--foo"),
