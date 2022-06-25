@@ -826,7 +826,7 @@ params[:foo_bar] # => "baz"
 To change the parameter name to a custom one, use the `name` setting:
 
 ```ruby
-keywor :foo_bar do
+keyword :foo_bar do
   name "fum"
 end
 ```
