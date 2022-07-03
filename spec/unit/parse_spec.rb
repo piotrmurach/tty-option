@@ -672,6 +672,76 @@ RSpec.describe TTY::Option do
         expect(cmd.params[:foo]).to eq(:qux)
       end
 
+      it "checks option input list against an array of permitted values" do
+        cmd = new_command do
+          option :foo do
+            arity one_or_more
+            long "--foo VAL"
+            convert :sym_list
+            permit %i[bar baz]
+          end
+        end
+
+        cmd.parse(%w[--foo bar baz])
+
+        expect(cmd.params[:foo]).to eq(%i[bar baz])
+        expect(cmd.params.errors.messages).to be_empty
+      end
+
+      it "doesn't permit input list checked against an array of values" do
+        cmd = new_command do
+          option :foo do
+            arity one_or_more
+            long "--foo VAL"
+            convert :sym_list
+            permit %i[bar baz]
+          end
+        end
+
+        cmd.parse(%w[--foo bar qux fum])
+
+        expect(cmd.params.errors.messages).to eq([
+          "unpermitted value `qux` for '--foo' option: choose from bar, baz",
+          "unpermitted value `fum` for '--foo' option: choose from bar, baz"
+        ])
+      end
+
+      it "checks option input pairs against a hash of permitted pairs" do
+        cmd = new_command do
+          option :foo do
+            arity one_or_more
+            long "--foo VAL"
+            convert :int_map
+            permit({a: 1, b: 2, c: 3})
+          end
+        end
+
+        cmd.parse(%w[--foo a:1 b:2])
+
+        expect(cmd.params[:foo]).to eq({a: 1, b: 2})
+        expect(cmd.params.errors.messages).to be_empty
+      end
+
+      it "doesn't permit input pairs checked against a hash of pairs" do
+        cmd = new_command do
+          option :foo do
+            arity one_or_more
+            long "--foo VAL"
+            convert :int_map
+            permit({a: 1, b: 2, c: 3})
+          end
+        end
+
+        cmd.parse(%w[--foo a:1 d:4 e:5])
+
+        expect(cmd.params.errors.messages).to eq([
+          "unpermitted value `d:4` for '--foo' option: " \
+          "choose from a:1, b:2, c:3",
+          "unpermitted value `e:5` for '--foo' option: " \
+          "choose from a:1, b:2, c:3"
+        ])
+      end
+
       it "doesn't permit a value" do
         cmd = new_command do
           option :foo do

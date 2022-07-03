@@ -22,6 +22,22 @@ module TTY
     # Raised during command line input parsing
     class ParseError < Error
       attr_accessor :param
+
+      # Format value
+      #
+      # @param [Object] value
+      #   the value to format
+      #
+      # @example
+      #   format_value([:a, 1])
+      #   # => a:1
+      #
+      # @return [String]
+      #
+      # @api public
+      def format_value(value)
+        value.respond_to?(:to_ary) ? value.join(":") : value.to_s
+      end
     end
 
     # Raised when found unrecognized parameter
@@ -129,15 +145,29 @@ module TTY
         if param_or_message.is_a?(Parameter)
           @param = param_or_message
           message = format(MESSAGE,
-                           value: value,
+                           value: format_value(value),
                            name: param.name,
                            type: param.to_sym,
-                           choices: param.permit.join(", "))
+                           choices: format_choices(param.permit))
         else
           message = param_or_message
         end
 
         super(message)
+      end
+
+      private
+
+      # Format permitted choices
+      #
+      # @param [Array<Object>] choices
+      #   the choices to format
+      #
+      # @return [String]
+      #
+      # @api private
+      def format_choices(choices)
+        choices.map { |val| format_value(val) }.join(", ")
       end
     end
   end # Option

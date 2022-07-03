@@ -15,10 +15,14 @@ module TTY
       def call(param, value)
         return Result.success(value) if !param.permit? || value.nil?
 
-        if param.permit.include?(value)
+        unpermitted = Array(value) - Array(param.permit)
+
+        if unpermitted.empty?
           Result.success(value)
         else
-          Result.failure(UnpermittedArgument.new(param, value))
+          Result.failure(unpermitted.map do |val|
+            UnpermittedArgument.new(param, val)
+          end)
         end
       end
       module_function :call

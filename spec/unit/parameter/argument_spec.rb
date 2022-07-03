@@ -221,14 +221,16 @@ RSpec.describe TTY::Option::Parameter::Argument do
       expect {
         described_class.new(:foo, permit: nil)
       }.to raise_error(TTY::Option::ConfigurationError,
-                       "argument 'foo' permitted value needs to be an Array")
+                       "argument 'foo' permitted value needs to be " \
+                       "an Array or a Hash")
     end
 
     it "is invalid when not an array type" do
       expect {
         described_class.new(:foo, permit: Object.new)
       }.to raise_error(TTY::Option::ConfigurationError,
-                       "argument 'foo' permitted value needs to be an Array")
+                       "argument 'foo' permitted value needs to be " \
+                       "an Array or a Hash")
     end
   end
 

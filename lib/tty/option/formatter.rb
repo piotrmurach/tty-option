@@ -267,7 +267,7 @@ module TTY
         end
 
         if param.permit?
-          desc << format(" (permitted: %s)", param.permit.join(", "))
+          desc << format_permitted(param.permit)
         end
 
         if (default = format_default(param))
@@ -339,7 +339,7 @@ module TTY
         indent += 2
 
         if option.permit?
-          desc << format(" (permitted: %s)", option.permit.join(","))
+          desc << format_permitted(option.permit)
         end
 
         if (default = format_default(option))
@@ -349,6 +349,20 @@ module TTY
         line << wrap(desc.join, indent: indent, width: width)
 
         line.join
+      end
+
+      # Format permitted values
+      #
+      # @param [Parameter] values
+      #   the permitted values to format
+      #
+      # @return [String]
+      #
+      # @api private
+      def format_permitted(values)
+        format(" (permitted: %s)", values.map do |val|
+          val.respond_to?(:to_ary) ? val.join(":") : val
+        end.join(", "))
       end
 
       # Format default value

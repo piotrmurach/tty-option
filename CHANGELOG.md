@@ -2,6 +2,9 @@
 
 ## [v0.2.1] - unreleased
 
+### Changed
+* Change permit setting to work with parameters converted to an array or a hash
+
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional
 * Fix parsing values provided with abbreviated long option names

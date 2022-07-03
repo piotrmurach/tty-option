@@ -28,8 +28,60 @@ RSpec.describe TTY::Option::ParamPermitted do
     result = described_class[param, "d"]
 
     expect(result.value).to eq(nil)
-    expect(result.error).to be_an_instance_of(TTY::Option::UnpermittedArgument)
-    expect(result.error.message).to eq(
+    expect(result.error[0]).to be_an_instance_of(TTY::Option::UnpermittedArgument)
+    expect(result.error[0].message).to eq(
       "unpermitted value `d` for '--foo' option: choose from a, b, c")
+  end
+
+  it "permits all values checked against an array of allowed values" do
+    param = TTY::Option::Parameter::Argument.create(:foo, permit: %w[a b c])
+
+    result = described_class[param, %w[a b]]
+
+    expect(result.value).to eq(%w[a b])
+    expect(result.error).to eq(nil)
+  end
+
+  it "doesn't permit values checked against an array of allowed values" do
+    param = TTY::Option::Parameter::Argument.create(:foo, permit: %w[a b c])
+
+    result = described_class[param, %w[a d e]]
+
+    expect(result.value).to eq(nil)
+    expect(result.error[0])
+      .to be_an_instance_of(TTY::Option::UnpermittedArgument)
+    expect(result.error[0].message).to eq(
+      "unpermitted value `d` for 'foo' argument: choose from a, b, c")
+    expect(result.error[1])
+      .to be_an_instance_of(TTY::Option::UnpermittedArgument)
+    expect(result.error[1].message).to eq(
+      "unpermitted value `e` for 'foo' argument: choose from a, b, c")
+  end
+
+  it "permits all value pairs checked against a hash of allowed pairs" do
+    param = TTY::Option::Parameter::Argument.create(:foo,
+                                                    permit: {a: 1, b: 2, c: 3})
+
+    result = described_class[param, {a: 1, b: 2}]
+
+    expect(result.value).to eq({a: 1, b: 2})
+    expect(result.error).to eq(nil)
+  end
+
+  it "doesn't permit value pairs checked against a hash of allowed pairs" do
+    param = TTY::Option::Parameter::Argument.create(:foo,
+                                                    permit: {a: 1, b: 2, c: 3})
+
+    result = described_class[param, {b: 2, d: 4, e: 5}]
+
+    expect(result.value).to eq(nil)
+    expect(result.error[0])
+      .to be_an_instance_of(TTY::Option::UnpermittedArgument)
+    expect(result.error[0].message).to eq(
+      "unpermitted value `d:4` for 'foo' argument: choose from a:1, b:2, c:3")
+    expect(result.error[1])
+      .to be_an_instance_of(TTY::Option::UnpermittedArgument)
+    expect(result.error[1].message).to eq(
+      "unpermitted value `e:5` for 'foo' argument: choose from a:1, b:2, c:3")
   end
 end

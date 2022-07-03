@@ -274,7 +274,8 @@ module TTY
           value
         else
           raise ConfigurationError,
-                "#{to_sym} '#{name}' permitted value needs to be an Array"
+                "#{to_sym} '#{name}' permitted value needs to be " \
+                "an Array or a Hash"
         end
       end
 

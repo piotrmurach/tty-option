@@ -183,6 +183,57 @@ RSpec.describe TTY::Option::Formatter do
       expect(cmd.help(width: 75)).to eq(expected_output)
     end
 
+    it "formats permitted hash of values for all parameters" do
+      cmd = new_command do
+        program "permitted"
+
+        no_command
+
+        argument :foo do
+          arity one_or_more
+          convert :map
+          desc "Foo argument desc"
+          permit({a: 1, b: 2, c: 3})
+        end
+
+        option :bar do
+          convert :map
+          desc "Bar option desc"
+          permit({d: 4, e: 5, f: 6})
+        end
+
+        keyword :baz do
+          convert :map
+          desc "Baz keyword desc"
+          permit({g: 7, h: 8, i: 9})
+        end
+
+        env :qux do
+          convert :map
+          desc "Qux env desc"
+          permit({j: 10, k: 11, l: 12})
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: permitted [OPTIONS] [ENVIRONMENT] FOO [FOO...] [BAZ=MAP]
+
+      Arguments:
+        FOO  Foo argument desc (permitted: a:1, b:2, c:3)
+
+      Keywords:
+        BAZ=MAP  Baz keyword desc (permitted: g:7, h:8, i:9)
+
+      Options:
+        --bar  Bar option desc (permitted: d:4, e:5, f:6)
+
+      Environment:
+        QUX  Qux env desc (permitted: j:10, k:11, l:12)
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
     it "formats banner with arguments but no command" do
       cmd = new_command do
         usage do
@@ -513,7 +564,7 @@ RSpec.describe TTY::Option::Formatter do
       Options:
         -b, --bar string     Some description (default "baz")
             --baz
-        -f, --foo string     Some description (permitted: a,b,c,d)
+        -f, --foo string     Some description (permitted: a, b, c, d)
             --fum            Some description
             --qux-long ints  Some description (default [1, 2, 3])
         -c                   Some description
@@ -583,10 +634,9 @@ RSpec.describe TTY::Option::Formatter do
                                                  description with newlines
         -q, --qux-long-name string               Some description that
                                                  breaks into multiline
-                                                 on newlines (permitted:
-                                                 one,two,three,four,five,six)
-                                                 (default "some long default on many
-                                                 lines")
+                                                 on newlines (permitted: one, two,
+                                                 three, four, five, six) (default
+                                                 "some long default on many lines")
       EOS
 
       expect(cmd.help).to eq(expected_output)
