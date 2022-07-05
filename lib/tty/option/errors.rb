@@ -55,7 +55,7 @@ module TTY
           @param = param_or_message
 
           message = format(MESSAGE,
-                           value: value,
+                           value: format_value(value),
                            name: param.name,
                            type: param.to_sym)
         else

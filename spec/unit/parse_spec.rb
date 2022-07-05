@@ -201,7 +201,7 @@ RSpec.describe TTY::Option do
       expect {
         cmd.parse(%w[a:1 b:2 c:3], raise_on_parse_error: true)
       }.to raise_error(TTY::Option::InvalidArgument,
-                       "value of `[:c, 3]` fails validation for 'foo' argument")
+                       "value of `c:3` fails validation for 'foo' argument")
     end
 
     it "doesn't raise on a validation rule failure and reads an error message" do
@@ -815,6 +815,21 @@ RSpec.describe TTY::Option do
           cmd.parse(%w[--foo 10,11,12], raise_on_parse_error: true)
         }.to raise_error(TTY::Option::InvalidArgument,
                          "value of `12` fails validation for '--foo' option")
+      end
+
+      it "validates an option given as multiple argument pairs" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :int_map
+            validate(->(val) { val[1] < 12 })
+          end
+        end
+
+        expect {
+          cmd.parse(%w[--foo a:11 b:12 c:13], raise_on_parse_error: true)
+        }.to raise_error(TTY::Option::InvalidArgument,
+                         "value of `b:12` fails validation for '--foo' option")
       end
     end
   end

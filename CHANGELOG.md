@@ -4,6 +4,7 @@
 
 ### Changed
 * Change permit setting to work with parameters converted to an array or a hash
+* Change formatting of a hash value in parameter validation error message
 
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional
