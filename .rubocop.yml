@@ -1,5 +1,6 @@
 AllCops:
   NewCops: enable
+  TargetRubyVersion: 2.0
 
 Layout/FirstArrayElementIndentation:
   Enabled: false
@@ -30,7 +31,7 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   CountComments: true
   Max: 25
-  IgnoredMethods: []
+  AllowedMethods: []
   Exclude:
     - "spec/**/*"
 
@@ -67,6 +68,10 @@ Style/BlockDelimiters:
 
 Style/CommentedKeyword:
   Enabled: false
+
+Style/FetchEnvVar:
+  AllowedVars:
+    - COVERAGE
 
 Style/HashTransformKeys:
   Enabled: false
