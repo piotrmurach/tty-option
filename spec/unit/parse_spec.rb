@@ -593,6 +593,34 @@ RSpec.describe TTY::Option do
 
         expect(cmd.params[:foo]).to eq("bar")
       end
+
+      it "defaults a string to an array of integers" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :int_list
+            default "1,2,3"
+          end
+        end
+
+        cmd.parse([])
+
+        expect(cmd.params[:foo]).to eq([1, 2, 3])
+      end
+
+      it "defaults to an array of integers" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :int_list
+            default [1, 2, 3]
+          end
+        end
+
+        cmd.parse([])
+
+        expect(cmd.params[:foo]).to eq([1, 2, 3])
+      end
     end
 
     context "convert" do

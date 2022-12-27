@@ -148,13 +148,19 @@ RSpec.describe TTY::Option::Conversions do
 
   context ":list" do
     {
+      "" => [],
       ",," => [],
+      "a" => ["a"],
+      :a => %i[a],
+      1 => [1],
+      true => [true],
       ",b,c" => %w[b c],
       "a,b,c" => %w[a b c],
       "a , b , c" => %w[a b c],
       "a, , c" => %w[a c],
       "a, b\\, c" => ["a", "b, c"],
-      %w[a b c] => %w[a b c]
+      %w[a b c] => %w[a b c],
+      [:a, " b ", 1, true] => [:a, " b ", 1, true]
     }.each do |input, obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[:list].(input)).to eq(obj)
@@ -168,12 +174,17 @@ RSpec.describe TTY::Option::Conversions do
     {
       [:int_list, "1,2,3"] => [1, 2, 3],
       [:ints, "1,2,3"] => [1, 2, 3],
+      [:ints, %w[1 2 3]] => [1, 2, 3],
       [:float_list, "1,2,3"] => [1.0, 2.0, 3.0],
       [:floats, "1,2,3"] => [1.0, 2.0, 3.0],
+      [:floats, %w[1 2 3]] => [1.0, 2.0, 3.0],
       [:bool_list, "t,t,f"] => [true, true, false],
       [:bools, "t,t,f"] => [true, true, false],
+      [:bools, %w[t t f]] => [true, true, false],
       [:symbols, "a,b,c"] => %i[a b c],
-      [:regexps, "a,b,c"] => [/a/, /b/, /c/]
+      [:symbols, %w[a b c]] => %i[a b c],
+      [:regexps, "a,b,c"] => [/a/, /b/, /c/],
+      [:regexps, %w[a b c]] => [/a/, /b/, /c/]
     }.each do |(type, input), obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[type].(input)).to eq(obj)

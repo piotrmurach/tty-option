@@ -79,10 +79,11 @@ module TTY
 
       convert :list, :array do |val|
         next Const::Undefined if val.nil?
+        next Array(val) unless val.respond_to?(:split)
 
-        (val.respond_to?(:map) ? val : val.to_s.split(/(?<!\\),/))
-          .map { |v| v.strip.gsub(/\\,/, ",") }
-          .reject(&:empty?)
+        val.split(/(?<!\\),/)
+           .map { |v| v.strip.gsub(/\\,/, ",") }
+           .reject(&:empty?)
       end
 
       convert :map, :hash do |val|
