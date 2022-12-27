@@ -25,32 +25,22 @@ jobs:
       fail-fast: false
       matrix:
         ruby:
-          - 2.3
-          - 2.4
-          - 2.5
-          - 2.6
-          - 3.0
+          - "2.0"
+          - "2.1"
+          - "2.2"
+          - "2.3"
+          - "2.4"
+          - "2.5"
+          - "2.6"
+          - "2.7"
+          - "3.0"
           - ruby-head
           - jruby-9.2.13.0
           - jruby-head
           - truffleruby-head
         include:
-          - ruby: 2.0
-            os: ubuntu-latest
-            coverage: false
-            bundler: 1
-          - ruby: 2.1
-            os: ubuntu-latest
-            coverage: false
-            bundler: 1
-          - ruby: 2.2
-            os: ubuntu-latest
-            coverage: false
-            bundler: 1
-          - ruby: 2.7
-            os: ubuntu-latest
+          - ruby: "2.7"
             coverage: true
-            bundler: latest
     continue-on-error: ${{ endsWith(matrix.ruby, 'head') }}
     env:
       COVERAGE: ${{ matrix.coverage }}
@@ -61,8 +51,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler: ${{ matrix.bundler }}
-      - name: Install dependencies
-        run: bundle install --jobs 4 --retry 3
+          bundler-cache: true
       - name: Run tests
         run: bundle exec rake ci
