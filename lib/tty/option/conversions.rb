@@ -71,7 +71,7 @@ module TTY
       convert :sym, :symbol do |val|
         begin
           String(val).to_sym
-        rescue ArgumentError
+        rescue ArgumentError, TypeError
           Const::Undefined
         end
       end

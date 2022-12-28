@@ -12,6 +12,7 @@
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional
 * Fix parsing values provided with abbreviated long option names
+* Fix any object type to symbol conversion failure to return an undefined value
 
 ## [v0.2.0] - 2021-08-04
 

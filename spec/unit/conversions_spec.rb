@@ -136,6 +136,7 @@ RSpec.describe TTY::Option::Conversions do
   context ":sym" do
     {
       nil => :"",
+      :foo => :foo,
       "foo" => :foo,
       "1" => :"1",
       %w[foo] => :"[\"foo\"]"
@@ -143,6 +144,10 @@ RSpec.describe TTY::Option::Conversions do
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[:sym].(input)).to eq(obj)
       end
+    end
+
+    it "fails to convert BasicObject" do
+      expect(described_class[:sym].(BasicObject.new)).to eq(undefined)
     end
   end
 
