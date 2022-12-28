@@ -77,8 +77,10 @@ module TTY
       end
 
       convert :uri do |val|
+        require "uri" unless defined?(::URI)
+        next val if val.is_a?(::URI)
+
         begin
-          require "uri"
           ::URI.parse(val)
         rescue ::URI::InvalidURIError
           Const::Undefined

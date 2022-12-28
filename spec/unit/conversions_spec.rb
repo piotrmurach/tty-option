@@ -2,6 +2,7 @@
 
 require "date"
 require "pathname"
+require "uri"
 
 RSpec.describe TTY::Option::Conversions do
   let(:undefined) { TTY::Option::Const::Undefined }
@@ -152,15 +153,22 @@ RSpec.describe TTY::Option::Conversions do
   end
 
   context ":uri" do
-    it "converts string to URI object" do
-      uri = described_class[:uri].("https://example.com")
-
-      expect(uri.scheme).to eq("https")
-      expect(uri.host).to eq("example.com")
+    {
+      "" => URI.parse(""),
+      "https://example.com" => URI.parse("https://example.com"),
+      URI.parse("https://example.com") => URI.parse("https://example.com")
+    }.each do |input, obj|
+      it "converts #{input.inspect} to #{obj.inspect}" do
+        expect(described_class[:uri].(input)).to eq(obj)
+      end
     end
 
-    it "fails to convert" do
+    it "fails to convert an integer" do
       expect(described_class[:uri][123]).to eq(undefined)
+    end
+
+    it "fails to convert nil" do
+      expect(described_class[:uri][nil]).to eq(undefined)
     end
   end
 

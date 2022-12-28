@@ -2,6 +2,7 @@
 
 require "date"
 require "pathname"
+require "uri"
 
 RSpec.describe TTY::Option do
   context "argument" do
@@ -739,6 +740,19 @@ RSpec.describe TTY::Option do
         cmd.parse(%w[--foo bar/baz/])
 
         expect(cmd.params[:foo]).to eq(Pathname.new("bar/baz/"))
+      end
+
+      it "converts an option value to an uri" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :uri
+          end
+        end
+
+        cmd.parse(%w[--foo https://example.com])
+
+        expect(cmd.params[:foo]).to eq(URI.parse("https://example.com"))
       end
     end
 
