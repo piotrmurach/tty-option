@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "date"
+require "pathname"
 
 RSpec.describe TTY::Option::Conversions do
   let(:undefined) { TTY::Option::Const::Undefined }
@@ -96,11 +97,22 @@ RSpec.describe TTY::Option::Conversions do
   end
 
   context ":pathname" do
-    it "covnerts string to a Pathname object" do
-      path = described_class[:pathname].("/foo/bar/baz.rb")
+    {
+      "" => Pathname.new(""),
+      "/foo/bar/baz.rb" => Pathname.new("/foo/bar/baz.rb"),
+      Pathname.new("/foo/bar/baz.rb") => Pathname.new("/foo/bar/baz.rb")
+    }.each do |input, obj|
+      it "converts #{input.inspect} to #{obj.inspect}" do
+        expect(described_class[:pathname].(input)).to eq(obj)
+      end
+    end
 
-      expect(path.dirname.to_s).to eq("/foo/bar")
-      expect(path.basename.to_s).to eq("baz.rb")
+    it "fails to convert a symbol" do
+      expect(described_class[:path][:invalid]).to eq(undefined)
+    end
+
+    it "fails to convert nil" do
+      expect(described_class[:path][nil]).to eq(undefined)
     end
   end
 

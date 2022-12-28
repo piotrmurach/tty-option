@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "date"
+require "pathname"
 
 RSpec.describe TTY::Option do
   context "argument" do
@@ -725,6 +726,19 @@ RSpec.describe TTY::Option do
         cmd.parse(%w[--foo 28/12/2022])
 
         expect(cmd.params[:foo]).to eq(Date.new(2022, 12, 28))
+      end
+
+      it "converts an option value to a pathname" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :path
+          end
+        end
+
+        cmd.parse(%w[--foo bar/baz/])
+
+        expect(cmd.params[:foo]).to eq(Pathname.new("bar/baz/"))
       end
     end
 

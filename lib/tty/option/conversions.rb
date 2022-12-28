@@ -50,8 +50,14 @@ module TTY
       end
 
       convert :pathname, :path do |val|
-        require "pathname"
-        ::Pathname.new(val.to_s)
+        require "pathname" unless defined?(::Pathname)
+        next val if val.is_a?(::Pathname)
+
+        begin
+          ::Pathname.new(val)
+        rescue TypeError
+          Const::Undefined
+        end
       end
 
       convert :regexp do |val|
