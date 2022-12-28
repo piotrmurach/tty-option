@@ -88,16 +88,15 @@ module TTY
 
       convert :map, :hash do |val|
         next Const::Undefined if val.nil?
+        next val if val.is_a?(Hash)
 
-        values = val.respond_to?(:each) ? val : val.to_s.split(/[& ]/)
+        values = val.respond_to?(:split) ? val.split(/[& ]/) : Array(val)
         values.each_with_object({}) do |pair, pairs|
-          key, value = pair.split(/[=:]/, 2)
-          if (current = pairs[key.to_sym])
-            pairs[key.to_sym] = Array(current) << value
-          else
-            pairs[key.to_sym] = value
-          end
-          pairs
+          is_string = pair.respond_to?(:split)
+          key, value = is_string ? pair.split(/[=:]/, 2) : pair
+          new_key = is_string ? key.to_sym : key
+          current = pairs[new_key]
+          pairs[new_key] = current ? Array(current) << value : value
         end
       end
 

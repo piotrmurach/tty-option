@@ -207,6 +207,10 @@ RSpec.describe TTY::Option::Conversions do
   context ":map" do
     {
       "" => {},
+      "a" => {a: nil},
+      :a => {a: nil},
+      1 => {1 => nil},
+      true => {true => nil},
       "a=1" => {a: "1"},
       "a=1&b=2" => {a: "1", b: "2"},
       "a=&b=2" => {a: "", b: "2"},
@@ -214,7 +218,9 @@ RSpec.describe TTY::Option::Conversions do
       "a:1 b:2" => {a: "1", b: "2"},
       "a:1 b:2 a:3" => {a: %w[1 3], b: "2"},
       %w[a:1 b:2 c:3] => {a: "1", b: "2", c: "3"},
-      %w[a=1 b=2 c=3] => {a: "1", b: "2", c: "3"}
+      %w[a=1 b=2 c=3] => {a: "1", b: "2", c: "3"},
+      {a: :a, b: 1, c: true} => {a: :a, b: 1, c: true},
+      {"a" => :a, "b" => 1, "c" => true} => {"a" => :a, "b" => 1, "c" => true}
     }.each do |input, obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[:map].(input)).to eq(obj)
@@ -227,10 +233,15 @@ RSpec.describe TTY::Option::Conversions do
 
     {
       [:int_map, "a:1 b:2 c:3"] =>  {a: 1, b: 2, c: 3},
+      [:int_map, {a: "1", b: "2", c: "3"}] =>  {a: 1, b: 2, c: 3},
       [:float_map, "a:1 b:2 c:3"] =>  {a: 1.0, b: 2.0, c: 3.0},
+      [:float_map, {a: "1", b: "2", c: "3"}] =>  {a: 1.0, b: 2.0, c: 3.0},
       [:bool_map, "a:t b:f c:t"] => {a: true, b: false, c: true},
+      [:bool_map, {a: "t", b: "f", c: "t"}] => {a: true, b: false, c: true},
       [:symbol_map, "a:t b:f c:t"] => {a: :t, b: :f, c: :t},
-      [:regexp_map, "a:t b:f c:t"] => {a: /t/, b: /f/, c: /t/}
+      [:symbol_map, {a: "t", b: "f", c: "t"}] => {a: :t, b: :f, c: :t},
+      [:regexp_map, "a:t b:f c:t"] => {a: /t/, b: /f/, c: /t/},
+      [:regexp_map, {a: "t", b: "f", c: "t"}] => {a: /t/, b: /f/, c: /t/}
     }.each do |(type, input), obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[type].(input)).to eq(obj)

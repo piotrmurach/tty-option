@@ -621,6 +621,34 @@ RSpec.describe TTY::Option do
 
         expect(cmd.params[:foo]).to eq([1, 2, 3])
       end
+
+      it "defaults a string to a hash with integer values" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :int_map
+            default "a:1 b:2 c:3"
+          end
+        end
+
+        cmd.parse([])
+
+        expect(cmd.params[:foo]).to eq({a: 1, b: 2, c: 3})
+      end
+
+      it "defaults to a hash with integer values" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :int_map
+            default({"a" => 1, "b" => 2, "c" => 3})
+          end
+        end
+
+        cmd.parse([])
+
+        expect(cmd.params[:foo]).to eq({"a" => 1, "b" => 2, "c" => 3})
+      end
     end
 
     context "convert" do

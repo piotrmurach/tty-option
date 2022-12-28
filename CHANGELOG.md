@@ -5,7 +5,7 @@
 ### Changed
 * Change permit setting to work with parameters converted to an array or a hash
 * Change formatting of a hash value in parameter validation error message
-* Change array conversion to work with non-string values
+* Change array and hash conversions to work with non-string values
 
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional
