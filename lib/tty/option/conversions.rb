@@ -23,8 +23,10 @@ module TTY
       end
 
       convert :date do |val|
+        require "date" unless defined?(::Date)
+        next val if val.is_a?(::Date)
+
         begin
-          require "date" unless defined?(::Date)
           ::Date.parse(val)
         rescue ArgumentError, TypeError
           Const::Undefined

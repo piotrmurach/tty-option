@@ -38,14 +38,15 @@ RSpec.describe TTY::Option::Conversions do
     {
       "28/03/2020" => Date.parse("28/03/2020"),
       "March 28th 2020" => Date.parse("28/03/2020"),
-      "Sun, March 28th, 2020" => Date.parse("28/03/2020")
+      "Sun, March 28th, 2020" => Date.parse("28/03/2020"),
+      Date.parse("28/03/2020") => Date.parse("28/03/2020")
     }.each do |input, obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[:date].(input)).to eq(obj)
       end
     end
 
-    it "fails to convert" do
+    it "fails to convert a string" do
       expect(described_class[:date].("invalid")).to eq(undefined)
     end
 

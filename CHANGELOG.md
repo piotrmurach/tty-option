@@ -6,6 +6,7 @@
 * Change permit setting to work with parameters converted to an array or a hash
 * Change formatting of a hash value in parameter validation error message
 * Change array and hash conversions to work with non-string values
+* Change date conversion to work with date objects
 
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional

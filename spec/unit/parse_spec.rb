@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "date"
+
 RSpec.describe TTY::Option do
   context "argument" do
     it "doesn't allow to register same name parameter" do
@@ -710,6 +712,19 @@ RSpec.describe TTY::Option do
 
         expect(cmd.params[:foo]).to eq({a: %w[1 3], b: "2"})
         expect(cmd.params[:bar]).to eq({c: 1, d: 2})
+      end
+
+      it "converts an option value to a date" do
+        cmd = new_command do
+          option :foo do
+            long "--foo VAL"
+            convert :date
+          end
+        end
+
+        cmd.parse(%w[--foo 28/12/2022])
+
+        expect(cmd.params[:foo]).to eq(Date.new(2022, 12, 28))
       end
     end
 
