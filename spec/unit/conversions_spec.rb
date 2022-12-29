@@ -9,6 +9,12 @@ RSpec.describe TTY::Option::Conversions do
 
   context ":bool" do
     {
+      1 => true,
+      0 => false,
+      :yes => true,
+      :no => false,
+      true => true,
+      false => false,
       "yes" => true,
       "y" => true,
       "true" => true,
@@ -59,6 +65,9 @@ RSpec.describe TTY::Option::Conversions do
 
   context ":float" do
     {
+      1.0 => 1.0,
+      1 => 1.0,
+      -1 => -1.0,
       "1" => 1.0,
       "+1" => 1.0,
       "-1" => -1.0
@@ -79,6 +88,9 @@ RSpec.describe TTY::Option::Conversions do
 
   context ":int" do
     {
+      1 => 1,
+      1.0 => 1,
+      -1.0 => -1,
       "1" => 1,
       "+1" => 1,
       "-1" => -1
