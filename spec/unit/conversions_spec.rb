@@ -7,7 +7,7 @@ require "uri"
 RSpec.describe TTY::Option::Conversions do
   let(:undefined) { TTY::Option::Const::Undefined }
 
-  context ":bool" do
+  context "when :bool" do
     {
       1 => true,
       0 => false,
@@ -33,7 +33,7 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert" do
+    it "fails to convert the 'tak' string" do
       expect(described_class[:bool].("tak")).to eq(undefined)
     end
 
@@ -42,7 +42,7 @@ RSpec.describe TTY::Option::Conversions do
     end
   end
 
-  context ":date" do
+  context "when :date" do
     {
       "28/03/2020" => Date.parse("28/03/2020"),
       "March 28th 2020" => Date.parse("28/03/2020"),
@@ -63,7 +63,7 @@ RSpec.describe TTY::Option::Conversions do
     end
   end
 
-  context ":float" do
+  context "when :float" do
     {
       1.0 => 1.0,
       1 => 1.0,
@@ -77,7 +77,7 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert string" do
+    it "fails to convert a string" do
       expect(described_class[:float].("invalid")).to eq(undefined)
     end
 
@@ -86,7 +86,7 @@ RSpec.describe TTY::Option::Conversions do
     end
   end
 
-  context ":int" do
+  context "when :integer" do
     {
       1 => 1,
       1.0 => 1,
@@ -100,7 +100,7 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert string" do
+    it "fails to convert a string" do
       expect(described_class[:int].("invalid")).to eq(undefined)
     end
 
@@ -109,7 +109,7 @@ RSpec.describe TTY::Option::Conversions do
     end
   end
 
-  context ":pathname" do
+  context "when :pathname" do
     {
       "" => Pathname.new(""),
       "/foo/bar/baz.rb" => Pathname.new("/foo/bar/baz.rb"),
@@ -129,7 +129,7 @@ RSpec.describe TTY::Option::Conversions do
     end
   end
 
-  context ":regexp" do
+  context "when :regexp" do
     {
       "" => //,
       "foo" => /foo/,
@@ -149,7 +149,7 @@ RSpec.describe TTY::Option::Conversions do
     end
   end
 
-  context ":sym" do
+  context "when :symbol" do
     {
       nil => :"",
       :foo => :foo,
@@ -162,12 +162,12 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert BasicObject" do
+    it "fails to convert a BasicObject" do
       expect(described_class[:sym].(BasicObject.new)).to eq(undefined)
     end
   end
 
-  context ":uri" do
+  context "when :uri" do
     {
       "" => URI.parse(""),
       "https://example.com" => URI.parse("https://example.com"),
@@ -187,7 +187,7 @@ RSpec.describe TTY::Option::Conversions do
     end
   end
 
-  context ":list" do
+  context "when :list" do
     {
       "" => [],
       ",," => [],
@@ -208,7 +208,7 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert nil to array" do
+    it "fails to convert nil to an array" do
       expect(described_class[:list].(nil)).to eq(undefined)
     end
 
@@ -229,25 +229,25 @@ RSpec.describe TTY::Option::Conversions do
       [:symbol_list, %w[a b c]] => %i[a b c],
       [:symbols, %i[a b c]] => %i[a b c]
     }.each do |(type, input), obj|
-      it "converts #{input.inspect} to #{obj.inspect}" do
+      it "converts #{input.inspect} to #{obj.inspect} #{type}" do
         expect(described_class[type].(input)).to eq(obj)
       end
     end
 
-    it "fails to convert nil to integer array" do
+    it "fails to convert nil to an integer array" do
       expect(described_class[:int_list].(nil)).to eq(undefined)
     end
 
-    it "fails to convert string to integer array" do
+    it "fails to convert a string to an integer array" do
       expect(described_class[:int_list].("a,b,c")).to eq(undefined)
     end
 
-    it "fails to convert string to boolean array" do
+    it "fails to convert a string to a boolean array" do
       expect(described_class[:bools].("tak,nie,tak")).to eq(undefined)
     end
   end
 
-  context ":map" do
+  context "when :map" do
     {
       "" => {},
       "a" => {a: nil},
@@ -270,7 +270,7 @@ RSpec.describe TTY::Option::Conversions do
       end
     end
 
-    it "fails to convert nil to hash" do
+    it "fails to convert nil to a hash" do
       expect(described_class[:map].(nil)).to eq(undefined)
     end
 
@@ -286,20 +286,20 @@ RSpec.describe TTY::Option::Conversions do
       [:symbol_hash, "a:t b:f c:t"] => {a: :t, b: :f, c: :t},
       [:symbol_map, {a: "t", b: "f", c: "t"}] => {a: :t, b: :f, c: :t}
     }.each do |(type, input), obj|
-      it "converts #{input.inspect} to #{obj.inspect}" do
+      it "converts #{input.inspect} to #{obj.inspect} #{type}" do
         expect(described_class[type].(input)).to eq(obj)
       end
     end
 
-    it "fails to convert nil to hash with integer values" do
+    it "fails to convert nil to a hash with integer values" do
       expect(described_class[:int_map].(nil)).to eq(undefined)
     end
 
-    it "fails to convert string to hash with integer values" do
+    it "fails to convert a string to a hash with integer values" do
       expect(described_class[:int_map].("a:a b:b")).to eq(undefined)
     end
 
-    it "fails to convert string to hash with boolean values" do
+    it "fails to convert a string to a hash with boolean values" do
       expect(described_class[:bool_map].("a:tak b:tak")).to eq(undefined)
     end
   end
