@@ -213,19 +213,21 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     {
-      [:int_list, "1,2,3"] => [1, 2, 3],
-      [:ints, "1,2,3"] => [1, 2, 3],
-      [:ints, %w[1 2 3]] => [1, 2, 3],
-      [:float_list, "1,2,3"] => [1.0, 2.0, 3.0],
-      [:floats, "1,2,3"] => [1.0, 2.0, 3.0],
-      [:floats, %w[1 2 3]] => [1.0, 2.0, 3.0],
-      [:bool_list, "t,t,f"] => [true, true, false],
-      [:bools, "t,t,f"] => [true, true, false],
-      [:bools, %w[t t f]] => [true, true, false],
-      [:symbols, "a,b,c"] => %i[a b c],
-      [:symbols, %w[a b c]] => %i[a b c],
-      [:regexps, "a,b,c"] => [/a/, /b/, /c/],
-      [:regexps, %w[a b c]] => [/a/, /b/, /c/]
+      [:bool_array, "t,t,f"] => [true, true, false],
+      [:bool_list, %w[t t f]] => [true, true, false],
+      [:bools, [true, true, false]] => [true, true, false],
+      [:float_array, "1,2,3"] => [1.0, 2.0, 3.0],
+      [:float_list, %w[1 2 3]] => [1.0, 2.0, 3.0],
+      [:floats, [1, 2, 3]] => [1.0, 2.0, 3.0],
+      [:int_array, "1,2,3"] => [1, 2, 3],
+      [:int_list, %w[1 2 3]] => [1, 2, 3],
+      [:ints, [1, 2, 3]] => [1, 2, 3],
+      [:regexp_array, "a,b,c"] => [/a/, /b/, /c/],
+      [:regexp_list, %w[a b c]] => [/a/, /b/, /c/],
+      [:regexps, [/a/, /b/, /c/]] => [/a/, /b/, /c/],
+      [:symbol_array, "a,b,c"] => %i[a b c],
+      [:symbol_list, %w[a b c]] => %i[a b c],
+      [:symbols, %i[a b c]] => %i[a b c]
     }.each do |(type, input), obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[type].(input)).to eq(obj)
@@ -273,16 +275,16 @@ RSpec.describe TTY::Option::Conversions do
     end
 
     {
-      [:int_map, "a:1 b:2 c:3"] =>  {a: 1, b: 2, c: 3},
-      [:int_map, {a: "1", b: "2", c: "3"}] =>  {a: 1, b: 2, c: 3},
-      [:float_map, "a:1 b:2 c:3"] =>  {a: 1.0, b: 2.0, c: 3.0},
-      [:float_map, {a: "1", b: "2", c: "3"}] =>  {a: 1.0, b: 2.0, c: 3.0},
-      [:bool_map, "a:t b:f c:t"] => {a: true, b: false, c: true},
+      [:bool_hash, "a:t b:f c:t"] => {a: true, b: false, c: true},
       [:bool_map, {a: "t", b: "f", c: "t"}] => {a: true, b: false, c: true},
-      [:symbol_map, "a:t b:f c:t"] => {a: :t, b: :f, c: :t},
-      [:symbol_map, {a: "t", b: "f", c: "t"}] => {a: :t, b: :f, c: :t},
-      [:regexp_map, "a:t b:f c:t"] => {a: /t/, b: /f/, c: /t/},
-      [:regexp_map, {a: "t", b: "f", c: "t"}] => {a: /t/, b: /f/, c: /t/}
+      [:float_hash, "a:1 b:2 c:3"] =>  {a: 1.0, b: 2.0, c: 3.0},
+      [:float_map, {a: "1", b: "2", c: "3"}] =>  {a: 1.0, b: 2.0, c: 3.0},
+      [:int_hash, "a:1 b:2 c:3"] =>  {a: 1, b: 2, c: 3},
+      [:int_map, {a: "1", b: "2", c: "3"}] =>  {a: 1, b: 2, c: 3},
+      [:regexp_hash, "a:t b:f c:t"] => {a: /t/, b: /f/, c: /t/},
+      [:regexp_map, {a: "t", b: "f", c: "t"}] => {a: /t/, b: /f/, c: /t/},
+      [:symbol_hash, "a:t b:f c:t"] => {a: :t, b: :f, c: :t},
+      [:symbol_map, {a: "t", b: "f", c: "t"}] => {a: :t, b: :f, c: :t}
     }.each do |(type, input), obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[type].(input)).to eq(obj)
