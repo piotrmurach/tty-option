@@ -131,18 +131,21 @@ RSpec.describe TTY::Option::Conversions do
 
   context ":regexp" do
     {
-      "foo|bar" => /foo|bar/,
-      true => /true/,
-      1 => /1/,
-      nil => //
+      "" => //,
+      "foo" => /foo/,
+      /foo/ => /foo/
     }.each do |input, obj|
       it "converts #{input.inspect} to #{obj.inspect}" do
         expect(described_class[:regexp].(input)).to eq(obj)
       end
     end
 
-    it "fails to convert" do
-      expect(described_class[:regexp].([])).to eq(undefined)
+    it "fails to convert a symbol" do
+      expect(described_class[:regexp][:invalid]).to eq(undefined)
+    end
+
+    it "fails to convert nil" do
+      expect(described_class[:regexp][nil]).to eq(undefined)
     end
   end
 

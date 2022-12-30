@@ -62,7 +62,7 @@ module TTY
 
       convert :regexp do |val|
         begin
-          Regexp.new(val.to_s)
+          Regexp.new(val)
         rescue TypeError, RegexpError
           Const::Undefined
         end

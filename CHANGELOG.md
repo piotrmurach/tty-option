@@ -8,6 +8,7 @@
 * Change array and hash conversions to work with non-string values
 * Change date conversion to work with date objects
 * Change pathname conversion to only work with strings and pathname objects
+* Change regexp conversion to only work with strings and regexp objects
 * Change uri conversion to work with uri objects
 
 ### Fixed
