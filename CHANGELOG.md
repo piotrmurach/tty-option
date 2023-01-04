@@ -10,6 +10,7 @@
 * Change pathname conversion to only work with strings and pathname objects
 * Change regexp conversion to only work with strings and regexp objects
 * Change uri conversion to work with uri objects
+* Change deep cloning to stop making copies of unbound methods
 
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional

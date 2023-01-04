@@ -4,7 +4,7 @@ module TTY
   module Option
     module DeepDup
       NONDUPLICATABLE = [
-        Symbol, TrueClass, FalseClass, NilClass, Numeric, Method
+        Symbol, TrueClass, FalseClass, NilClass, Numeric, Method, UnboundMethod
       ].freeze
 
       # Duplicate an object making a deep copy

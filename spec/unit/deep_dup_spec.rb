@@ -37,6 +37,7 @@ RSpec.describe TTY::Option::DeepDup do
     false,
     nil,
     method(:exec),
+    method(:exec).unbind,
     BigDecimal("1.23")
   ].each do |obj|
     it "doesn't duplicate #{obj.class.name}" do
