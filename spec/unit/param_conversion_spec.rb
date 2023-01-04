@@ -7,6 +7,16 @@ RSpec.describe TTY::Option::ParamConversion do
     expect(described_class[param, "12"].value).to eq(12)
   end
 
+  it "skips parameter conversion when the value is nil" do
+    param = TTY::Option::Parameter::Argument.create(:foo, convert: :int)
+
+    result = described_class[param, nil]
+
+    expect(result.success?).to eq(true)
+    expect(result.value).to eq(nil)
+    expect(result.error).to eq(nil)
+  end
+
   it "fails to convert parameter value to expected type" do
     param = TTY::Option::Parameter::Argument.create(:foo, convert: :int)
 
