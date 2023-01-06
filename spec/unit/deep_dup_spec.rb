@@ -116,4 +116,118 @@ RSpec.describe TTY::Option::DeepDup do
     expect(dupped_obj[4]).to eq(obj[4])
     expect(dupped_obj[4]).to equal(obj[4])
   end
+
+  it "deep copies strings with the same identity only once" do
+    foo = "foo"
+    obj = [foo, foo, {baz: foo}]
+
+    copied_obj = described_class.deep_dup(obj)
+
+    # the copy has the same number of elements
+    expect(copied_obj.size).to eq(obj.size)
+
+    # the array is copied
+    expect(copied_obj).to eq(obj)
+    expect(copied_obj).not_to equal(obj)
+
+    # the first array foo string is copied
+    expect(copied_obj[0]).to eq(obj[0])
+    expect(copied_obj[0]).not_to equal(obj[0])
+
+    # the first and second array foo strings have the same identity
+    expect(copied_obj[0]).to eq(copied_obj[1])
+    expect(copied_obj[0]).to equal(copied_obj[1])
+
+    # the first array and hash value foo strings have the same identity
+    expect(copied_obj[0]).to eq(copied_obj[2][:baz])
+    expect(copied_obj[0]).to equal(copied_obj[2][:baz])
+  end
+
+  it "deep copies arrays with the same identity only once" do
+    foo = "foo"
+    array = [foo, foo]
+    obj = [array, array]
+
+    copied_obj = described_class.deep_dup(obj)
+
+    # the copy has the same number of elements
+    expect(copied_obj.size).to eq(obj.size)
+
+    # the outer array is copied
+    expect(copied_obj).to eq(obj)
+    expect(copied_obj).not_to equal(obj)
+
+    # the first inner array is copied
+    expect(copied_obj[0]).to eq(obj[0])
+    expect(copied_obj[0]).not_to equal(obj[0])
+
+    # the second inner array has the same identity as the first inner array
+    expect(copied_obj[0]).to eq(copied_obj[1])
+    expect(copied_obj[0]).to equal(copied_obj[1])
+
+    # the first inner array foo string is copied
+    expect(copied_obj[0][0]).to eq(obj[0][0])
+    expect(copied_obj[0][0]).not_to equal(obj[0][0])
+
+    # the foo strings in the first inner array have the same identity
+    expect(copied_obj[0][0]).to eq(copied_obj[0][1])
+    expect(copied_obj[0][0]).to equal(copied_obj[0][1])
+
+    # the foo strings in the second inner array have the same identity
+    expect(copied_obj[0][0]).to eq(copied_obj[1][0])
+    expect(copied_obj[0][0]).to equal(copied_obj[1][0])
+    expect(copied_obj[0][0]).to eq(copied_obj[1][1])
+    expect(copied_obj[0][0]).to equal(copied_obj[1][1])
+  end
+
+  it "deep copies hashes with the same identity only once" do
+    foo = "foo"
+    bar = Set.new(%w[bar])
+    baz = Set.new(%w[baz])
+    hash = {bar => foo, baz => foo}
+    obj = {bar => hash, baz => hash}
+
+    copied_obj = described_class.deep_dup(obj)
+
+    # the copy has the same number of pairs
+    expect(copied_obj.size).to eq(obj.size)
+
+    # the outer hash is copied
+    expect(copied_obj).to eq(obj)
+    expect(copied_obj).not_to equal(obj)
+
+    # the outer hash keys are copied
+    expect(copied_obj.keys[0]).to eq(obj.keys[0])
+    expect(copied_obj.keys[0]).not_to equal(obj.keys[0])
+    expect(copied_obj.keys[1]).to eq(obj.keys[1])
+    expect(copied_obj.keys[1]).not_to equal(obj.keys[1])
+
+    # the first inner hash is copied
+    expect(copied_obj[bar]).to eq(obj[bar])
+    expect(copied_obj[bar]).not_to equal(obj[bar])
+
+    # the second inner hash has the same identity as the first hash
+    expect(copied_obj[bar]).to eq(copied_obj[baz])
+    expect(copied_obj[bar]).to equal(copied_obj[baz])
+
+    # the outer and inner hash keys have the same identity
+    expect(copied_obj.keys[0]).to eq(copied_obj[bar].keys[0])
+    expect(copied_obj.keys[0]).to equal(copied_obj[bar].keys[0])
+    expect(copied_obj.keys[1]).to eq(copied_obj[bar].keys[1])
+    expect(copied_obj.keys[1]).to equal(copied_obj[bar].keys[1])
+
+    # the first inner hash foo value is copied
+    expect(copied_obj[bar][bar]).to eq(obj[bar][bar])
+    expect(copied_obj[bar][bar]).not_to equal(obj[bar][bar])
+
+    # the first inner hash foo values have the same identity
+    expect(copied_obj[bar][bar]).to eq(copied_obj[bar][baz])
+    expect(copied_obj[bar][bar]).to equal(copied_obj[bar][baz])
+
+    # the second inner hash values have the same identity
+    expect(copied_obj[bar][bar]).to eq(copied_obj[baz][bar])
+    expect(copied_obj[bar][bar]).to equal(copied_obj[baz][bar])
+    expect(copied_obj[bar][bar]).to eq(copied_obj[baz][baz])
+    expect(copied_obj[bar][bar]).to equal(copied_obj[baz][baz])
+  end
 end
