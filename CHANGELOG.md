@@ -12,6 +12,7 @@
 * Change uri conversion to work with uri objects
 * Change deep cloning to stop making copies of unbound methods
 * Change deep cloning to copy objects with the same identity only once
+* Change deep cloning to work with recursive arrays and hashes
 
 ### Fixed
 * Fix argument check against permitted values to allow nil value when optional

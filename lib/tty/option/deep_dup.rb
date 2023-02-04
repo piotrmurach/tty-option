@@ -44,8 +44,8 @@ module TTY
       #
       # @api private
       def self.deep_dup_array(object, cache)
-        object.each_with_object([]) do |val, new_array|
-          new_array << deep_dup(val, cache)
+        object.each_with_object(cache[object.object_id] = []) do |val, array|
+          array << deep_dup(val, cache)
         end
       end
       private_class_method :deep_dup_array
@@ -61,8 +61,8 @@ module TTY
       #
       # @api private
       def self.deep_dup_hash(object, cache)
-        object.each_with_object({}) do |(key, val), new_hash|
-          new_hash[deep_dup(key, cache)] = deep_dup(val, cache)
+        object.each_with_object(cache[object.object_id] = {}) do |(k, v), hash|
+          hash[deep_dup(k, cache)] = deep_dup(v, cache)
         end
       end
       private_class_method :deep_dup_hash

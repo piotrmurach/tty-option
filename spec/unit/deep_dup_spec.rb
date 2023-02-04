@@ -230,4 +230,46 @@ RSpec.describe TTY::Option::DeepDup do
     expect(copied_obj[bar][bar]).to eq(copied_obj[baz][baz])
     expect(copied_obj[bar][bar]).to equal(copied_obj[baz][baz])
   end
+
+  it "deep copies recursive array" do
+    obj = []
+    obj << obj
+    obj << obj
+
+    copied_obj = described_class.deep_dup(obj)
+
+    # the copy has the same number of elements
+    expect(copied_obj.size).to eq(obj.size)
+
+    # the outer array is copied
+    expect(copied_obj).to eql(obj)
+    expect(copied_obj).not_to equal(obj)
+
+    # the inner arrays have the same identity as the outer array
+    expect(copied_obj[0]).to eq(copied_obj)
+    expect(copied_obj[0]).to equal(copied_obj)
+    expect(copied_obj[1]).to eq(copied_obj)
+    expect(copied_obj[1]).to equal(copied_obj)
+  end
+
+  it "deep copies recursive hash" do
+    obj = {}
+    obj["foo"] = obj
+    obj["bar"] = obj
+
+    copied_obj = described_class.deep_dup(obj)
+
+    # the copy has the same number of pairs
+    expect(copied_obj.size).to eq(obj.size)
+
+    # the outer hash is copied
+    expect(copied_obj).to eq(obj)
+    expect(copied_obj).not_to equal(obj)
+
+    # the values have the same identity as the outer hash
+    expect(copied_obj["foo"]).to eq(copied_obj)
+    expect(copied_obj["foo"]).to equal(copied_obj)
+    expect(copied_obj["bar"]).to eq(copied_obj)
+    expect(copied_obj["bar"]).to equal(copied_obj)
+  end
 end
