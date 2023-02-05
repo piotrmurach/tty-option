@@ -25,6 +25,9 @@ Layout/SpaceInsideHashLiteralBraces:
 Lint/AssignmentInCondition:
   Enabled: false
 
+Lint/HashCompareByIdentity:
+  Enabled: false
+
 Metrics/AbcSize:
   Max: 35
 
