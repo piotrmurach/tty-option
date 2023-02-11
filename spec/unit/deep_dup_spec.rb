@@ -1,20 +1,28 @@
 # frozen_string_literal: true
 
 require "bigdecimal"
+require "date"
+require "pathname"
 require "set"
+require "uri"
 
 RSpec.describe TTY::Option::DeepDup do
   [
     "foo",
+    *(/foo/ unless RSpec::Support::Ruby.truffleruby?),
     %w[foo bar],
+    (1..10),
     {"foo" => "bar"},
-    Set.new(%w[foo bar])
+    Date.parse("11/02/2023"),
+    Pathname.new("/foo/bar"),
+    Set.new(%w[foo bar]),
+    URI.parse("https://example.com")
   ].each do |obj|
-    it "duplicates #{obj}" do
-      dupped_obj = described_class.deep_dup(obj)
+    it "deep copies #{obj.class.name}" do
+      copied_obj = described_class.deep_dup(obj)
 
-      expect(dupped_obj).to eq(obj)
-      expect(dupped_obj).to_not equal(obj)
+      expect(copied_obj).to eq(obj)
+      expect(copied_obj).not_to equal(obj)
     end
   end
 
@@ -22,10 +30,10 @@ RSpec.describe TTY::Option::DeepDup do
     Class.new,
     Object.new
   ].each do |obj|
-    it "duplicates #{obj}" do
-      dupped_obj = described_class.deep_dup(obj)
+    it "deep copies #{obj.class.name}" do
+      copied_obj = described_class.deep_dup(obj)
 
-      expect(dupped_obj).to_not equal(obj)
+      expect(copied_obj).not_to equal(obj)
     end
   end
 
@@ -40,15 +48,15 @@ RSpec.describe TTY::Option::DeepDup do
     method(:exec).unbind,
     BigDecimal("1.23")
   ].each do |obj|
-    it "doesn't duplicate #{obj.class.name}" do
-      dupped_obj = described_class.deep_dup(obj)
+    it "doesn't deep copy #{obj.class.name}" do
+      copied_obj = described_class.deep_dup(obj)
 
-      expect(dupped_obj).to eq(obj)
-      expect(dupped_obj).to equal(obj)
+      expect(copied_obj).to eq(obj)
+      expect(copied_obj).to equal(obj)
     end
   end
 
-  it "duplicates nested hash" do
+  it "deep copies nested hash" do
     obj = {
       "foo" => {
         "bar" => {
@@ -57,25 +65,25 @@ RSpec.describe TTY::Option::DeepDup do
       }
     }
 
-    dupped_obj = described_class.deep_dup(obj)
+    copied_obj = described_class.deep_dup(obj)
 
-    expect(dupped_obj).to eq(obj)
-    expect(dupped_obj).to_not equal(obj)
-    expect(dupped_obj.keys).to eq(obj.keys)
-    expect(dupped_obj.keys).to_not equal(obj.keys)
+    # the copy has the same number of pairs
+    expect(copied_obj.size).to eq(obj.size)
 
-    expect(dupped_obj["foo"]).to eq(obj["foo"])
-    expect(dupped_obj["foo"]).to_not equal(obj["foo"])
-    expect(dupped_obj["foo"].keys).to eq(obj["foo"].keys)
-    expect(dupped_obj["foo"].keys).to_not equal(obj["foo"].keys)
+    # the outer hash is copied
+    expect(copied_obj).to eq(obj)
+    expect(copied_obj).not_to equal(obj)
 
-    expect(dupped_obj["foo"]["bar"]).to eq(obj["foo"]["bar"])
-    expect(dupped_obj["foo"]["bar"]).to_not equal(obj["foo"]["baz"])
-    expect(dupped_obj["foo"]["bar"].keys).to eq(obj["foo"]["bar"].keys)
-    expect(dupped_obj["foo"]["bar"].keys).to_not equal(obj["foo"]["bar"].keys)
+    # the inner hash is copied
+    expect(copied_obj["foo"]).to eq(obj["foo"])
+    expect(copied_obj["foo"]).not_to equal(obj["foo"])
+
+    # the innermost hash is copied
+    expect(copied_obj["foo"]["bar"]).to eq(obj["foo"]["bar"])
+    expect(copied_obj["foo"]["bar"]).not_to equal(obj["foo"]["baz"])
   end
 
-  it "duplicates nested array" do
+  it "deep copies nested array" do
     obj = [
       "foo",
       11,
@@ -83,38 +91,42 @@ RSpec.describe TTY::Option::DeepDup do
       ["baz", {qux: {"quux" => true}}],
       false
     ]
-    dupped_obj = described_class.deep_dup(obj)
+    copied_obj = described_class.deep_dup(obj)
 
-    expect(dupped_obj).to eq(obj)
-    expect(dupped_obj).to_not equal(obj)
+    # the copy has the same number of elements
+    expect(copied_obj.size).to eq(obj.size)
 
-    # "foo" is duplicated
-    expect(dupped_obj[0]).to eq(obj[0])
-    expect(dupped_obj[0]).to_not equal(obj[0])
+    # the outer array is copied
+    expect(copied_obj).to eq(obj)
+    expect(copied_obj).not_to equal(obj)
 
-    # 11 is not duplicated
-    expect(dupped_obj[1]).to eq(obj[1])
-    expect(dupped_obj[1]).to equal(obj[1])
+    # the foo string is copied
+    expect(copied_obj[0]).to eq(obj[0])
+    expect(copied_obj[0]).not_to equal(obj[0])
 
-    # :bar is not duplicated
-    expect(dupped_obj[2]).to eq(obj[2])
-    expect(dupped_obj[2]).to equal(obj[2])
+    # the 11 integer is not copied
+    expect(copied_obj[1]).to eq(obj[1])
+    expect(copied_obj[1]).to equal(obj[1])
 
-    # array is duplicated
-    expect(dupped_obj[3]).to eq(obj[3])
-    expect(dupped_obj[3]).to_not equal(obj[3])
+    # the bar symbol is not copied
+    expect(copied_obj[2]).to eq(obj[2])
+    expect(copied_obj[2]).to equal(obj[2])
 
-    # "baz" in array is duplicated
-    expect(dupped_obj[3][0]).to eq(obj[3][0])
-    expect(dupped_obj[3][0]).to_not equal(obj[3][0])
+    # the inner array is copied
+    expect(copied_obj[3]).to eq(obj[3])
+    expect(copied_obj[3]).not_to equal(obj[3])
 
-    # hash in array is duplicated
-    expect(dupped_obj[3][1]).to eq(obj[3][1])
-    expect(dupped_obj[3][1]).to_not equal(obj[3][1])
+    # the baz string inside the inner array is copied
+    expect(copied_obj[3][0]).to eq(obj[3][0])
+    expect(copied_obj[3][0]).not_to equal(obj[3][0])
 
-    # false is not duplicated
-    expect(dupped_obj[4]).to eq(obj[4])
-    expect(dupped_obj[4]).to equal(obj[4])
+    # the hash inside the inner array is copied
+    expect(copied_obj[3][1]).to eq(obj[3][1])
+    expect(copied_obj[3][1]).not_to equal(obj[3][1])
+
+    # the false is not copied
+    expect(copied_obj[4]).to eq(obj[4])
+    expect(copied_obj[4]).to equal(obj[4])
   end
 
   it "deep copies strings with the same identity only once" do
