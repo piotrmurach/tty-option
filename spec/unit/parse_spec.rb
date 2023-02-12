@@ -439,6 +439,21 @@ RSpec.describe TTY::Option do
       expect(cmd.params[:baz]).to eq(:foobar)
     end
 
+    it "validates an env variable as a hash with integer values" do
+      cmd = new_command do
+        env :foo do
+          name "FOO_ENV"
+          arity one_or_more
+          convert :int_map
+          validate ->(v) { v[1] < 4 }
+        end
+      end
+
+      cmd.parse(%w[FOO_ENV=a:1 b:2 c:3])
+
+      expect(cmd.params[:foo]).to eq({a: 1, b: 2, c: 3})
+    end
+
     it "fails to assign value due to validation" do
       cmd = new_command do
         env(:foo) do
