@@ -8,16 +8,20 @@ module TTY
     class Formatter
       include UsageWrapper
 
-      SHORT_OPT_LENGTH = 4
+      BOOLEANS = [true, false].freeze
       DEFAULT_WIDTH = 80
-      NEWLINE = "\n"
+      DOUBLE_SPACE = "  "
       ELLIPSIS = "..."
+      EMPTY = ""
+      LIST_SEPARATOR = ", "
+      MAP_SEPARATOR = ":"
+      NEWLINE = "\n"
       SPACE = " "
 
-      DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
-      DEFAULT_ORDER = ->(params) { params.sort }
-      NOOP_PROC = ->(param) { param }
       DEFAULT_NAME_SELECTOR = ->(param) { param.name }
+      DEFAULT_ORDER = ->(params) { params.sort }
+      DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
+      NOOP_PROC = ->(param) { param }
 
       # @api public
       def self.help(parameters, usage, **config, &block)
@@ -293,62 +297,195 @@ module TTY
       def format_options
         return "" if @parameters.options.empty?
 
-        longest_option = @parameters.options.map(&:long)
-                                    .compact.max_by(&:length).length
-        any_short = @parameters.options.map(&:short).compact.any?
         ordered_options = @order.(@parameters.options)
+        longest_short = find_longest_short_option
+        longest_long = find_longest_long_option
 
         ordered_options.reduce([]) do |acc, option|
           next acc if option.hidden?
-          acc << format_option(option, longest_option, any_short)
+
+          acc << format_option(option, longest_short, longest_long)
         end.join(NEWLINE)
+      end
+
+      # Find the longest short option
+      #
+      # @return [Integer, nil]
+      #
+      # @api private
+      def find_longest_short_option
+        find_longest_parameter(@parameters.options, &:short)
+      end
+
+      # Find the longest long option
+      #
+      # @return [Integer, nil]
+      #
+      # @api private
+      def find_longest_long_option
+        find_longest_parameter(@parameters.options, &:long)
+      end
+
+      # Find the longest parameter
+      #
+      # @param [Array<TTY::Option::Parameter>] params
+      #   the parameters to search
+      #
+      # @yield [TTY::Option::Parameter]
+      #
+      # @return [Integer, nil]
+      #
+      # @api private
+      def find_longest_parameter(params, &name_selector)
+        params = params.map(&name_selector).compact
+
+        params.max_by(&:length).length if params.any?
       end
 
       # Format an option
       #
+      # @param [TTY::Option::Parameter::Option] option
+      #   the option to format
+      # @param [Integer, nil] longest_short
+      #   the longest short option length or nil
+      # @param [Integer, nil] longest_long
+      #   the longest long option length or nil
+      #
+      # @return [String]
+      #
       # @api private
-      def format_option(option, longest_length, any_short)
+      def format_option(option, longest_short, longest_long)
         line = [@space_indent]
-        desc = []
         indent = @indent
 
-        if any_short
-          short_option = option.short? ? option.short_name : SPACE
-          line << format("%#{SHORT_OPT_LENGTH}s", short_option)
-          indent += SHORT_OPT_LENGTH
+        if longest_short
+          line << "  #{format_short_option(option, longest_short)}"
+          indent += line.last.length
         end
 
-        # short & long option separator
-        line << ((option.short? && option.long?) ? ", " : "  ")
-        indent += 2
+        if longest_long
+          separator = short_and_long_option_separator(option)
+          line << "#{separator}#{format_long_option(option, longest_long)}"
+          indent += line.last.length
+        end
 
+        if parameter_description?(option)
+          indent += 2
+          desc = format_parameter_description(option)
+          line << wrap(desc, indent: indent, width: width)
+        end
+
+        line.join
+      end
+
+      # Format a short option
+      #
+      # @param [TTY::Option::Parameter::Option] option
+      #   the option to format
+      # @param [Integer] longest
+      #   the longest short option length
+      #
+      # @return [String]
+      #
+      # @api private
+      def format_short_option(option, longest)
         if option.long?
-          if option.desc?
-            line << format("%-#{longest_length}s", option.long)
-          else
-            line << option.long
-          end
+          format("%-#{longest}s", option.short_name)
+        elsif parameter_description?(option)
+          format("%-#{longest}s", option.short)
         else
-          line << format("%-#{longest_length}s", SPACE)
+          option.short
         end
-        indent += longest_length
+      end
 
-        if option.desc?
-          desc << "  #{option.desc}"
+      # Format a long option
+      #
+      # @param [TTY::Option::Parameter::Option] option
+      #   the option to format
+      # @param [Integer] longest
+      #   the longest long option length
+      #
+      # @return [String]
+      #
+      # @api private
+      def format_long_option(option, longest)
+        if option.long?
+          if parameter_description?(option)
+            format("%-#{longest}s", option.long)
+          else
+            option.long
+          end
+        elsif parameter_description?(option)
+          format("%-#{longest}s", SPACE)
         end
-        indent += 2
+      end
 
-        if option.permit?
-          desc << format_permitted(option.permit)
+      # Short and long option separator
+      #
+      # @param [TTY::Option::Parameter::Option] option
+      #   the option to separate short and long names
+      #
+      # @return [String]
+      #
+      # @api private
+      def short_and_long_option_separator(option)
+        if option.short? && option.long?
+          LIST_SEPARATOR
+        elsif option.long? || parameter_description?(option)
+          DOUBLE_SPACE
+        else
+          EMPTY
+        end
+      end
+
+      # Format a parameter description
+      #
+      # @param [TTY::Option::Parameter] param
+      #   the parameter to format
+      #
+      # @return [String]
+      #
+      # @api private
+      def format_parameter_description(param)
+        desc = []
+
+        desc << "  #{param.desc}" if param.desc?
+
+        if param.permit?
+          desc << SPACE unless param.desc?
+          desc << format_permitted(param.permit)
         end
 
-        if (default = format_default(option))
+        if (default = format_default(param))
+          desc << SPACE unless param.desc?
           desc << default
         end
 
-        line << wrap(desc.join, indent: indent, width: width)
+        desc.join
+      end
 
-        line.join
+      # Check whether or not parameter has description
+      #
+      # @param [TTY::Option::Parameter] param
+      #   the parameter to check for description
+      #
+      # @return [Boolean]
+      #
+      # @api private
+      def parameter_description?(param)
+        param.desc? || param.permit? || parameter_default?(param)
+      end
+
+      # Check whether or not parameter has default
+      #
+      # @param [TTY::Option::Parameter] param
+      #   the parameter to check for default
+      #
+      # @return [Boolean]
+      #
+      # @api private
+      def parameter_default?(param)
+        param.default? && !BOOLEANS.include?(param.default)
       end
 
       # Format permitted values
@@ -361,15 +498,20 @@ module TTY
       # @api private
       def format_permitted(values)
         format(" (permitted: %s)", values.map do |val|
-          val.respond_to?(:to_ary) ? val.join(":") : val
-        end.join(", "))
+          val.respond_to?(:to_ary) ? val.join(MAP_SEPARATOR) : val
+        end.join(LIST_SEPARATOR))
       end
 
-      # Format default value
+      # Format a default value
+      #
+      # @param [TTY::Option::Parameter] param
+      #   the parameter to format
+      #
+      # @return [String]
       #
       # @api private
       def format_default(param)
-        return if !param.default? || [true, false].include?(param.default)
+        return unless parameter_default?(param)
 
         if param.default.is_a?(String)
           format(" (default %p)", param.default)
@@ -395,7 +537,7 @@ module TTY
             part.split(NEWLINE).map do |p|
               wrap(p, indent: indent, width: width, indent_first: true)
             end.join(NEWLINE)
-          end.join(NEWLINE) + (last_index != i ? NEWLINE : "")
+          end.join(NEWLINE) + (last_index == i ? EMPTY : NEWLINE)
         end.join(NEWLINE)
       end
     end # Formatter

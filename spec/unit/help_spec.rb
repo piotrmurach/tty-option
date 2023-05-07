@@ -519,25 +519,225 @@ RSpec.describe TTY::Option::Formatter do
   end
 
   context "Options section" do
-    it "prints help information for options" do
+    it "formats only short options" do
+      cmd = new_command do
+        option :foo do
+          short "-f"
+          desc "Foo description"
+        end
+
+        option :bar do
+          short "-b"
+          default 11
+        end
+
+        option :baz do
+          short "-z"
+          permit %w[a b c d]
+        end
+
+        option :qux do
+          short "-x"
+        end
+
+        flag :quux do
+          short "-u"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec command [OPTIONS]
+
+      Options:
+        -b  (default 11)
+        -f  Foo description
+        -u
+        -x
+        -z  (permitted: a, b, c, d)
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "formats only short options with arguments" do
+      cmd = new_command do
+        option :foo do
+          short "-f sym"
+          desc "Foo description"
+        end
+
+        option :bar do
+          short "-b int"
+          default 11
+        end
+
+        option :baz do
+          short "-z list"
+          permit %w[a b c d]
+        end
+
+        option :qux do
+          short "-x string"
+        end
+
+        flag :quux do
+          short "-u"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec command [OPTIONS]
+
+      Options:
+        -b int     (default 11)
+        -f sym     Foo description
+        -u
+        -x string
+        -z list    (permitted: a, b, c, d)
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "formats only long options" do
+      cmd = new_command do
+        option :foo do
+          desc "Foo description"
+        end
+
+        option :bar do
+          default 11
+        end
+
+        option :baz do
+          permit %w[a b c d]
+        end
+
+        option :qux
+
+        flag :quux
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec command [OPTIONS]
+
+      Options:
+        --bar   (default 11)
+        --baz   (permitted: a, b, c, d)
+        --foo   Foo description
+        --quux
+        --qux
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "formats only long options with arguments" do
+      cmd = new_command do
+        option :foo do
+          long "--foo sym"
+          desc "Foo description"
+        end
+
+        option :bar do
+          long "--bar int"
+          default 11
+        end
+
+        option :baz do
+          long "--baz list"
+          permit %w[a b c d]
+        end
+
+        option :qux do
+          long "--qux string"
+        end
+
+        flag :quux do
+          long "--quux"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec command [OPTIONS]
+
+      Options:
+        --bar int     (default 11)
+        --baz list    (permitted: a, b, c, d)
+        --foo sym     Foo description
+        --quux
+        --qux string
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "formats short and long options with arguments" do
+      cmd = new_command do
+        option :foo do
+          short "-f"
+          long "--foo"
+          desc "Foo description"
+        end
+
+        option :bar do
+          short "-b int"
+          default 11
+        end
+
+        option :baz do
+          long "--baz list"
+          permit %w[a b c d]
+        end
+
+        option :qux do
+          short "-q"
+          long "--qux string"
+        end
+
+        option :quux do
+          long "--quux"
+        end
+
+        flag :fum do
+          short "-u"
+        end
+      end
+
+      expected_output = unindent(<<-EOS)
+      Usage: rspec command [OPTIONS]
+
+      Options:
+                --baz list    (permitted: a, b, c, d)
+        -f    , --foo         Foo description
+                --quux
+        -q    , --qux string
+        -b int                (default 11)
+        -u
+      EOS
+
+      expect(cmd.help).to eq(expected_output)
+    end
+
+    it "formats options with various settings" do
       cmd = new_command do
         option :foo do
           short "-f"
           long "--foo string"
           permit %w[a b c d]
-          desc "Some description"
+          desc "Foo description"
         end
 
         option :bar do
           short "-b"
-          long "--bar string"
+          long "--bar sym"
           default "baz"
-          desc "Some description"
+          desc "Bar description"
         end
 
         option :qux do
           long "--qux-long ints"
-          desc "Some description"
+          desc "Qux description"
           default [1, 2, 3]
         end
 
@@ -547,14 +747,14 @@ RSpec.describe TTY::Option::Formatter do
 
         flag :fum do
           long "--fum"
-          desc "Some description"
+          desc "Fum description"
         end
 
         flag :baz
 
         flag :corge do
           short "-c"
-          desc "Some description"
+          desc "Corge description"
         end
       end
 
@@ -562,37 +762,12 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        -b, --bar string     Some description (default "baz")
+        -b, --bar sym        Bar description (default "baz")
             --baz
-        -f, --foo string     Some description (permitted: a, b, c, d)
-            --fum            Some description
-            --qux-long ints  Some description (default [1, 2, 3])
-        -c                   Some description
-      EOS
-
-      expect(cmd.help).to eq(expected_output)
-    end
-
-    it "prints help information for only long options" do
-      cmd = new_command do
-        option :foo do
-          long "--foo string"
-          desc "Some description"
-        end
-
-        option :bar do
-          long "--bar string"
-          default "baz"
-          desc "Some description"
-        end
-      end
-
-      expected_output = unindent(<<-EOS)
-      Usage: rspec command [OPTIONS]
-
-      Options:
-        --bar string  Some description (default "baz")
-        --foo string  Some description
+        -f, --foo string     Foo description (permitted: a, b, c, d)
+            --fum            Fum description
+            --qux-long ints  Qux description (default [1, 2, 3])
+        -c                   Corge description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -613,12 +788,22 @@ RSpec.describe TTY::Option::Formatter do
           desc "Some description that goes on and on and never finishes explaining"
         end
 
+        option :baz do
+          long "--baz string"
+          default "default is a long string that splits into multiple lines"
+        end
+
         option :qux do
           short "-q"
           long "--qux-long-name string"
           desc "Some description that\nbreaks into multiline\n on newlines"
           default "some long default on many lines"
           permit %w[one two three four five six]
+        end
+
+        option :quux do
+          long "--quux string"
+          permit %w[one two three four five six seven eight nine]
         end
       end
 
@@ -630,8 +815,12 @@ RSpec.describe TTY::Option::Formatter do
                                                  on and never finishes explaining
                                                  (default
                                                  "default-is-way-too-long-as-well")
+            --baz string                         (default "default is a long string
+                                                 that splits into multiple lines")
         -f, --foo-long-option-name string        Some multiline
                                                  description with newlines
+            --quux string                        (permitted: one, two, three, four,
+                                                 five, six, seven, eight, nine)
         -q, --qux-long-name string               Some description that
                                                  breaks into multiline
                                                  on newlines (permitted: one, two,
