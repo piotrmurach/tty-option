@@ -20,6 +20,7 @@
 * Fix any object type to symbol conversion failure to return an undefined value
 * Fix parameter validation to stop transforming hash value into an array
 * Fix help display when formatting only short options
+* Fix parameter name alignment formatting to ignore hidden parameters
 
 ## [v0.2.0] - 2021-08-04
 

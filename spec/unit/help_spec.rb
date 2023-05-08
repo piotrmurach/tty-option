@@ -120,6 +120,10 @@ RSpec.describe TTY::Option::Formatter do
           default "fum"
         end
 
+        argument :quux do
+          hidden
+        end
+
         option :baz do
           desc "Some description"
         end
@@ -338,7 +342,7 @@ RSpec.describe TTY::Option::Formatter do
           desc "Baz keyword description"
         end
 
-        keyword :qux do
+        keyword :quux do
           hidden
         end
       end
@@ -543,6 +547,11 @@ RSpec.describe TTY::Option::Formatter do
         flag :quux do
           short "-u"
         end
+
+        option :fum do
+          short "-mm"
+          hidden
+        end
       end
 
       expected_output = unindent(<<-EOS)
@@ -583,6 +592,11 @@ RSpec.describe TTY::Option::Formatter do
         flag :quux do
           short "-u"
         end
+
+        option :fum do
+          short "-m pathname"
+          hidden
+        end
       end
 
       expected_output = unindent(<<-EOS)
@@ -616,6 +630,11 @@ RSpec.describe TTY::Option::Formatter do
         option :qux
 
         flag :quux
+
+        option :fum do
+          long "--fuuuuuum"
+          hidden
+        end
       end
 
       expected_output = unindent(<<-EOS)
@@ -655,6 +674,11 @@ RSpec.describe TTY::Option::Formatter do
 
         flag :quux do
           long "--quux"
+        end
+
+        option :fum do
+          long "--fum pathname"
+          hidden
         end
       end
 
@@ -862,7 +886,8 @@ RSpec.describe TTY::Option::Formatter do
           name "FUM_VAR"
         end
 
-        env :quuz do
+        env :quux do
+          name "A_QUUUUUUX_VAR"
           hidden
         end
       end

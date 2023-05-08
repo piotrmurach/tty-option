@@ -233,17 +233,16 @@ module TTY
 
       # Format a parameter section in the help display
       #
-      # @param [String] parameters_name
-      #   the name of parameter type
-      #
+      # @param [Array<TTY::Option::Parameter>] params
+      #   the parameters to format
       # @param [Proc] name_selector
-      #   selects a name from the parameter, by defeault the name
+      #   the parameter name selector, by default, calls the name
       #
       # @return [String]
       #
       # @api private
       def format_section(params, name_selector = DEFAULT_NAME_SELECTOR)
-        longest_param = params.map(&name_selector).compact.max_by(&:length).length
+        longest_param = find_longest_parameter(params, &name_selector)
 
         params.reduce([]) do |acc, param|
           next acc if param.hidden?
@@ -337,7 +336,7 @@ module TTY
       #
       # @api private
       def find_longest_parameter(params, &name_selector)
-        params = params.map(&name_selector).compact
+        params = params.reject(&:hidden?).map(&name_selector).compact
 
         params.max_by(&:length).length if params.any?
       end
