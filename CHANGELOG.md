@@ -21,6 +21,7 @@
 * Fix parameter validation to stop transforming hash value into an array
 * Fix help display when formatting only short options
 * Fix parameter name alignment formatting to ignore hidden parameters
+* Fix description alignment formatting for parameters with only default or permit
 
 ## [v0.2.0] - 2021-08-04
 

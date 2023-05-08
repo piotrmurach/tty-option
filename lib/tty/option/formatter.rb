@@ -253,31 +253,30 @@ module TTY
 
       # Format a section parameter line
       #
+      # @param [TTY::Option::Parameter] param
+      #   the parameter to format
+      # @param [Integer] longest_param
+      #   the longest parameter length
+      # @param [Proc] name_selector
+      #   the parameter name selector, by default, calls the name
+      #
       # @return [String]
       #
       # @api private
       def format_section_parameter(param, longest_param, name_selector)
         line = []
-        desc = []
-        indent = @param_indent + longest_param + 2
         param_name = name_selector.(param)
+        description = parameter_description?(param)
+        template = description ? "%s%-#{longest_param}s" : "%s%s"
 
-        if param.desc?
-          line << format("%s%-#{longest_param}s", SPACE * @param_indent, param_name)
-          desc << "  #{param.desc}"
-        else
-          line << format("%s%s", SPACE * @param_indent, param_name)
+        line << format(template, SPACE * @param_indent, param_name)
+
+        if description
+          desc = format_parameter_description(param)
+          indent = @param_indent + longest_param + 2
+          line << wrap(desc, indent: indent, width: width)
         end
 
-        if param.permit?
-          desc << format_permitted(param.permit)
-        end
-
-        if (default = format_default(param))
-          desc << default
-        end
-
-        line << wrap(desc.join, indent: indent, width: width)
         line.join
       end
 

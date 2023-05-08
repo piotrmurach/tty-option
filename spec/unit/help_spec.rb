@@ -110,34 +110,52 @@ RSpec.describe TTY::Option::Formatter do
       cmd = new_command do
         argument :foo do
           arity 2
-          desc "Foo arg description"
-          permit [10, 11, 12]
+          permit %w[a b c d]
         end
 
         argument :bar do
           optional
-          desc "Bar arg description"
           default "fum"
+        end
+
+        argument :baz do
+          name "bazz"
+          optional
+          desc "Bazz description"
+        end
+
+        argument :fum do
+          optional
+          desc "Fum description"
+          default 1
+          permit [1, 2, 3, 4]
+        end
+
+        argument :thud do
+          optional
         end
 
         argument :quux do
           hidden
         end
 
-        option :baz do
-          desc "Some description"
+        option :qux do
+          desc "Qux description"
         end
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: rspec command [OPTIONS] FOO FOO [BAR]
+      Usage: rspec command [OPTIONS] FOO FOO [BAR] [BAZZ] [FUM] [THUD]
 
       Arguments:
-        FOO  Foo arg description (permitted: 10, 11, 12)
-        BAR  Bar arg description (default "fum")
+        FOO   (permitted: a, b, c, d)
+        BAR   (default "fum")
+        BAZZ  Bazz description
+        FUM   Fum description (permitted: 1, 2, 3, 4) (default 1)
+        THUD
 
       Options:
-        --baz  Some description
+        --qux  Qux description
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -334,12 +352,25 @@ RSpec.describe TTY::Option::Formatter do
         keyword :bar do
           required
           convert :uri
-          desc "Bar keyword description"
+          desc "Bar description"
         end
 
         keyword :baz do
-          default "fum"
-          desc "Baz keyword description"
+          default "aaa"
+        end
+
+        keyword :fum do
+          convert :symbol
+          permit %w[a b c d]
+        end
+
+        keyword :thud
+
+        keyword :qux do
+          convert :int
+          desc "Qux description"
+          default 1
+          permit [1, 2, 3, 4]
         end
 
         keyword :quux do
@@ -348,11 +379,14 @@ RSpec.describe TTY::Option::Formatter do
       end
 
       expected_output = unindent(<<-EOS)
-      Usage: foo command BAR=URI [BAZ=BAZ]
+      Usage: foo command BAR=URI [BAZ=BAZ] [FUM=SYMBOL] [THUD=THUD] [QUX=INT]
 
       Keywords:
-        BAR=URI  Bar keyword description
-        BAZ=BAZ  Baz keyword description (default "fum")
+        BAR=URI     Bar description
+        BAZ=BAZ     (default "aaa")
+        FUM=SYMBOL  (permitted: a, b, c, d)
+        THUD=THUD
+        QUX=INT     Qux description (permitted: 1, 2, 3, 4) (default 1)
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -532,7 +566,7 @@ RSpec.describe TTY::Option::Formatter do
 
         option :bar do
           short "-b"
-          default 11
+          default "aaa"
         end
 
         option :baz do
@@ -542,6 +576,9 @@ RSpec.describe TTY::Option::Formatter do
 
         option :qux do
           short "-x"
+          desc "Qux description"
+          default 1
+          permit [1, 2, 3, 4]
         end
 
         flag :quux do
@@ -558,10 +595,10 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        -b  (default 11)
+        -b  (default "aaa")
         -f  Foo description
         -u
-        -x
+        -x  Qux description (permitted: 1, 2, 3, 4) (default 1)
         -z  (permitted: a, b, c, d)
       EOS
 
@@ -576,8 +613,8 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         option :bar do
-          short "-b int"
-          default 11
+          short "-b string"
+          default "aaa"
         end
 
         option :baz do
@@ -586,11 +623,14 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         option :qux do
-          short "-x string"
+          short "-x int"
+          desc "Qux description"
+          default 1
+          permit [1, 2, 3, 4]
         end
 
         flag :quux do
-          short "-u"
+          short "-u uri"
         end
 
         option :fum do
@@ -603,10 +643,10 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        -b int     (default 11)
+        -b string  (default "aaa")
         -f sym     Foo description
-        -u
-        -x string
+        -u uri
+        -x int     Qux description (permitted: 1, 2, 3, 4) (default 1)
         -z list    (permitted: a, b, c, d)
       EOS
 
@@ -620,14 +660,18 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         option :bar do
-          default 11
+          default "aaa"
         end
 
         option :baz do
           permit %w[a b c d]
         end
 
-        option :qux
+        option :qux do
+          desc "Qux description"
+          default 1
+          permit [1, 2, 3, 4]
+        end
 
         flag :quux
 
@@ -641,11 +685,11 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        --bar   (default 11)
+        --bar   (default "aaa")
         --baz   (permitted: a, b, c, d)
         --foo   Foo description
         --quux
-        --qux
+        --qux   Qux description (permitted: 1, 2, 3, 4) (default 1)
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -659,8 +703,8 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         option :bar do
-          long "--bar int"
-          default 11
+          long "--bar string"
+          default "aaa"
         end
 
         option :baz do
@@ -669,11 +713,14 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         option :qux do
-          long "--qux string"
+          long "--qux int"
+          desc "Qux description"
+          default 1
+          permit [1, 2, 3, 4]
         end
 
         flag :quux do
-          long "--quux"
+          long "--quux uri"
         end
 
         option :fum do
@@ -686,11 +733,11 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-        --bar int     (default 11)
+        --bar string  (default "aaa")
         --baz list    (permitted: a, b, c, d)
         --foo sym     Foo description
-        --quux
-        --qux string
+        --quux uri
+        --qux int     Qux description (permitted: 1, 2, 3, 4) (default 1)
       EOS
 
       expect(cmd.help).to eq(expected_output)
@@ -705,8 +752,8 @@ RSpec.describe TTY::Option::Formatter do
         end
 
         option :bar do
-          short "-b int"
-          default 11
+          short "-b sym"
+          default :aaa
         end
 
         option :baz do
@@ -716,7 +763,10 @@ RSpec.describe TTY::Option::Formatter do
 
         option :qux do
           short "-q"
-          long "--qux string"
+          long "--qux int"
+          desc "Qux description"
+          default 1
+          permit [1, 2, 3, 4]
         end
 
         option :quux do
@@ -732,11 +782,11 @@ RSpec.describe TTY::Option::Formatter do
       Usage: rspec command [OPTIONS]
 
       Options:
-                --baz list    (permitted: a, b, c, d)
-        -f    , --foo         Foo description
+                --baz list  (permitted: a, b, c, d)
+        -f    , --foo       Foo description
                 --quux
-        -q    , --qux string
-        -b int                (default 11)
+        -q    , --qux int   Qux description (permitted: 1, 2, 3, 4) (default 1)
+        -b sym              (default aaa)
         -u
       EOS
 
@@ -868,18 +918,22 @@ RSpec.describe TTY::Option::Formatter do
         env :bar do
           name "BARRRRR_VAR"
           default "some"
-          desc "Some description"
         end
 
         env :baz do
           name "BAZ_VAR"
-          desc "Some description"
-          permit %w[a b c]
+          permit %w[a b c d]
         end
 
         env :qux_var do
           name "A_VAR"
-          desc "Some description"
+          desc "A var description"
+        end
+
+        env :qux do
+          desc "Qux description"
+          default 1
+          permit [1, 2, 3, 4]
         end
 
         env :fum do
@@ -899,10 +953,11 @@ RSpec.describe TTY::Option::Formatter do
         -f, --foo string  Some description
 
       Environment:
-        A_VAR        Some description
-        BARRRRR_VAR  Some description (default "some")
-        BAZ_VAR      Some description (permitted: a, b, c)
+        A_VAR        A var description
+        BARRRRR_VAR  (default "some")
+        BAZ_VAR      (permitted: a, b, c, d)
         FUM_VAR
+        QUX          Qux description (permitted: 1, 2, 3, 4) (default 1)
       EOS
 
       expect(cmd.help).to eq(expected_output)
