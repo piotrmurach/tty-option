@@ -28,8 +28,6 @@ module TTY
         new(parameters, usage, **config).help(&block)
       end
 
-      attr_reader :width
-
       # Create a help formatter
       #
       # @param [Parameters]
@@ -153,7 +151,7 @@ module TTY
         output << " [#{@param_display.("environment")}]" if @parameters.environments?
         output << " #{format_arguments_usage}" if @parameters.arguments?
         output << " #{format_keywords_usage}" if @parameters.keywords?
-        usage + wrap(output.join, indent: usage.length, width: width)
+        usage + wrap(output.join, indent: usage.length, width: @width)
       end
 
       # Format arguments
@@ -274,7 +272,7 @@ module TTY
         if description
           desc = format_parameter_description(param)
           indent = @param_indent + longest_param + 2
-          line << wrap(desc, indent: indent, width: width)
+          line << wrap(desc, indent: indent, width: @width)
         end
 
         line.join
@@ -370,7 +368,7 @@ module TTY
         if parameter_description?(option)
           indent += 2
           desc = format_parameter_description(option)
-          line << wrap(desc, indent: indent, width: width)
+          line << wrap(desc, indent: indent, width: @width)
         end
 
         line.join
@@ -533,7 +531,7 @@ module TTY
         lines.map.with_index do |line, i|
           line.map do |part|
             part.split(NEWLINE).map do |p|
-              wrap(p, indent: indent, width: width, indent_first: true)
+              wrap(p, indent: indent, width: @width, indent_first: true)
             end.join(NEWLINE)
           end.join(NEWLINE) + (last_index == i ? EMPTY : NEWLINE)
         end.join(NEWLINE)
