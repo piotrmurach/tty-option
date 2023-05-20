@@ -5,6 +5,9 @@ require_relative "usage_wrapper"
 
 module TTY
   module Option
+    # Responsible for formatting help display
+    #
+    # @api private
     class Formatter
       include UsageWrapper
 
@@ -23,14 +26,34 @@ module TTY
       DEFAULT_PARAM_DISPLAY = ->(str) { str.to_s.upcase }
       NOOP_PROC = ->(param) { param }
 
+      # Generate help for parameters and usage
+      #
+      # @param [TTY::Option::Parameters] parameters
+      #   the parameters to format
+      # @param [TTY::Option::Usage] usage
+      #   the usage to format
+      #
+      # @return [String]
+      #
       # @api public
       def self.help(parameters, usage, **config, &block)
         new(parameters, usage, **config).help(&block)
       end
 
-      # Create a help formatter
+      # Create a Formatter instance
       #
-      # @param [Parameters]
+      # @param [TTY::Option::Parameters] parameters
+      #   the parameters to format
+      # @param [TTY::Option::Usage] usage
+      #   the usage to format
+      # @param [Proc] param_display
+      #   the parameter display formatter, by default, uppercases all chars
+      # @param [Integer] width
+      #   the width at which to wrap the help display, by default 80 columns
+      # @param [Proc] order
+      #   the order for displaying parameters, by default alphabetical
+      # @param [Integer] indent
+      #   the indent for help display
       #
       # @api public
       def initialize(parameters, usage, param_display: DEFAULT_PARAM_DISPLAY,
@@ -53,7 +76,10 @@ module TTY
         }
       end
 
-      # A formatted help usage information
+      # Generate help display
+      #
+      # @example
+      #   formatter.help
       #
       # @yieldparam [TTY::Option::Sections] sections
       #
@@ -92,18 +118,50 @@ module TTY
         formatted.end_with?(NEWLINE) ? formatted : formatted + NEWLINE
       end
 
+      # Generate help header
+      #
+      # @example
+      #   formatter.help_header
+      #
+      # @return [String]
+      #
+      # @api public
       def help_header
         "#{format_multiline(@usage.header, @indent)}#{NEWLINE}"
       end
 
+      # Generate help banner
+      #
+      # @example
+      #   formatter.help_banner
+      #
+      # @return [String]
+      #
+      # @api public
       def help_banner
         (@usage.banner? ? @usage.banner : format_usage)
       end
 
+      # Generate help description
+      #
+      # @example
+      #   formatter.help_description
+      #
+      # @return [String]
+      #
+      # @api public
       def help_description
         "#{NEWLINE}#{format_description}"
       end
 
+      # Generate help arguments
+      #
+      # @example
+      #   formatter.help_arguments
+      #
+      # @return [String]
+      #
+      # @api public
       def help_arguments
         "#{NEWLINE}#{@space_indent}#{@section_names[:arguments]}#{NEWLINE}" +
           format_section(@parameters.arguments, ->(param) do
@@ -111,6 +169,14 @@ module TTY
           end)
       end
 
+      # Generate help keywords
+      #
+      # @example
+      #   formatter.help_keywords
+      #
+      # @return [String]
+      #
+      # @api public
       def help_keywords
         "#{NEWLINE}#{@space_indent}#{@section_names[:keywords]}#{NEWLINE}" +
           format_section(@parameters.keywords, ->(param) do
@@ -118,28 +184,62 @@ module TTY
           end)
       end
 
+      # Generate help options
+      #
+      # @example
+      #   formatter.help_options
+      #
+      # @return [String]
+      #
+      # @api public
       def help_options
         "#{NEWLINE}#{@space_indent}#{@section_names[:options]}#{NEWLINE}" +
           format_options
       end
 
+      # Generate help environment variables
+      #
+      # @example
+      #   formatter.help_environments
+      #
+      # @return [String]
+      #
+      # @api public
       def help_environments
         "#{NEWLINE}#{@space_indent}#{@section_names[:env]}#{NEWLINE}" +
           format_section(@order.(@parameters.environments))
       end
 
+      # Generate help examples
+      #
+      # @example
+      #   formatter.help_examples
+      #
+      # @return [String]
+      #
+      # @api public
       def help_examples
         "#{NEWLINE}#{@space_indent}#{@section_names[:examples]}#{NEWLINE}" +
           format_examples
       end
 
+      # Generate help footer
+      #
+      # @example
+      #   formatter.help_footer
+      #
+      # @return [String]
+      #
+      # @api public
       def help_footer
         "#{NEWLINE}#{format_multiline(@usage.footer, @indent)}"
       end
 
       private
 
-      # Provide a default usage banner
+      # Format default usage banner
+      #
+      # @return [String]
       #
       # @api private
       def format_usage
@@ -154,7 +254,9 @@ module TTY
         usage + wrap(output.join, indent: usage.length, width: @width)
       end
 
-      # Format arguments
+      # Format arguments usage
+      #
+      # @return [String]
       #
       # @api private
       def format_arguments_usage
@@ -167,7 +269,12 @@ module TTY
         end.join(SPACE)
       end
 
-      # Provide an argument summary
+      # Format argument usage
+      #
+      # @param [TTY::Option::Parameter::Argument] arg
+      #   the argument to format
+      #
+      # @return [String]
       #
       # @api private
       def format_argument_usage(arg)
@@ -176,6 +283,13 @@ module TTY
       end
 
       # Format parameter usage
+      #
+      # @param [TTY::Option::Parameter] param
+      #   the parameter to format
+      # @param [String] param_name
+      #   the parameter name
+      #
+      # @return [String]
       #
       # @api private
       def format_parameter_usage(param, param_name)
@@ -195,6 +309,8 @@ module TTY
 
       # Format keywords usage
       #
+      # @return [String]
+      #
       # @api private
       def format_keywords_usage
         return "" unless @parameters.keywords?
@@ -206,7 +322,12 @@ module TTY
         end.join(SPACE)
       end
 
-      # Provide a keyword summary
+      # Format keyword usage
+      #
+      # @param [TTY::Option::Parameter::Keyword] kwarg
+      #   the keyword to format
+      #
+      # @return [String]
       #
       # @api private
       def format_keyword_usage(kwarg)
@@ -214,7 +335,14 @@ module TTY
         format_parameter_usage(kwarg, param_name)
       end
 
-      # Provide a keyword argument display format
+      # Format keyword name
+      #
+      # @param [TTY::Option::Parameter::Keyword] kwarg
+      #   the keyword to format
+      # @param [Proc] param_display
+      #   the parameter display formatter, by default, uppercases all chars
+      #
+      # @return [String]
       #
       # @api private
       def kwarg_param_display(kwarg, param_display = NOOP_PROC)
@@ -229,7 +357,7 @@ module TTY
         "#{kwarg_name}=#{conv_name}"
       end
 
-      # Format a parameter section in the help display
+      # Format section parameters
       #
       # @param [Array<TTY::Option::Parameter>] params
       #   the parameters to format
@@ -249,7 +377,7 @@ module TTY
         end.join(NEWLINE)
       end
 
-      # Format a section parameter line
+      # Format section parameter
       #
       # @param [TTY::Option::Parameter] param
       #   the parameter to format
@@ -280,12 +408,14 @@ module TTY
 
       # Format multiline description
       #
+      # @return [String]
+      #
       # @api private
       def format_description
         format_multiline(@usage.desc, @indent)
       end
 
-      # Returns all the options formatted to fit 80 columns
+      # Format options
       #
       # @return [String]
       #
@@ -518,12 +648,21 @@ module TTY
 
       # Format examples section
       #
+      # @return [String]
+      #
       # @api private
       def format_examples
         format_multiline(@usage.example, @param_indent)
       end
 
       # Format multiline content
+      #
+      # @param [Array<Array<String>>] lines
+      #   the lines to format
+      # @param [Integer] indent
+      #   the indent for the lines
+      #
+      # @return [String]
       #
       # @api private
       def format_multiline(lines, indent)
