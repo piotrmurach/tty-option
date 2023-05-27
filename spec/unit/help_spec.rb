@@ -796,7 +796,7 @@ RSpec.describe TTY::Option::Formatter do
     it "formats options with various settings" do
       cmd = new_command do
         option :foo do
-          short "-f"
+          short "-f string"
           long "--foo string"
           permit %w[a b c d]
           desc "Foo description"

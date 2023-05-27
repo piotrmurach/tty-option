@@ -22,6 +22,7 @@
 * Fix help display when formatting only short options
 * Fix parameter name alignment formatting to ignore hidden parameters
 * Fix description alignment formatting for parameters with only default or permit
+* Fix short option name alignment formatting to check whether a long name is set
 
 ## [v0.2.0] - 2021-08-04
 

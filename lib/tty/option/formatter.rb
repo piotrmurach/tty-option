@@ -440,7 +440,10 @@ module TTY
       #
       # @api private
       def find_longest_short_option
-        find_longest_parameter(@parameters.options, &:short)
+        short_options = @parameters.options.select(&:short?)
+        find_longest_parameter(short_options) do |option|
+          option.long? ? option.short_name : option.short
+        end
       end
 
       # Find the longest long option
@@ -449,7 +452,8 @@ module TTY
       #
       # @api private
       def find_longest_long_option
-        find_longest_parameter(@parameters.options, &:long)
+        long_options = @parameters.options.select(&:long?)
+        find_longest_parameter(long_options, &:long)
       end
 
       # Find the longest parameter
@@ -463,7 +467,7 @@ module TTY
       #
       # @api private
       def find_longest_parameter(params, &name_selector)
-        params = params.reject(&:hidden?).map(&name_selector).compact
+        params = params.reject(&:hidden?).map(&name_selector)
 
         params.max_by(&:length).length if params.any?
       end
