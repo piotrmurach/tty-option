@@ -1,6 +1,6 @@
 # Change log
 
-## [v0.2.1] - unreleased
+## [v0.3.0] - 2023-05-29
 
 ### Changed
 * Change permit setting to work with parameters converted to an array or a hash
@@ -42,6 +42,6 @@
 
 * Initial implementation and release
 
-[v0.2.1]: https://github.com/piotrmurach/tty-option/compare/v0.2.0...v0.2.1
+[v0.3.0]: https://github.com/piotrmurach/tty-option/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/piotrmurach/tty-option/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/piotrmurach/tty-option/compare/95179f0...v0.1.0
