@@ -9,34 +9,35 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/gxml9ttyvgpeasy5?svg=true)][appveyor]
 [![Maintainability](https://api.codeclimate.com/v1/badges/1083a2fd114d6faf5d65/maintainability)][codeclimate]
 [![Coverage Status](https://coveralls.io/repos/github/piotrmurach/tty-option/badge.svg)][coverage]
-[![Inline docs](https://inch-ci.org/github/piotrmurach/tty-option.svg?branch=master)][inchpages]
 
 [gem]: https://badge.fury.io/rb/tty-option
 [gh_actions_ci]: https://github.com/piotrmurach/tty-option/actions?query=workflow%3ACI
 [appveyor]: https://ci.appveyor.com/project/piotrmurach/tty-option
 [codeclimate]: https://codeclimate.com/github/piotrmurach/tty-option/maintainability
 [coverage]: https://coveralls.io/github/piotrmurach/tty-option
-[inchpages]: https://inch-ci.org/github/piotrmurach/tty-option
 
 > Parser for command line arguments, keywords, options and environment variables
 
 ## Features
 
-* Support for parsing of **positional arguments**, **keyword arguments**, **flags**, **options** and **environment variables**.
-* A convenient way to declare parsed parameters via **DSL** with a fallback to **hash-like syntax**.
-* Flexible parsing that **doesn't force any order for the parameters**.
-* Handling of complex option and keyword argument inputs like **lists** and **maps**.
-* Many **conversions types** provided out of the box, from basic integer to more complex hash structures.
-* Automatic **help generation** that can be customised with **usage** helpers like banner, examples and more.
-* Parsing **doesn't raise errors** by default and collects issues to allow for better user experience. 
-* Ability to declare **global options** with inheritance that copies parameters to a child class.
+* Parse command line **arguments**, **keywords**, **flags**, **options**
+and **environment variables**.
+* Define command line parameters with **DSL** or **keyword arguments**.
+* Access all parameter values from hash-like **params**.
+* Define **global parameters** with inheritance.
+* Accept command line parameters in **any order**.
+* Handle complex inputs like **lists** and **maps**.
+* **Convert** inputs to basic and more complex object types.
+* Generate **help** from parameter definitions.
+* Customise help with **usage** methods such as **header**, **example** and more.
+* Collect parsing **errors** for a better user experience.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'tty-option'
+gem "tty-option"
 ```
 
 And then execute:
@@ -61,25 +62,27 @@ Or install it yourself as:
     * [2.5.3 default](#253-default)
     * [2.5.4 description](#254-description)
     * [2.5.5 hidden](#255-hidden)
-    * [2.5.6 name](#256-name)
-    * [2.5.7 optional](#257-optional)
-    * [2.5.8 permit](#258-permit)
-    * [2.5.9 required](#259-required)
-    * [2.5.10 validate](#2510-validate)
+    * [2.5.6 long](#256-long)
+    * [2.5.7 name](#257-name)
+    * [2.5.8 optional](#258-optional)
+    * [2.5.9 permit](#259-permit)
+    * [2.5.10 required](#2510-required)
+    * [2.5.11 short](#2511-short)
+    * [2.5.12 validate](#2512-validate)
   * [2.6 parse](#26-parse)
     * [2.6.1 :raise_on_parse_error](#261-raise_on_parse_error)
     * [2.6.2 :check_invalid_params](#262-check_invalid_params)
   * [2.7 params](#27-params)
     * [2.7.1 errors](#271-errors)
     * [2.7.2 remaining](#272-remaining)
-    * [2.7.3 valid?](#273-valid?)
+    * [2.7.3 valid?](#273-valid)
   * [2.8 usage](#28-usage)
     * [2.8.1 header](#281-header)
     * [2.8.2 program](#282-program)
     * [2.8.3 command](#283-command)
     * [2.8.4 banner](#284-banner)
     * [2.8.5 description](#285-description)
-    * [2.8.6 example](#286-examples)
+    * [2.8.6 example](#286-example)
     * [2.8.7 footer](#287-footer)
   * [2.9 help](#29-help)
     * [2.9.1 sections](#291-sections)
@@ -90,11 +93,15 @@ Or install it yourself as:
 
 ## 1. Usage
 
-To start parsing command line parameters include `TTY::Option` module.
+Include the `TTY::Option` module and define parameters to parse command
+line input.
 
-Now, you're ready to define parsed parameters like arguments, keywords, flags, options or environment variables.
+Choose from [arguments](#21-argument), [keywords](#22-keyword),
+[flags](#23-option), [options](#23-option) and
+[environment variables](#24-environment).
 
-For example, a quick demo to create a command that mixes all parameters usage:
+For example, here is a quick demo of how to create a command that mixes
+all parameter types:
 
 ```ruby
 class Command
@@ -132,16 +139,16 @@ class Command
     desc "Restart policy to apply when a container exits"
   end
 
-  flag :help do
-    short "-h"
-    long "--help"
-    desc "Print usage"
-  end
-
   flag :detach do
     short "-d"
     long "--detach"
     desc "Run container in background and print container ID"
+  end
+
+  flag :help do
+    short "-h"
+    long "--help"
+    desc "Print usage"
   end
 
   option :name do
@@ -161,7 +168,8 @@ class Command
   def run
     if params[:help]
       print help
-      exit
+    elsif params.errors.any?
+      puts params.errors.summary
     else
       pp params.to_h
     end
@@ -175,21 +183,25 @@ Then create a command instance:
 cmd = Command.new
 ```
 
-And provided input from the command line:
+And given the following input on the command line:
 
 ```
 restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4 bash
 ```
 
-Start parsing from `ARGV` or provide a custom array of inputs:
+Read the command line input (aka `ARGV`) with [parse](#26-parse):
 
 ```ruby
 cmd.parse
-# or
+```
+
+Or provide an array of inputs:
+
+```ruby
 cmd.parse(%w[restart=always -d -p 5000:3000 5001:8080 --name web ubuntu:16.4 bash])
 ```
 
-And run the command to see the values:
+Finally, run the command to see parsed values:
 
 ```ruby
 cmd.run
@@ -201,22 +213,22 @@ cmd.run
 #  :restart=>"always",
 #  :image=>"ubuntu:16.4",
 #  :command=>"bash"}
-````
+```
 
-The `cmd` object also has a direct access to all the parameters via the `params`:
+Use the [params](#27-params) to access all parameters:
 
 ```ruby
 cmd.params[:name]     # => "web"
 cmd.params["command"] # => "bash
-````
-
-And when `--help` is found on the command line the run will print help:
-
-```ruby
-cmd.run
 ```
 
-To print help information to the terminal use `help` method:
+Given the `--help` flag on the command line:
+
+```ruby
+cmd.parse(%w[--help])
+```
+
+Use the [help](#29-help) method to print help information to the terminal:
 
 ```ruby
 print cmd.help
@@ -251,335 +263,435 @@ Examples:
     $ dock run -v `pwd`:`pwd` -w `pwd` ubuntu pwd
 ```
 
+Given an invalid command line input:
+
+```ruby
+cmd.parse(%w[--unknown])
+```
+
+Use the [errors](#271-errors) method to print all errors:
+
+```ruby
+puts params.errors.summary
+```
+
+This will print a summary of all errors:
+
+```
+Errors:
+  1) Invalid option '--unknown'
+  2) Option '--publish' should appear at least 1 time but appeared 0 times
+  3) Option '--name' must be provided
+  4) Argument 'image' must be provided
+```
+
 ## 2. API
 
 ### 2.1 argument
 
-You can parse positional arguments with the `argument` method. To declare an argument you need to provide a name for the access key in the `params` like so:
+Use the `argument` method to parse positional arguments.
+
+Provide a name as a string or symbol to define an argument. The name will
+serve as a default label for the help display and a key to retrieve
+a value from the [params](#27-params):
 
 ```ruby
 argument :foo
 ```
 
-Then parsing command line input:
+Given the following command line input:
 
 ```
 11 12 13
 ```
 
-Would result only in one argument parsed and the remaining ignored:
+This would result only in one argument parsed and the remaining ignored:
 
 ```ruby
 params[:foo] # => "11"
 ```
 
-A more involved example to parse multiple positional arguments requires use of helper methods:
+The `argument` method accepts a block to define
+[parameter settings](#25-parameter-settings).
+
+For example, use the [arity](#251-arity) and [convert](#252-convert) settings
+to parse many positional arguments:
 
 ```ruby
 argument :foo do
-  required                   # a default
-  variable "foo(int)"        # name for the usage display
-  arity one_or_more          # how many times to occur
-  convert :int               # values converted to integer
-  validate -> { |v| v < 14 } # validation rule
-  desc "Some foo desc"       # description for the usage display
+  name "foo(int)"             # name for help display
+  arity one_or_more           # how many times can appear
+  convert :int_list           # convert input to a list of integers
+  validate ->(v) { v < 14 }   # validation rule
+  desc "Argument description" # description for help display
 end
 ```
 
-Parsing the previous input:
-
-```bash
-11 12 13
-```
-
-Would result in all values being collected and converted to integers:
+Parser would collect all values and convert them to integers given
+previous input:
 
 ```ruby
-params[:foo] # => [11,12,13]
+params[:foo] # => [11, 12, 13]
 ```
 
-The previous argument definition can also be written using hash syntax. This is especially useful if you want to specify arguments programmatically:
+The `argument` method can also accept settings as keyword arguments:
 
 ```ruby
 argument :foo,
-  required: true,
-  variable: "foo(int)",
+  name: "foo(int)",
   arity: "+",
-  convert: :int,
-  validate: -> { |v| v < 14 },
-  desc: "Some foo desc"
+  convert: :int_list,
+  validate: ->(v) { v < 14 },
+  desc: "Argument description"
 ```
-
-To read more about available settings see [parameter settings](#25-parameter-settings).
 
 ### 2.2 keyword
 
-To parse keyword arguments use the `keyword` method. To declare a keyword argument you need to provide a name for the key in the `params` like so:
+Use the `keyword` method to parse keyword arguments.
+
+Provide a name as a string or symbol to define a keyword argument. The name
+will serve as a command line input name, a default label for the help
+display and a key to retrieve a value from the [params](#27-params):
 
 ```ruby
 keyword :foo
 ```
 
-By default the keyword parameter name will be used as the keyword name on the command line:
+Parser will use the parameter name to match the input name on the command
+line by default.
 
-```bash
+Given the following command line input:
+
+```
 foo=11
 ```
 
-Parsing the above would result in:
+This would result in:
 
 ```ruby
 params[:foo] # => "11"
 ```
 
-A more involved example to parse multiple keyword arguments requires use of helper methods:
+Note that the parser performs no conversion of the value.
 
-```ruby
-keyword :foo do
-  required                   # by default keywrod is not required
-  arity one_or_more          # how many times to occur
-  convert :int               # values converted to integer
-  validate -> { |v| v < 14 } # validation rule
-  desc "Some foo desc"       # description for the usage display
-end
-```
+The `keyword` method accepts a block to define
+[parameter settings](#25-parameter-settings).
 
-Then provided the following command line input:
-
-```bash
-foo=11 foo=12 foo=13
-```
-
-The result would be:
-
-```ruby
-params[:foo] # => [11,12,13]
-```
-
-You can also specify for the keyword argument to accept a list type:
+For example, use the [arity](#251-arity) and [convert](#252-convert)
+settings to parse many keyword arguments:
 
 ```ruby
 keyword :foo do
   required                   # by default keyword is not required
-  arity one_or_more          # how many times to occur
-  convert :int_list          # input can be a list of integers
-  validate -> { |v| v < 14 } # validation rule
-  desc "Some foo desc"       # description for the usage display
+  arity one_or_more          # how many times can appear
+  convert :int_list          # convert input to a list of integers
+  validate ->(v) { v < 14 }  # validation rule
+  desc "Keyword description" # description for help display
 end
 ```
 
-Then command line input can contain a list as well:
+Given the following command line input:
 
-```bash
-foo=11 12 foo=13
+```
+foo=10,11 foo=12 13
 ```
 
-Which will result in the same value:
+This would result in an array of integers:
 
 ```ruby
-params[:foo] # => [11,12,13]
+params[:foo] # => [10, 11, 12, 13]
 ```
 
-A keyword definition can be also a hash. This is especially useful if you intend to specify keyword arguments programmatically:
+The `keyword` method can also accept settings as keyword arguments:
 
 ```ruby
 keyword :foo,
   required: true,
   arity: :+,
   convert: :int_list,
-  validate: -> { |v| v < 14 },
-  desc: "Some foo desc"
+  validate: ->(v) { v < 14 },
+  desc: "Keyword description"
 ```
-
-To read more about available settings see [parameter settings](#25-parameter-settings).
 
 ### 2.3 option
 
-To parse options and flags use the `option` or `flag` methods.
+Use the `flag` or `option` methods to parse options.
 
-To declare an option you need to provide a name for the key used to access value in the `params`:
+Provide a name as a string or symbol to define an option. The name will
+serve as a command line input name, a label for the help display and
+a key to retrieve a value from the [params](#27-params):
 
 ```ruby
 option :foo
 ```
 
-By default the option parameter name will be used to generate a long option name:
+Parser will use the parameter name to generate a long option name by default.
+
+Given the following command line input:
+
+```
+--foo
+```
+
+This would result in:
+
+```ruby
+params[:foo] # => true
+```
+
+The `flag` and `option` methods accept a block to define
+[parameter settings](#25-parameter-settings).
+
+For example, to specify a different name for the parsed option,
+use the [short](#2511-short) and [long](#256-long) settings:
+
+```ruby
+option :foo do
+  short "-f"    # define a short name
+  long "--foo"  # define a long name
+end
+```
+
+Given the following short name on the command line:
+
+```
+-f
+```
+
+This would result in:
+
+```
+params[:foo] # => true
+```
+
+An option can accept an argument. The argument can be either required
+or optional. To define a required argument, provide an extra label
+in `short` or `long` settings. The label can be any string. When
+both `short` and `long` names are present, only specify an argument
+for the long name.
+
+For example, for both short and long names to accept a required
+integer argument:
+
+```ruby
+option :foo do
+  short "-f"
+  long "--foo int"
+  # or
+  long "--foo=int"
+end
+```
+
+Given the following command line input:
 
 ```
 --foo=11
 ```
 
-Parsing the above will result in:
+This would result in:
 
 ```ruby
 params[:foo] # => "11"
 ```
 
-To specify a different name for the parsed option use the `short` and `long` helpers:
+Note that the parser performs no conversion of the argument.
+
+To define an optional argument, surround it with square brackets.
+
+For example, to accept an optional integer argument:
 
 ```ruby
 option :foo do
-  short "-f"     # declares a short flag
-  long  "--foo"  # declares a long flag
+  long "--foo [int]"
 end
 ```
 
-If you wish for an option to accept an argument, you need to provide an extra label.
-
-For example, for both short and long flag to require argument do:
-
-```ruby
-option :foo do
-  short "-f"
-  long  "--foo string"  # use any name after the flag name to specify required argument
-  # or
-  long  "--foo=string"  # you can also separate required argument with =
-end
-```
-
-To make a long option with an optional argument do:
-
-```ruby
-option :foo do
-  long "--foo [string]" # use any name within square brackets to make argument optional
-end
-```
-
-A more involved example that parses a list of integer may look like this:
+Use the [arity](#251-arity) and [convert](#252-convert) settings to parse
+many options given as a list of integers:
 
 ```ruby
 option :foo do
   required                   # by default option is not required
-  arity one_or_more          # how many times option can occur
-  short "-f"                 # declares a short flag name
-  long  "--foo list"         # declares a long flag with a required argument
-  convert :int_list          # input can be a list of integers
-  validate -> { |v| v < 14 } # validation rule
-  desc "Some foo desc"       # description for the usage display
+  arity one_or_more          # how many times option can appear
+  short "-f"                 # declare a short flag name
+  long "--foo ints"          # declare a long flag with a required argument
+  convert :int_list          # convert input to a list of integers
+  validate ->(v) { v < 14 }  # validation rule
+  desc "Option description"  # description for help display
 end
 ```
 
-Given command line input:
+Given the following command line input:
 
-```bash
+```
 --foo=10,11 -f 12 13
 ```
 
-The resulting value will be:
+This would result in an array of integers:
 
 ```ruby
-params[:foo] # => [10,11,12,13]
+params[:foo] # => [10, 11, 12, 13]
 ```
 
-An option  definition can be declared as a hash as well. This is especially useful if you intend to specify options programmatically:
+The option method can also accept settings as keyword arguments:
 
 ```ruby
 option :foo,
   required: true,
   arity: :+,
   short: "-f",
-  long: "--foo list",
+  long: "--foo ints",
   convert: :int_list,
   validate: -> { |v| v < 14 },
-  desc: "Some foo desc"
+  desc: "Option description"
 ```
 
-To read more about available settings see [parameter settings](#25-parameter-settings).
+There is a convenience `flag` method to specify a command line option that
+accepts no argument:
+
+```ruby
+flag :foo
+```
+
+For example, a typical scenario is to specify the help flag:
+
+```ruby
+flag :help do
+  short "-h"
+  long "--help"
+  desc "Print usage"
+end
+```
 
 ### 2.4 environment
 
-To parse environment variables use `environment` or `env` methods.
+Use the `environment` or `env` methods to parse environment variables.
 
-By default, a parameter name will match a environment variable with the same name. For example, specifying a variable `:foo`:
+Provide a name as a string or symbol to define an environment variable.
+The name will serve as a command line input name, a default label for the
+help display and a key to retrieve a value from the [params](#27-params):
 
 ```ruby
+environment :foo
+# or
 env :foo
 ```
 
-And then given the following command line input:
+Parser will use the parameter name to match the input name on the command
+line by default.
+
+Given the following command line input:
 
 ```
-FOO=bar
+FOO=11
 ```
 
-The resulting parameter would be:
+The result would be:
 
 ```ruby
-params[:foo] # => "bar"
-````
-
-To change the variable name to something else use `var` or `variable` helper:
-
-```ruby
-env :foo do
-  var "FOO_ENV"
-end
+params[:foo] # => "11"
 ```
 
-And then given a `FOO_ENV=bar` on the command line would result in:
+Note that the parser performs no conversion of the value.
 
-```ruby
-params[:foo] # => "bar"
-```
+The `environment` method accepts a block to define
+[parameter settings](#25-parameter-settings).
 
-A more involved example that parses a list of integer may look like this:
+For example, use the [name](#257-name) setting to change a default
+variable name:
 
 ```ruby
 environment :foo do
-  required                   # by default environment is not required
-  arity one_or_more          # how many times env var can occur
-  variable "FOO_ENV"         # the command line input name
-  convert map_of(:int)       # input can be a map of integers
-  validate -> { |v| v < 14 } # validation rule
-  desc "Some foo desc"       # description for the usage display
+  name "FOO_ENV"
 end
 ```
 
-Given command line input:
+Given the following command line input:
 
-```bash
-FOO_ENV=a:1&b:2 FOO_ENV=c=3 d=4
+```
+FOO_ENV=11
 ```
 
-The resulting `params` would be:
+This would result in:
 
 ```ruby
-params[:foo] # => {a:1,b:2,c:3,d:4}
+params[:foo] # => "11"
 ```
 
-To read more about available settings see [parameter settings](#25-parameter-settings).
+For example, use the [arity](#251-arity) and [convert](#252-convert) settings
+to parse many environment variables given as a list of integers:
+
+```ruby
+environment :foo do
+  required                        # by default environment is not required
+  arity one_or_more               # how many times env var can appear
+  name "FOO_ENV"                  # the command line input name
+  convert :int_list               # convert input to a map of integers
+  validate ->(v) { v < 14 }       # validation rule
+  desc "Environment description"  # description for help display
+end
+```
+
+Given the following command line input:
+
+```
+FOO_ENV=10,11 FOO_ENV=12 13
+```
+
+This would result in an array of integers:
+
+```ruby
+params[:foo] # => [10, 11, 12, 13]
+```
+
+The `environment` method can also accept settings as keyword arguments:
+
+```ruby
+environment :foo,
+  required: true,
+  arity: :+,
+  name: "FOO_ENV",
+  convert: :int_list,
+  validate: ->(v) { v < 14 },
+  desc: "Environment description"
+```
 
 ### 2.5 parameter settings
 
-These settings are supported by all parameter types with the exception of `short` and `long` which are specific to options only.
+All parameter types support the following settings except for
+`short` and `long`, which are [option](#23-option) specific.
 
 #### 2.5.1 arity
 
-To describe how many times a given parameter may appear in the command line use the `arity` setting.
+Use the `arity` setting to describe how many times a given parameter may
+appear on the command line.
 
-By default every parameter is assumed to appear only once. Any other occurrence will be disregarded and included in the remaining parameters list.
+Every parameter can appear only once by default. In the case of arguments,
+the parser will match the first input and ignore the rest. For other
+parameter types, any extra parameter occurrence will override previously
+parsed input. Setting the arity requirement overrides this behaviour.
 
-For example, to match argument exactly 2 times do:
+For example, to match an argument exactly two times:
 
 ```ruby
 argument :foo do
   arity 2
 end
-````
+```
 
-Then parsing from the command line:
+Given the following command line input:
 
 ```ruby
 bar baz
 ```
 
-Will give the following:
+This would result in an array of strings:
 
 ```ruby
 params[:foo] # => ["bar", "baz"]
 ```
 
-For parameters that expect a value, specifying arity will collect all the values matching arity requirement. For example, matching keywords:
+Another example is to match exactly three occurrences of a keyword:
 
 ```ruby
 keyword :foo do
@@ -587,19 +699,22 @@ keyword :foo do
 end
 ```
 
-And then parsing the following:
+And then given the following on the command line:
 
 ```
 foo=1 foo=2 foo=3
 ```
 
-Will produce:
+This would result in an array of strings:
 
 ```ruby
 params[:foo] # => ["1", "2", "3"]
 ```
 
-To match any number of times use `:any`, `:*`, `-1`, `any` or `zero_or_more`:
+Use `:any`, `:*`, `-1`, `any` or `zero_or_more` to specify that parameter
+may appear any number of times.
+
+For example, to expect an argument to appear zero or more times:
 
 ```ruby
 argument :foo do
@@ -607,17 +722,21 @@ argument :foo do
 end
 ```
 
-To match at at least one time use `:+` or `one_or_more`:
+Use `:+` or `one_or_more` to specify that parameter must appear at least once.
+
+For example, to expect an option with an argument to appear one or more times:
 
 ```ruby
 option :foo do
   arity one_or_more
-  short "-b"
-  long "--bar string"
+  short "-f"
+  long "--foo string"
 end
 ```
 
-You can also specify upper boundary with `at_least` helper as well:
+Use `at_least` to specify the least number of times a parameter can appear:
+
+For example, to expect a keyword to appear at least three times:
 
 ```ruby
 keyword :foo do
@@ -625,7 +744,9 @@ keyword :foo do
 end
 ```
 
-The [help](#29-help) method will handle the arity for the display. Given the following argument definition:
+The [help](#29-help) method will handle the arity for the usage banner.
+
+For example, given the following argument definition:
 
 ```ruby
 argument :foo do
@@ -633,7 +754,7 @@ argument :foo do
 end
 ```
 
-The usage banner will display:
+The usage banner would display:
 
 ```
 Usage: foobar FOO [FOO...]
@@ -641,7 +762,11 @@ Usage: foobar FOO [FOO...]
 
 #### 2.5.2 convert
 
-You can convert any parameter argument to another type using the `convert` method with a predefined symbol or class name. For example, to convert an argument to integer you can do:
+Use the `convert` setting to transform any parameter argument to another type.
+
+The `convert` accepts a conversion name as a predefined symbol or class.
+
+For example, to convert an argument to an integer:
 
 ```ruby
 argument :foo do
@@ -651,75 +776,89 @@ argument :foo do
 end
 ```
 
-The conversion types that are supported:
+The supported conversion types are:
 
-* `:boolean`|`:bool` - e.g. 'yes/1/y/t/' becomes `true`, 'no/0/n/f' becomes `false`
-* `:date` - parses dates formats "28/03/2020", "March 28th 2020"
+* `:bool` or `:boolean` - e.g. `yes,1,y,t` becomes `true`,
+`no,0,n,f` becomes `false`
+* `:date` - e.g. `28/03/2020` becomes `#<Date: 2020-03-28...>`
 * `:float` - e.g. `-1` becomes `-1.0`
-* `:int`|`:integer` - e.g. `+1` becomes `1`
-* `:path`|`:pathname` - converts to `Pathname` object
-* `:regexp` - e.g. "foo|bar" becomes `/foo|bar/`
-* `:uri` - converts to `URI` object
-* `:sym`|`:symbol` - e.g. "foo" becomes `:foo`
-* `:list`|`:array` - e.g. 'a,b,c' becomes `["a", "b", "c"]`
-* `:map`|`:hash` - e.g. 'a:1 b:2 c:3' becomes `{a: "1", b: "2", c: "3"}`
+* `:int` or `:integer` - e.g. `+1` becomes `1`
+* `:path` or `:pathname` - e.g. `/foo/bar/baz` becomes
+`#<Pathname:/foo/bar/baz>`
+* `:regex` or `:regexp` - e.g. `foo|bar` becomes `/foo|bar/`
+* `:uri` - e.g. `foo.com` becomes `#<URI::Generic foo.com>`
+* `:sym` or `:symbol` - e.g. `foo` becomes `:foo`
+* `:list` or `:array` - e.g. `a,b,c` becomes `["a", "b", "c"]`
+* `:map` or `:hash` - e.g. `a:1 b:2 c:3` becomes `{a: "1", b: "2", c: "3"}`
 
-In addition you can specify a plural or append `list` to any base type:
+To convert to an array of a given type, specify plural or append an `array`
+or`list` to any base type:
 
-* `:ints` or `:int_list` - will convert to a list of integers
-* `:floats` or `:float_list` - will convert to a list of floats
-* `:bools` or `:bool_list` - will convert to a list of booleans, e.g. `t,f,t` becomes `[true, false, true]`
+* `:bools`, `:bool_array` or `:bool_list` - e.g. `t,f,t` becomes
+`[true, false, true]`
+* `:floats`, `:float_array` or `:float_list` - e.g. `1,2,3` becomes
+`[1.0, 2.0, 3.0]`
+* `:ints`, `:int_array` or `:int_list` - e.g. `1,2,3` becomes `[1, 2, 3]`
 
-If like you can also use `list_of` helper and pass the type as a first argument.
+Or, use the `list_of` method and pass the type as a first argument.
 
-Similarly, you can append `map` to any base type:
+To convert to a hash with values of a given type, append a `hash` or `map` to
+any base type:
 
-* `:int_map` - will convert to a map of integers, e.g `a:1 b:2 c:3` becomes `{a: 1, b: 2, c: 3}`
-* `:bool_map` - will convert to a map of booleans, e.g `a:t b:f c:t` becomes `{a: true, b: false, c: true}`
+* `:bool_hash` or `:bool_map` - e.g `a:t b:f c:t` becomes
+`{a: true, b: false, c: true}`
+* `:float_hash` or `:float_map` - e.g `a:1 b:2 c:3` becomes
+`{a: 1.0, b: 2.0, c: 3.0}`
+* `:int_hash` or `:int_map` - e.g `a:1 b:2 c:3` becomes `{a: 1, b: 2, c: 3}`
 
-For convenience and readability you can also use `map_of` helper and pass the type as a first argument.
+Or, use the `map_of` method and pass the type as a first argument.
 
-For example, to parse options with required list and map arguments:
+For example, given options with a required list and map arguments:
 
 ```ruby
 option :foo do
-  long "--foo map"
-  convert :bools   # or `convert list_of(:bool)`
+  long "--foo list"
+  convert :bools
+  # or
+  convert list_of(:bool)
 end
 
 option :bar do
-  long "--bar int map"
-  convert :int_map   # or `conert map_of(:int)`
+  long "--bar map"
+  convert :int_map
+  # or
+  convert map_of(:int)
 end
-````
+```
 
-And then parsing the following:
+And then parsing the following command line input:
 
-```bash
+```
 --foo t,f,t --bar a:1 b:2 c:3
 ```
 
-Will give the following:
+This would result in an array of booleans and a hash with integer values:
 
 ```ruby
-params[:foo]
-# => [true, false, true]
-params[:bar]
-# => {:a=>1, :b=>2, :c=>3}
-````
+params[:foo] # => [true, false, true]
+params[:bar] # => {:a=>1, :b=>2, :c=>3}
+```
 
-You can also provide `proc` to define your own custom conversion:
+Use a `Proc` object to define custom conversion.
+
+For example, to convert the command line input to uppercase:
 
 ```ruby
-option :bar do
-  long "--bar string"
+option :foo do
+  long "--foo string"
   convert ->(val) { val.upcase }
 end
 ```
 
 #### 2.5.3 default
 
-Any optional parameter such as options, flag, keyword or environment variable, can have a default value. This value can be specified with the `default` setting and will be used when the command-line input doesn't match any parameter definitions.
+Use the `default` setting to specify a default value for an optional parameter.
+The parser will use default when the command line input isn't present.
 
 For example, given the following option definition:
 
@@ -730,13 +869,14 @@ option :foo do
 end
 ```
 
-When no option `--foo` is parsed, then the `params` will be populated:
+When the option `--foo` isn't present on the command line, the `params`
+will have a default value set:
 
 ```ruby
 params[:foo] # => "bar"
 ```
 
-The default can also be specified with a `proc` object:
+Or, use a `Proc` object to specify a default value:
 
 ```ruby
 option :foo do
@@ -745,47 +885,55 @@ option :foo do
 end
 ```
 
-A parameter cannot be both required and have default value. Specifying both will raise `ConfigurationError`. For example, all positional arguments are required by default. If you want to have a default for a required argument make it `optional`:
+A parameter cannot be both required and have a default value. This will raise
+`ConfigurationError`. The parser treats positional arguments as required.
+To have a default for a required argument make it [optional](#258-optional):
 
 ```ruby
 argument :foo do
   optional
   default "bar"
-  desc "Some description"
+  desc "Argument description"
 end
 ```
 
-The default will be automatically displayed in the usage information:
+The usage description for a given parameter will display the default value:
 
 ```
-Usage: foobar [OPTIONS] [FOO]
+Usage: foobar [FOO]
 
 Arguments:
-  FOO  Some description (default "bar")
+  FOO  Argument description (default "bar")
 ```
 
-#### 2.5.4 desc(ription)
+#### 2.5.4 description
 
-To provide a synopsis for a parameter use the `description` or shorter `desc` setting. This information is used by the [help](#29-help) method to produce usage information:
+Use the `description` or `desc` setting to provide a summary for
+a parameter. The [help](#29-help) method uses a parameter
+description to generate a usage display.
+
+For example, given an option with a description:
 
 ```ruby
 option :foo do
-  desc "Some description"
+  desc "Option description"
 end
 ```
 
-The above will result in:
+This will result in the following help display:
 
 ```
 Usage: foobar [OPTIONS]
 
 Options:
-  --foo  Some description
+  --foo  Option description
 ```
 
 #### 2.5.5 hidden
 
-To hide a parameter from display in the usage information use the `hidden` setting:
+Use the `hidden` setting to hide a parameter from the [help](#29-help) display.
+
+For example, given a standard argument and a hidden one:
 
 ```ruby
 argument :foo
@@ -795,35 +943,119 @@ argument :bar do
 end
 ```
 
-The above will hide the `:bar` parameter from the usage:
+The above will hide the `:bar` parameter from the usage banner:
 
 ```
 Usage: foobar FOO
 ```
 
-#### 2.5.6 name
+#### 2.5.6 long
 
-By default the parameter key will be used to match command-line input arguments.
+Only [flag](#23-option) and [option](#23-option) parameters can use
+the `long` setting.
 
-This means that a key `:foo_bar` will match `"foo-bar"` parameter name. For example, given a keyword:
+Use the `long` setting to define a long name for an option. By convention,
+a long name uses a double dash followed by many characters.
+
+When you don't specify a short or long name, the parameter name
+will serve as the option's long name by default.
+
+For example, to define the `--foo` option:
+
+```ruby
+option :foo
+```
+
+To change the default name to the `--fuu` option:
+
+```ruby
+option :foo do
+  long "--fuu"
+end
+```
+
+A long option can accept an argument. The argument can be either required
+or optional. To define a required argument, separate it from the option
+name with a space or an equal sign.
+
+For the `:foo` option to accept a required integer argument:
+
+```ruby
+option :foo do
+  long "--foo int"
+end
+```
+
+These are all equivalent ways to define a long option with a required
+argument:
+
+```ruby
+long "--foo int"
+long "--foo=int"
+```
+
+To define an optional argument, surround it with square brackets. Like
+the required argument, separate it from the option name with a space
+or an equal sign. It is possible to skip the space, but that would
+make the option description hard to read.
+
+For the `:foo` option to accept an optional integer argument:
+
+```ruby
+option :foo do
+  long "--foo [int]"
+end
+```
+
+These are all equivalent ways to define a long option with
+an optional argument:
+
+```ruby
+long "--foo [int]"
+long "--foo=[int]"
+long "--foo[int]"
+```
+
+When specifying short and long option names, only define the argument
+for the long name.
+
+For example, to define an option with short and long names that accepts
+a required integer argument:
+
+```ruby
+option :foo do
+  short "-f"
+  long "--foo int"
+end
+```
+
+Note that the parser performs no conversion of the argument. Use the
+[convert](#252-convert) setting to transform the argument type.
+
+#### 2.5.7 name
+
+The parser will use a parameter name to match command line inputs by default.
+It will convert underscores in a name into dashes when matching input.
+
+For example, given the `:foo_bar` keyword definition:
 
 ```ruby
 keyword :foo_bar
 ```
 
-And then command-line input:
+And the following command line input:
 
 ```
 foo-bar=baz
 ```
 
-The parsed result will be:
+This would result in:
 
 ```ruby
 params[:foo_bar] # => "baz"
 ```
 
-To change the parameter name to a custom one, use the `name` setting:
+Use the `name` setting to change the parameter default input name.
 
 ```ruby
 keyword :foo_bar do
@@ -831,19 +1063,20 @@ keyword :foo_bar do
 end
 ```
 
-Then parsing:
+Given the following command line input:
 
 ```
 fum=baz
 ```
 
-Will result in:
+This would result in:
 
+```ruby
+params[:foo_bar] # => "baz"
 ```
-params[:foo] # => "baz"
-````
 
-For environment variables use the upper case when changing name:
+Use uppercase characters when changing the input name for
+environment variables:
 
 ```ruby
 env :foo do
@@ -851,105 +1084,137 @@ env :foo do
 end
 ```
 
-#### 2.5.7 optional
+#### 2.5.8 optional
 
-Apart from the positional argument, all other parameters are optional. To mark an argument as optional use similar naming `optional` setting:
+All parameters are optional apart from positional arguments.
+
+Use the `optional` setting to mark a parameter as optional.
+
+For example, given a required argument and an optional one:
 
 ```ruby
 argument :foo do
-  desc "Foo arg description"
+  desc "Foo argument description"
 end
 
 argument :bar do
   optional
-  desc "Bar arg description"
+  desc "Bar argument description"
 end
 ```
 
-The optional argument will be surrounded by brackets in the usage display:
+And given the following command line input:
 
 ```
-Usage: foobar [OPTIONS] FOO [BAR]
+baz
+```
+
+This would result in:
+
+```ruby
+params[:foo] # => "baz"
+params[:bar] # => nil
+```
+
+The usage banner will display an optional argument surrounded by brackets:
+
+```
+Usage: foobar FOO [BAR]
 
 Arguments:
-  FOO  Foo arg description
-  BAR  Bar arg description
+  FOO  Foo argument description
+  BAR  Bar argument description
 ```
 
-#### 2.5.8 permit
+#### 2.5.9 permit
 
-The `permit` setting allows you to restrict an input to a set of possible values.
+Use the `permit` setting to restrict input to a set of possible values.
 
-For example, let's restrict option to only `"bar"` and `"baz"` strings:
+For example, to restrict the `:foo` option to only `"bar"` and `"baz"` strings:
 
 ```ruby
 option :foo do
   long "--foo string"
-  permit ["bar", "baz"]
+  permit %w[bar baz]
 end
 ```
 
-And then parsing
+Given the following command line input:
 
 ```
 --foo bar
 ```
 
-Will populate parameters value:
+This would result in:
 
 ```ruby
 params[:foo] # => "bar"
 ```
 
-Attempting to parse not permitted value:
+Given not permitted value `qux` on the command line:
 
 ```
 --foo qux
 ```
 
-Will internally produce a `TTY::Option::UnpermittedArgument` error and make the `params` invalid.
+This would raise a `TTY::Option::UnpermittedArgument` error and
+make the [params](#27-params) invalid.
 
-Permitted values are checked after applying conversion. Because of this, you need to provide the expected type for the `permit` setting:
+The parser checks permitted values after applying conversion first. Because
+of this, permit setting needs its values to be already of the correct type.
+
+For example, given integer conversion, permitted values need to
+be integers as well:
 
 ```ruby
 option :foo do
   long "--foo int"
-  confert :int
+  convert :int
   permit [11, 12, 13]
 end
 ```
 
-Then parsing an unpermitted value:
+Then given not permitted integer:
 
 ```
 --foo 14
 ```
 
-Will invalidate `params` and collect the `TTY::Option::UnpermittedArgument` error.
+This would invalidate `params` and collect the
+`TTY::Option::UnpermittedArgument` error.
 
-The permitted values are automatically appended to the parameter synopsis when displayed in the usage information. For example, given an option:
+The [help](#29-help) method displays permitted values in the
+parameter description.
+
+For example, given the following option:
 
 ```ruby
 option :foo do
   short "-f"
   long "--foo string"
   permit %w[a b c d]
-  desc "Some description"
+  desc "Option description"
 end
 ```
 
-Then the usage information for the option would be:
+Then the description for the option would be:
 
 ```
 Usage: foobar [OPTIONS]
 
 Options:
-  -f, --foo string  Some description (permitted: a,b,c,d)
+  -f, --foo string  Option description (permitted: a, b, c, d)
 ```
 
-#### 2.5.9 required
+#### 2.5.10 required
 
-Only arguments are required. Any other parameters like options, keywords and environment variables are optional. To force parameter presence in input use `required` setting.
+Parser only requires arguments to be present on the command line by default.
+Any other parameters like options, keywords and environment variables
+are optional.
+
+Use the `required` setting to force parameter presence in command line input.
+
+For example, given a required keyword and an optional one:
 
 ```ruby
 keyword :foo do
@@ -962,7 +1227,38 @@ keyword :bar do
 end
 ```
 
-Because `foo` keyword is required it won't have brackets around the parameter in the usage display:
+And given the following command line input:
+
+```
+foo=baz
+```
+
+This would result in:
+
+```ruby
+params[:foo] # => "baz"
+params[:bar] # => nil
+```
+
+Given the following command line input without the `foo` keyword:
+
+```
+bar=baz
+```
+
+This would raise a `TTY::Option::MissingParameter` error.
+
+Then printing [errors](#271-errors) summary would display the following
+error description:
+
+```
+Error: keyword 'foo' must be provided
+```
+
+The usage banner displays the required parameters first. Then surrounds any
+optional parameters in brackets.
+
+The [help](#29-help) display for the above keywords would be:
 
 ```
 Usage: foobar FOO=FOO [BAR=BAR]
@@ -972,56 +1268,148 @@ Keywords:
   BAR=BAR  Bar keyword description
 ```
 
-Note: Using required options is rather discouraged as these are typically expected to be optional.
+#### 2.5.11 short
 
-#### 2.5.10 validate
+Only [flag](#23-option) and [option](#23-option) parameters can use
+the `short` setting.
 
-Use the `validate` setting if you wish to ensure only inputs matching filter criteria are allowed.
+Use the `short` setting to define a short name for an option. By convention,
+a short name uses a single dash followed by a single alphanumeric character.
 
-You can use a string or regular expression to describe your validation rule:
+For example, to define the `-f` option:
 
 ```ruby
 option :foo do
-  long "--foo VAL"
+  short "-f"
+end
+```
+
+A short option can accept an argument. The argument can be either required
+or optional. To define a required argument, separate it from the option
+name with a space or an equal sign. It is possible to skip the space,
+but that would make the option description hard to read.
+
+For the `:foo` option to accept a required integer argument:
+
+```ruby
+option :foo do
+  short "-f int"
+end
+```
+
+These are all equivalent ways to define a short option with a required
+argument:
+
+```ruby
+short "-f int"
+short "-f=int"
+short "-fint"
+```
+
+To define an optional argument, surround it with square brackets. Like
+the required argument, separate it from the option name with a space
+or an equal sign. It is possible to skip the space, but that would
+make the option description hard to read.
+
+For the `:foo` option to accept an optional integer argument:
+
+```ruby
+option :foo do
+  short "-f [int]"
+end
+```
+
+These are all equivalent ways to define a short option with
+an optional argument:
+
+```ruby
+short "-f [int]"
+short "-f=[int]"
+short "-f[int]"
+```
+
+When specifying short and long option names, only define the argument
+for the long name.
+
+For example, to define an option with short and long names that accepts
+a required integer argument:
+
+```ruby
+option :foo do
+  short "-f"
+  long "--foo int"
+end
+```
+
+Note that the parser performs no conversion of the argument. Use
+the [convert](#252-convert) setting to transform the argument type.
+
+#### 2.5.12 validate
+
+Use the `validate` setting to ensure that inputs match a validation rule.
+The rule can be a string, a regular expression or a `Proc` object.
+
+For example, to ensure the `--foo` option only accepts digits:
+
+```ruby
+option :foo do
+  long "--foo int"
   validate "\d+"
 end
 ```
 
-Then parsing:
+Given the following command line input:
 
 ```
 --foo bar
 ```
 
-Will internally cause an exception `TTY::Option::InvalidArgument` that will make `params` invalid.
+This would raise a `TTY::Option::InvalidArgument` error that would
+make `params` invalid.
 
-You can also express a validation rule with a `proc` object:
+Then printing [errors](#271-errors) summary would output:
+
+```
+Error: value of `bar` fails validation for '--foo' option
+```
+
+To define a validation rule as a `Proc` object that accepts
+an argument to check:
 
 ```ruby
 keyword :foo do
-  arity one_or_more
   convert :int
   validate ->(val) { val < 12 }
 end
 ```
 
-Then parsing:
+The parser validates a value after applying conversion first. Because of
+this, the value inside a validation rule is already of the correct type.
+
+Given the following command line input:
 
 ```
-foo=11 foo=13
+foo=13
 ```
 
-Will similarly collect the `TTY::Option::InvalidArgument` error and render `params` invalid.
+This would raise a `TTY::Option::InvalidArgument` error and make
+`params` invalid.
+
+Then using the [errors](#271-errors) summary would print the following error:
+
+```
+Error: value of `13` fails validation for 'foo' keyword
+```
 
 ### 2.6 parse
 
-After all parameters are defined, use the `parse` to process command line inputs.
+Use the `parse` method to match command line inputs against defined parameters.
 
-By default the `parse` method takes the input from the `ARGV` and the `ENV` variables.
+The `parse` method reads the input from the command line (aka `ARGV`) and
+the environment variables (aka `ENV`) by default. It also accepts inputs
+as an argument. This is useful when testing commands.
 
-Alternatively, you can call `parse` with custom inputs. This is especially useful for testing your commands.
-
-Given parameter definitions:
+For example, given the following parameter definitions:
 
 ```ruby
 argument :foo
@@ -1033,13 +1421,13 @@ keyword :baz
 env :qux
 ```
 
-Then parsing the following inputs:
+Then parsing the command line inputs:
 
 ```ruby
 parse(%w[12 --bar baz=a QUX=b])
 ```
 
-Would populate parameters:
+This would result in:
 
 ```ruby
 params[:foo] # => "12"
@@ -1048,59 +1436,111 @@ params[:baz] # => "a"
 params[:qux] # => "b"
 ```
 
-The parsing is flexible and doesn't force any order for the parameters. Options can be inserted anywhere between positional or keyword arguments.
+The parser doesn't force any order for the parameters except for arguments.
 
-It handles parsing of compacted shorthand options that start with a single dash. These need to be boolean options bar the last one that can accept argument. All these are valid:
+For example, reordering inputs for the previous parameter definitions:
 
-```
--f
--fbq
--fbqs 12  # mixed with an argument
+```ruby
+parse(%w[12 QUX=b --bar baz=a])
 ```
 
-Parameter parsing stops after the `--` terminator is found. The leftover inputs are collected and accessible via the `remaining` method.
+This would result in the same values:
+
+```ruby
+params[:foo] # => "12"
+params[:bar] # => true
+params[:baz] # => "a"
+params[:qux] # => "b"
+```
+
+The parser handles compact shorthand options that start with
+a single dash. These must be boolean options except for
+the last one that can accept an argument.
+
+For example, passing three flags and an option with an argument to parse:
+
+```
+parse(%w[-f -b -q -s 12])
+```
+
+This is equivalent to parsing:
+
+```
+parse(%w[-fbqs 12])
+```
+
+Parameter parsing stops at the `--` terminator. The parser collects leftover
+inputs and makes them accessible with the [remaining](#272-remaining) method.
+
+For example, given extra input after the terminator:
+
+```ruby
+parse(%w[12 baz=a QUX=b -- --fum])
+```
+
+This would result in:
+
+```ruby
+params[:foo] # => 12
+params[:bar] # => false
+params[:baz] # => "a"
+params[:qux] # => "b"
+params.remaining # => ["--fum"]
+```
 
 #### 2.6.1 :raise_on_parse_error
 
-By default no parse errors are raised. Why? Users do not appreciate Ruby errors in their terminal output. Instead, parsing errors are made accessible on the `params` object with the [errors](#271-errors) method.
+The `parse` method doesn't raise any errors by default. Why? Displaying
+error backtraces in the terminal output may not be helpful for users.
+Instead, the parser collects any errors and exposes them through the
+[errors](#271-errors) method.
 
-However, if you prefer to handle parsing errors yourself, you can do so with `:raise_on_parse_error` keyword:
+Use the `:raise_on_parse_error` keyword set to `true` to raise parsing errors:
 
 ```ruby
 parse(raise_on_parse_error: true)
 ```
 
-Then in your code you may want to surround your `parse` call with a rescue clause:
+Parsing errors inherit from `TTY::Option::ParseError`.
+
+For example, to catch parsing errors:
 
 ```ruby
 begin
   parse(raise_on_parse_error: true)
 rescue TTY::Option::ParseError => err
-  # do something here
+  ...
 end
 ```
 
 #### 2.6.2 :check_invalid_params
 
-Users can provide any input, including parameters you didn't expect and define.
+Users can provide any input, including parameters the parser
+didn't expect and define.
 
-By default, when unknown parameter is found in the input, an `TTY::Option::InvalidParameter` error will be raised internally and collected in the `errors` list.
+When the parser finds an unknown input on the command line, it raises
+a `TTY::Option::InvalidParameter` error and adds it to the
+[errors](#271-errors) array.
 
-If, on the other hand, you want to ignore unknown parameters and instead leave them alone during the parsing use the `:check_invalid_params` option like so:
+Use the `:check_invalid_params` keyword set to `false` to ignore unknown
+inputs during parsing:
 
 ```ruby
 parse(check_invalid_params: false)
 ```
 
-This way all the unrecognized parameters will be collected into a [remaining](#272-remaining) list accessible on the `params` instance.
+This way, the parser will collect all the unrecognised inputs into the
+[remaining](#272-remaining) array.
 
 ### 2.7 params
 
-Once all parameters are defined, they are accessible via the `params` instance method.
+All defined parameters are accessible from the `params` object.
 
-The `params` behaves like a hash with an indifferent access. It doesn't distinguish between arguments, keywords or options. Each parameter needs to have a unique identifier.
+The `params` object behaves like a hash with indifferent access. It doesn't
+differentiate between arguments, keywords, options or environment variables.
+Because of that, each parameter needs to have a unique name.
 
-For example, given a command with all parameter definitions:
+For example, given a command with all parameter types:
 
 ```ruby
 class Command
@@ -1110,7 +1550,9 @@ class Command
 
   keyword :bar
 
-  option :baz
+  option :baz do
+    long "--baz string"
+  end
 
   env :qux
 
@@ -1123,17 +1565,22 @@ class Command
 end
 ```
 
-Then parsing the command:
-
-```ruby
-cmd = Command.new
-cmd.parse
-```
-
-With the command-line input:
+And the following command line input:
 
 ```
 a bar=b --baz c QUX=d
+```
+
+Then instantiating the command:
+
+```ruby
+cmd = Command.new
+```
+
+And parsing command line input:
+
+```ruby
+cmd.parse
 ```
 
 And running the command:
@@ -1142,7 +1589,7 @@ And running the command:
 cmd.run
 ```
 
-Will output:
+This would result in the following output:
 
 ```
 abcd
@@ -1150,21 +1597,34 @@ abcd
 
 #### 2.7.1 errors
 
-Only configuration errors are raised. The parsing errors are not raised by default. Instead any parse error is made available via the `errors` method on the `params` object:
+The `parse` method only raises configuration errors. The parsing errors are
+not raised by default. Instead, the `errors` method on the `params` object
+gives access to any parsing error.
 
 ```ruby
-params.errors
-# => AggregateErors
-````
+params.errors # => TTY::Option::AggregateErrors
+```
 
-The returned `AggregateErrors` object is an `Enumerable` that allows you to iterate over all of the errors.
+The `errors` method returns an `TTY::Option::AggregateErrors` object that
+is an `Enumerable`.
 
-It has also a convenience methods like:
+For example, to iterate over all the errors:
 
-* `messages` - access all error messages as an array
-* `summary` - a string of nicely formatted error messages ready to display in terminal
+```ruby
+params.errors.each do |error|
+  ...
+end
+```
 
-For example, let's say we have an argument definition that requires at least 2 occurrences on the command line:
+The `TTY::Option::AggregateErrors` object has the following
+convenience methods:
+
+* `messages` - an array of all error messages
+* `summary` - a string of formatted error messages ready to display
+in the terminal
+
+For example, given an argument that needs to appear at least two times in
+the command line input:
 
 ```ruby
 argument :foo do
@@ -1172,28 +1632,40 @@ argument :foo do
 end
 ```
 
-And only one argument is provided in the input. Then output summary:
+And parsing only one argument from the command line input:
+
+```ruby
+parse(%w[12])
+```
+
+Then printing errors summary:
 
 ```ruby
 puts params.errors.summary
-````
+```
 
-Would result in the following being printed:
+This would print the following error message:
 
 ```
 Error: argument 'foo' should appear at least 2 times but appeared 1 time
 ```
 
-Let's change the previous example and add conversion to the mix:
+Adding integer conversion to the previous example:
 
 ```ruby
 argument :foo do
   arity at_least(2)
   convert :int
 end
-````
+```
 
-And provided only one argument string "zzz", the summary would be:
+And given only one invalid argument to parse:
+
+```ruby
+parse(%w[zzz])
+```
+
+The summary would be:
 
 ```
 Errors:
@@ -1201,60 +1673,13 @@ Errors:
   2) Cannot convert value of `zzz` into 'int' type for 'foo' argument
 ```
 
-If, on the other hand, you prefer to raise errors, you can do so using the `:raise_on_parse_error` keyword:
+Use the [:raise_on_parse_error](#261-raise_on_parse_error) keyword to raise
+parsing errors on invalid input.
 
-```ruby
-parse(raise_on_parse_error: true)
-```
+Consider using the [tty-exit](https://github.com/piotrmurach/tty-exit) gem
+for more expressive exit code reporting.
 
-This way any attempt at parsing invalid input will raise to the terminal.
-
-#### 2.7.2 remaining
-
-Users can provide any input, including parameters you didn't expect and define.
-
-By default, when unknown parameter is found in the input, an `TTY::Option::InvalidParameter` error will be raised internally and collected in the `errors` list.
-
-If, on the other hand, you want to ignore unknown parameters and instead leave them alone during the parsing use the `:check_invalid_params` option like so:
-
-```ruby
-parse(check_invalid_params: true)
-```
-
-This way all the unrecognized parameters will be collected into a list. You can access them on the `params` instance with the `remaining` method.
-
-For example, let's assume that user provided `--unknown` option that we didn't expect. Inspecting the `remaining` parameters, we would get:
-
-```ruby
-params.remaining # => ["--unknown"]
-```
-
-Any parameters after the `--` terminator will be left alone during the parsing process and collected into the `remaining` list. This is useful in situations when you want to pass parameters over to another command-line applications.
-
-#### 2.7.3 valid?
-
-Once parsing of the command-line input is done, you can check if all the conditions defined by the parameters are met with the `valid?` method.
-
-```ruby
-params.valid?
-```
-
-You can use this to decide how to deal with parsing errors and what exit status to use.
-
-For example, you can decide to implement a command method like this:
-
-```ruby
-if params.valid?
-  # ... process params
-else
-  puts params.errors.summary
-  exit
-end
-```
-
-You can combine errors reporting with existing with the [tty-exit](https://github.com/piotrmurach/tty-exit) module.
-
-The `TTY::Exit` module exposes the `exit_with` method and can be used like this:
+For example, the `TTY::Exit` module provides the `exit_with` method:
 
 ```ruby
 class Command
@@ -1262,72 +1687,149 @@ class Command
   include TTY::Option
 
   def run
-    if params.valid?
-      # ... process params
-    else
+    if params.errors.any?
       exit_with(:usage_error, params.errors.summary)
     end
+    ...
   end
 end
 ```
 
+#### 2.7.2 remaining
+
+When the parser finds an unknown input on the command line, it raises
+a `TTY::Option::InvalidParameter` error and adds it to the
+[errors](#271-errors) array.
+
+Use the [:check_invalid_params](#262-check_invalid_params) keyword
+set to `false` to ignore unknown inputs during parsing:
+
+```ruby
+parse(check_invalid_params: false)
+```
+
+This way, the parser will collect all the unrecognised inputs
+into an array. The `remaining` method on the `params` gives access
+to all invalid inputs.
+
+For example, given an unknown option to parse:
+
+```ruby
+parse(%w[--unknown])
+```
+
+Then inspecting the `remaining` inputs:
+
+```ruby
+params.remaining # => ["--unknown"]
+```
+
+The parser leaves any inputs after the `--` terminator alone. Instead,
+it collects them into the remaining array. This is useful when passing
+inputs over to other command line applications.
+
+#### 2.7.3 valid?
+
+Use the `valid?` method to check that command line inputs meet all
+validation rules.
+
+The `valid?` method is available on the `params` object:
+
+```ruby
+params.valid? # => true
+```
+
+Use the [errors](#271-errors) method to check for any errors and not only
+validation rules:
+
+```ruby
+params.errors.any?
+```
+
 ### 2.8 usage
 
-The `usage` and its helper methods allow you to configure the `help` display to your liking. The `header`, `desc(ription)`, `example` and `footer` can be called many times. Each new call will create a new paragraph. If you wish to insert multiple lines inside a given paragraph separate arguments with a comma.
+The `usage` method accepts a block that configures the
+[help](#29-help) display.
 
 #### 2.8.1 header
 
-To provide information above the banner explaining how to execute a program, use the `header` helper.
+Use the `header` setting to display information above the banner.
+
+For example, to explain a program's purpose:
 
 ```ruby
 usage do
-  header "A command-line interface for foo service"
+  header "A command line interface for foo service"
 end
 ```
 
-Further, you can add more paragraphs as comma-separated arguments to `header` with an empty string to represent a new line:
+This would print:
+
+```
+A command line interface for foo service
+
+Usage: foo [OPTIONS]
+```
+
+The `header` setting accepts many arguments, each representing a single
+paragraph. An empty string displays as a new line.
+
+For example, to create an introduction with two paragraphs separated by
+an empty line:
 
 ```ruby
 usage do
-  header "A command-line interface for foo service",
+  header "A command line interface for foo service",
          "",
          "Access and retrieve data from foo service"
 end
 ```
 
-Alternatively, you can add paragraphs calling `header` multiple times:
+Or, add two paragraphs using the `header` setting twice:
 
 ```ruby
 usage do
-  header "A command-line interface for foo service"
+  header "A command line interface for foo service"
 
   header "Access and retrieve data from foo service"
 end
 ```
 
+Both would result in the same output:
+
+```
+A command line interface for foo service
+
+Access and retrieve data from foo service
+
+Usage: foo [OPTIONS]
+```
+
 #### 2.8.2 program
 
-By default the program name is inferred for you from the executable file name.
+The `program` setting uses an executable file name to generate a program
+name by default.
 
-You can override the default name using the `program` helper.
+For example, to override the default name:
 
 ```ruby
 usage do
   program "custom-name"
 end
-````
+```
 
-Then the program name will be used in the banner:
+Then usage banner will display a custom program name:
 
-```bash
+```
 Usage: custom-name
 ```
 
 #### 2.8.3 command
 
-By default the command name is inferred from the class name.
+The `command` setting uses a class name to generate a command name by default.
+It converts a class name into a dash case.
 
-For example, based on the following:
+For example, given the following command class name:
 
 ```ruby
 class NetworkCreate
@@ -1335,111 +1837,187 @@ class NetworkCreate
 end
 ```
 
-The command name will become `network-create`. To change this use the `command` and `commands` helpers:
+The command name would become `network-create`.
+
+Use the `command` or `commands` setting to change the default command name.
+
+For example, to change the previous class's default command name:
 
 ```ruby
 class NetworkCreate
   include TTY::Option
 
   usage do
-    commands "network", "create"
+    command "net-create"
   end
 end
-````
+```
 
-This will result in the following usage information:
+The usage banner would be:
+
+```
+Usage: program net-create
+```
+
+Use the `commands` setting for naming a subcommand.
+
+For example, to add `create` command as a subcommand:
+
+```ruby
+module Network
+  class Create
+    include TTY::Option
+
+    usage do
+      commands "network", "create"
+    end
+  end
+end
+```
+
+This will result in the following usage banner:
 
 ```
 Usage: program network create
 ```
 
-If you don't wish to infer the command name use the `no_command` method:
+Use the `no_command` setting to skip having a command name:
 
 ```ruby
 usage do
   no_command
 end
-````
+```
+
+This will display only the program name:
+
+```
+Usage: program
+```
 
 #### 2.8.4 banner
 
-The usage information of how to use a program is displayed right after header. If no header is specified, it will be displayed first.
+The `banner` setting combines program, command and parameter names
+to generate usage banner.
 
-This information is handled by the `banner` helper. By default, it will use the parameter definitions to generate usage information.
-
-For example, given the following declarations:
-
-```ruby
-usage do
-  program :foo
-
-  command :bar
-end
-
-argument :baz
-
-keyword :qux do
-  convert :uri
-end
-
-option :fum
-```
-
-The generated usage information will be:
-
-```bash
-Usage: foo bar [OPTIONS] BAZ [QUX=URI]
-```
-
-If you want to configure how arguments are displayed specify [2.8.2 :param_display](#282-param_display) setting.
-
-You can also change completely how to the banner is displayed:
+For example, given the following usage and parameter definitions:
 
 ```ruby
 usage do
-  program "foo"
+  program "prog"
 
-  banner "Usage: #{program} BAR BAZ"
+  command "cmd"
 end
+
+argument :foo
+
+keyword :bar
+
+option :baz
+
+env :qux
 ```
 
-#### 2.8.5 desc(ription)
+Then usage banner would print as follows:
 
-The description is placed between usage information and the parameters and given with `desc` or `description` helpers.
+```
+Usage: prog cmd [OPTIONS] [ENVIRONMENT] FOO [BAR=BAR]
+```
 
-The `desc` helper accepts multiple strings that will be displayed on separate lines.
+The [help](#29-help) generator displays the usage banner first
+unless a [header](#281-header) is set.
+
+Use the `banner` setting to create a custom usage display.
+
+For example, to change the parameters format:
 
 ```ruby
 usage do
-  desc "Some description", "on multiline"
+  program "prog"
+
+  command "cmd"
+
+  banner "Usage: #{program} #{command.first} <opts> <envs> foo [bar=bar]"
 end
 ```
 
-This will result in the following help output:
+This would display as:
 
 ```
-Some description
-on multiline
+Usage: prog cmd <opts> <envs> foo [bar=bar]
 ```
 
-The `desc` helper can be called multiple times to build an examples section:
+Use the [:param_display](#294-param_display) setting to change the banner
+parameters format.
+
+#### 2.8.5 description
+
+Use `description` or `desc` setting to display information right after
+the usage banner.
+
+For example, to give extra information:
 
 ```ruby
 usage do
-  desc "Some description", "on multiline"
+  desc "A description for foo service"
+end
+```
+
+This would print:
+
+```
+Usage: foo [OPTIONS]
+
+A description for foo service
+```
+
+The `desc` setting accepts many arguments, each representing a single
+paragraph. An empty string displays as a new line.
+
+For example, to create a description with two paragraphs separated by
+an empty line:
+
+```ruby
+usage do
+ desc "A description for foo service",
+      "",
+      "Learn more about foo service\nby reading tutorials"
+end
+```
+
+Or, add two paragraphs using the `desc` setting twice:
+
+```ruby
+usage do
+  desc "A description for foo service",
 
   desc <<~EOS
-  Another description
-  on multiline
+  Learn more about foo service
+  by reading tutorials
   EOS
 end
 ```
 
-#### 2.8.6 example(s)
+Both would result in the same output:
 
-To add usage examples section to the help information use the `example` or `examples` methods.
+```
+Usage: foo [OPTIONS]
 
-The `example` helper accepts multiple strings that will be displayed on separate lines. For instance, the following class will add a single example:
+A description for foo service
+
+Learn more about foo service
+by reading tutorials
+```
+
+#### 2.8.6 example
+
+Use the `example` or `examples` setting to add a usage examples section
+to the help display.
+
+The `example` setting accepts many arguments, each representing a single
+paragraph. An empty string displays as a new line.
+
+For instance, to create an example usage displayed on two lines:
 
 ```ruby
 usage do
@@ -1456,7 +2034,8 @@ Examples:
     $ foo bar
 ```
 
-The `example` helper can be called multiple times to build an examples section:
+Or, add two examples using the `example` setting twice:
+
 
 ```ruby
 usage do
@@ -1470,7 +2049,7 @@ usage do
 end
 ```
 
-The usage help will contain the following:
+The examples section would display the following:
 
 ```
 Examples:
@@ -1483,39 +2062,68 @@ Examples:
 
 #### 2.8.7 footer
 
-To provide information after all information in the usage help, use the `footer` helper.
+Use the `footer` setting to display text after all information
+in the usage help.
+
+For example, to reference further help:
 
 ```ruby
 usage do
-  footer "Run a command followed by --help to see more info"
+  footer "Run a command followed by --help to see more info."
 end
 ```
 
-Further, you can add more paragraphs as comma-separated arguments to `footer` with an empty string to represent a new line:
+This would print as follows:
+
+```
+Usage: foo [OPTIONS]
+
+Run a command followed by --help to see more info.
+```
+
+The `footer` setting accepts many arguments, each representing a single
+paragraph. An empty string displays as a new line.
+
+For example, to display further help with two paragraphs separated by
+an empty line:
 
 ```ruby
 usage do
-  footer "Run a command followed by --help to see more info",
+  footer "Run a command followed by --help to see more info.",
          "",
-         "Options marked with (...) can be given more than once"
+         "Report bugs to the mailing list."
 end
 ```
 
-Alternatively, you can add paragraphs calling `footer` multiple times:
+Or, add two paragraphs using the `footer` setting twice:
 
 ```ruby
 usage do
-  footer "Run a command followed by --help to see more info"
+  footer "Run a command followed by --help to see more info."
 
-  footer "Options marked with (...) can be given more than once"
+  footer "Report bugs to the mailing list."
 end
+```
+
+Both would result in the same output:
+
+```
+Usage: foo [OPTIONS]
+
+Run a command followed by --help to see more info.
+
+Report bugs to the mailing list.
 ```
 
 ### 2.9 help
 
-With the `help` instance method you can generate usage information from the defined parameters and the usage. The [usage](#28-usage) describes how to add different sections to the help display.
+Use the `help` method to generate usage information about defined parameters.
 
-Let's assume you have the following command with a run method that prints help:
+The [usage](#28-usage) describes how to add different sections to the
+help display.
+
+For example, given the following command class definition with
+a `run` method that prints help:
 
 
 ```ruby
@@ -1523,16 +2131,18 @@ class Command
   include TTY::Option
 
   usage do
-    program "foobar",
-    header  "foobar CLI"
-    desc    "Some foobar description"
-    example "Some example"
-    footer  "Run --help to see more info"
+    program "foobar"
+    no_command
+    header "foobar CLI"
+    desc "CLI description"
+    example "Example usage"
+    footer "Run --help to see more info"
   end
 
-  argument :bar, desc: "Some argument description"
-  keyword :baz, desc: "Some keyword description"
-  env :fum, desc: "Some env description"
+  argument :foo, desc: "Argument description"
+  keyword :bar, desc: "Keyword description"
+  option :baz, desc: "Option description"
+  env :qux, desc: "Environment description"
 
   flag :help do
     short "-h"
@@ -1557,38 +2167,42 @@ cmd.parse(%w[--help])
 cmd.run
 ```
 
-Will produce:
+This would result in the following help display:
 
 ```
 foobar CLI
 
-Usage: foobar [OPTIONS] [ENVIRONMENT] BAR [BAZ=BAZ]
+Usage: foobar [OPTIONS] [ENVIRONMENT] FOO [BAR=BAR]
 
-Some foobar description
+CLI description
 
 Arguments:
-  BAR  Some argument description
+  FOO  Argument description
 
 Keywords:
-  BAZ=BAZ  Some keyword description
+  BAR=BAR  Keyword description
 
 Options:
-  -h, --help Print usage
+      --baz   Option description
+  -h, --help  Print usage
 
-Envrionment:
-  FUM  Some env description
+Environment:
+  QUX  Environment description
 
 Examples:
-  Some example
+  Example usage
 
 Run --help to see more info
 ```
 
 #### 2.9.1 sections
 
-It is possible to change the usage content by passing a block to `help`. The `help` method yields an object that contains all the sections and provides a hash-like access to each of its sections.
+Pass a block to the `help` method to change generated usage information.
+The block accepts a single argument, a `TTY::Option::Sections` object.
+This object provides hash-like access to each named part of the help display.
 
-The following are the names for all supported sections:
+The following are the names of all supported sections ordered by help display
+from top to bottom:
 
 * `:header`
 * `:banner`
@@ -1597,12 +2211,72 @@ The following are the names for all supported sections:
 * `:keywords`
 * `:options`
 * `:environments`
-* `:exmaples`
+* `:examples`
 * `:footer`
 
-You can use `add_before`, `add_after`, `delete` and `replace` to modify currently existing sections or add new ones.
+Accessing a named section returns a `TTY::Option::Section` object
+with `name` and `content` methods.
 
-For example, to remove a header section do:
+For example, to access the arguments section content:
+
+```ruby
+help do |sections|
+  sections[:arguments].content # => "\nArguments:\n  FOO  Argument description"
+end
+```
+
+To add a new section, use the `add_after` and `add_before` methods. These
+methods accept three arguments. The first argument is the section name
+to add after or before. The second argument is a new section name,
+and the last is content to add.
+
+For example, to insert a new commands section after the description:
+
+```ruby
+help do |sections|
+  sections.add_after :description, :commands, <<~EOS.chomp
+
+  Commands:
+    create  Create command description
+    delete  Delete command description
+  EOS
+end
+```
+
+Given the following usage and parameter definition:
+
+```ruby
+usage do
+  program "prog"
+
+  command "cmd"
+
+  desc "Program description"
+end
+
+argument :foo do
+  desc "Foo argument description"
+end
+```
+
+The help display would be:
+
+```
+Usage: prog cmd FOO
+
+Program description
+
+Commands:
+  create  Create command description
+  delete  Delete command description
+
+Arguments:
+  FOO  Argument description
+```
+
+Use `delete` and `replace` methods to change existing sections.
+
+For example, to remove a header section:
 
 ```ruby
 help do |sections|
@@ -1610,28 +2284,21 @@ help do |sections|
 end
 ```
 
-To insert a new section after `:arguments` called `:commands` do:
+Or, to replace the content of a footer section:
 
 ```ruby
 help do |sections|
-  sections.add_after :arguments, :commands,
-                     "\nCommands:\n  create  A command description"
-end
-```
-
-To replace a section's content use `replace`:
-
-```ruby
-help do |sections|
-  sections.replace :footer, "\nGoodbye"
+  sections.replace :footer, "\nReport bugs to the mailing list."
 end
 ```
 
 #### 2.9.2 :indent
 
-By default has not indentation for any of the sections bar parameters.
+The help output has no indentation except for displaying parameters by default.
 
-To change the indentation for the entire usage information use `:indent` keyword:
+Use the `:indent` keyword to change the indentation of the help display.
+
+For example, to indent help display by two spaces:
 
 ```ruby
 help(indent: 2)
@@ -1639,58 +2306,91 @@ help(indent: 2)
 
 #### 2.9.3 :order
 
-All parameters are alphabetically ordered in their respective sections. To change this default behaviour use the `:order` keyword when invoking `help`.
+The help generator orders parameters alphabetically within
+each section by default.
 
-The `:order` expects a `Proc` object. For example, to remove any ordering and preserve the parameter declaration order do:
+Use the `:order` keyword to change the default ordering.
+
+The `:order` expects a `Proc` object as a value. The `Proc` accepts
+a single argument, an array of parameters within a section.
+
+For example, to preserve the parameter definition order:
 
 ```ruby
 help(order: ->(params) { params })
-````
+```
 
 #### 2.9.4 :param_display
 
-By default banner positional and keyword arguments are displayed with all letters uppercased.
+The usage banner displays positional and keyword arguments
+in uppercase letters by default.
 
-For example, given the following parameter declarations:
+For example, given the following parameter definitions:
 
 ```ruby
-program "run"
-
-argument :foo
-
-keyword :bar do
-  required
-  convert :uri
+usage do
+  program "prog"
 end
 
-option :baz
+argument :foo, desc: "Argument description"
+
+keyword :bar, desc: "Keyword description"
+
+option :baz, desc: "Option description"
+
+env :qux, desc: "Environment description"
 ```
 
-The banner output would be as follows:
+The usage banner would print as follows:
 
-```bash
-Usage: run [OPTIONS] FOO BAR=URI
+```
+Usage: prog [OPTIONS] [ENVIRONMENT] FOO [BAR=BAR]
 ```
 
-To change the banner parameter display use `:param_display` keyword.
+Use the `:param_display` keyword to change the banner parameter formatting.
 
-For example, to lowercase and surround your parameters with `< >` brackets do:
+The `:param_display` expects a `Proc` object as a value. The `Proc` accepts
+a single argument, a parameter name within a section.
+
+For example, to lowercase and surround parameters with `<` and `>` brackets:
 
 ```ruby
-help(param_display: ->(str) { "<#{str.downcase}>" })
+help(param_display: ->(param) { "<#{param.downcase}>" })
 ```
 
-This will produce the following output:
+This would result in the following usage banner and parameter sections:
 
 ```
-Usage: run [<options>] <foo> <bar>=<uri>
+Usage: prog [<options>] [<environment>] <foo> [<bar>=<bar>]
+
+Arguments:
+  <foo>  Argument description
+
+Keywords:
+  <bar>=<bar>  Keyword description
+
+Options:
+  --baz  Option description
+
+Environment:
+  QUX  Environment description
 ```
 
 #### 2.9.5 :width
 
-By default the help information is wrapped at `80` columns. If this is not what you want you can change it with `:width` keyword.
+The help generator wraps content at the width of `80` columns by default.
 
-For example, to change the help to always take up all the terminal columns consider using [tty-screen](https://github.com/piotrmurach/tty-screen):
+Use the `:width` keyword to change it, for example, to `120` columns:
+
+```ruby
+help(width: 120)
+```
+
+Use the [tty-screen](https://github.com/piotrmurach/tty-screen) gem
+to change the help display based on terminal width.
+
+For example, to expand the help display to the full width of
+the terminal window:
 
 ```ruby
 help(width: TTY::Screen.width)
@@ -1698,21 +2398,33 @@ help(width: TTY::Screen.width)
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies.
+Then, run `rake spec` to run the tests. You can also run `bin/console`
+for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`.
+To release a new version, update the version number in `version.rb`, and then
+run `bundle exec rake release`, which will create a git tag for the version,
+push git commits and tags, and push the `.gem` file to
+[rubygems.org](https://rubygems.org).
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/piotrmurach/tty-option. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/piotrmurach/tty-option/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at
+https://github.com/piotrmurach/tty-option. This project is intended to be
+a safe, welcoming space for collaboration, and contributors are expected
+to adhere to the [code of conduct](https://github.com/piotrmurach/tty-option/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+The gem is available as open source under the terms of the
+[MIT License](https://opensource.org/licenses/MIT).
 
 ## Code of Conduct
 
-Everyone interacting in the TTY::Option project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/piotrmurach/tty-option/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the TTY::Option project's codebases, issue trackers,
+chat rooms and mailing lists is expected to follow the
+[code of conduct](https://github.com/piotrmurach/tty-option/blob/master/CODE_OF_CONDUCT.md).
 
 ## Copyright
 
