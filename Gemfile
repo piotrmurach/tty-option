@@ -13,4 +13,7 @@ group :test do
     gem "simplecov", "~> 0.21.0"
   end
   gem "yardstick", "~> 0.9.9"
+  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.3.0")
+    gem "bigdecimal", "~> 3.1"
+  end
 end
