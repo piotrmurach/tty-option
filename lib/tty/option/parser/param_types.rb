@@ -6,6 +6,7 @@ module TTY
       module ParamTypes
         # Positional argument pattern
         ARGUMENT_PARAMETER = /^[^-][^=]*\z/.freeze
+        ARGUMENT_HARDCODED_STRING = /\s/.freeze
 
         # Environment variable pattern
         ENV_VAR_PARAMETER = /^[\p{Lu}_\-\d]+=/.freeze
@@ -24,7 +25,8 @@ module TTY
         #
         # @api public
         def argument?(value)
-          !value.match(ARGUMENT_PARAMETER).nil?
+          !value.match(ARGUMENT_PARAMETER).nil? ||
+            !value.match(ARGUMENT_HARDCODED_STRING).nil?
         end
 
         # Check if value is an environment variable

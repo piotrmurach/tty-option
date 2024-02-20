@@ -9,12 +9,13 @@ RSpec.describe TTY::Option::Parser::ParamTypes do
 
   context "argument?" do
     {
-      "--foo"   => false,
-      "-f"      => false,
-      "foo=bar" => false,
-      "foo"     => true,
-      "f"       => true,
-      "FOO=bar" => false
+      "--foo"                   => false,
+      "-f"                      => false,
+      "foo=bar"                 => false,
+      "foo"                     => true,
+      "f"                       => true,
+      "FOO=bar"                 => false,
+      "something FOO=bar --foo" => true
     }.each do |input, result|
       it "returns #{result} for #{input.inspect}" do
         expect(type.argument?(input)).to eq(result)
@@ -24,13 +25,14 @@ RSpec.describe TTY::Option::Parser::ParamTypes do
 
   context "env_var?" do
     {
-      "--foo"   => false,
-      "-f"      => false,
-      "foo=bar" => false,
-      "a=b"     => false,
-      "foo"     => false,
-      "FOO=bar" => true,
-      "A=b"     => true
+      "--foo"                   => false,
+      "-f"                      => false,
+      "foo=bar"                 => false,
+      "a=b"                     => false,
+      "foo"                     => false,
+      "FOO=bar"                 => true,
+      "A=b"                     => true,
+      "something FOO=bar --foo" => false
     }.each do |input, result|
       it "returns #{result} for #{input.inspect}" do
         expect(type.env_var?(input)).to eq(result)
@@ -40,13 +42,14 @@ RSpec.describe TTY::Option::Parser::ParamTypes do
 
   context "keyword?" do
     {
-      "--foo"   => false,
-      "-f"      => false,
-      "-fa=b"   => false,
-      "foo=bar" => true,
-      "a=b"     => true,
-      "foo"     => false,
-      "FOO=bar" => false
+      "--foo"                   => false,
+      "-f"                      => false,
+      "-fa=b"                   => false,
+      "foo=bar"                 => true,
+      "a=b"                     => true,
+      "foo"                     => false,
+      "FOO=bar"                 => false,
+      "something FOO=bar --foo" => false
     }.each do |input, result|
       it "returns #{result} for #{input.inspect}" do
         expect(type.keyword?(input)).to eq(result)
@@ -56,12 +59,13 @@ RSpec.describe TTY::Option::Parser::ParamTypes do
 
   context "option?" do
     {
-      "--foo"   => true,
-      "-f"      => true,
-      "foo=bar" => false,
-      "foo"     => false,
-      "f"       => false,
-      "FOO=bar" => false
+      "--foo"                   => true,
+      "-f"                      => true,
+      "foo=bar"                 => false,
+      "foo"                     => false,
+      "f"                       => false,
+      "FOO=bar"                 => false,
+      "something FOO=bar --foo" => false
     }.each do |input, result|
       it "returns #{result} for #{input.inspect}" do
         expect(type.option?(input)).to eq(result)
