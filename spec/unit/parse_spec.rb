@@ -6,6 +6,15 @@ require "uri"
 
 RSpec.describe TTY::Option do
   context "argument" do
+    it "parses a hardcoded string with spaces as an argument" do
+      cmd = new_command do
+        argument :foo
+      end
+
+      cmd.parse(["bar TEST=something"])
+      expect(cmd.params[:foo]).to eq("bar TEST=something")
+    end
+
     it "doesn't allow to register same name parameter" do
       expect {
         command do
