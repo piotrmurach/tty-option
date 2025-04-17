@@ -124,15 +124,17 @@ RSpec.describe TTY::Option::Params do
 
   context "to_s/inspect" do
     it "returns string representation of internal parameters" do
-      params = described_class.new({a: 1, b: 2, c: 3})
+      parameters = {a: 1, b: 2, c: 3}
+      params = described_class.new(parameters)
 
-      expect(params.to_s).to eq("{:a=>1, :b=>2, :c=>3}")
+      expect(params.to_s).to eq(parameters.to_s)
     end
 
     it "returns string representation of the class" do
-      params = described_class.new({a: 1, b: 2, c: 3})
+      parameters = {a: 1, b: 2, c: 3}
+      params = described_class.new(parameters)
 
-      expect(params.inspect).to eq("#<TTY::Option::Params{:a=>1, :b=>2, :c=>3}>")
+      expect(params.inspect).to eq("#<TTY::Option::Params#{parameters}>")
     end
   end
 end
